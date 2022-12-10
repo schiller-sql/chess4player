@@ -6,7 +6,7 @@ four numbers from zero - thirteen: x1 y1 x2 y2
 and optional letter for pawn-promotion
 
 CLIENT:
-{"type": "room/create", "name": "asdf"}
+{"type": "room", "subtype": "create", "name": "asdf"}
 {"type": "room/join", "code": "asdbcd", "name": "asdfa1"} // wenn name falsch, wird name richtig generiert note: 'richtig' im ermessen der entwickler :D
 {"type": "room/join", "code": "asdbcd", "name": ""} // name wird generiert
 {"type": "room/leave"}//while round -> auto resign (disconnect or leave)
@@ -22,8 +22,9 @@ SERVER:
 {"type": "room/joined", "name": "asdf"}
 {"type": "room/left"}
 {"type": "room/disbanded"} // if admin left
-{"type": "room/participants-count-update", "participants-count": 3} // when somebody leaves in a round admin, still gets updated participants count
+{"type": "room/participants-count-update", "participants-count": 3} // when somebody leaves in a round, admin still gets updated participants count
 
+// after started p1 can start whenever he wants, not timelimit
 {"type": "game/started", "participants": ["p1", "p2", "p3", "p4"], "time": 59600} //order of array is equal to move-order
 {"type": "game/moved", "move": [14, 15, 14, 16], "promotion?": "q", "next-participant": "name", "remaining-time": 4734}
 {"type": "game/moved/accepted", "remaining-time": 6534, "next-participant": "name"}
@@ -32,21 +33,3 @@ SERVER:
 {"type": "game/draw-requested", "requester": "name"} //if requester is the name of the client -> only confirmation popup
 
 // after end all users are still in room, admin can start when he wants to
-
-
-
-
-
-
-
-
-
-{"type": "create"}
-{"type": "join", "link": "asdbcd"}
-{"type": "leave"}
-{"type": "start", "time": "10 min"}
-
-{"type": "command", "start-game": ["code", "time"]}
-{"type": "command", "create-room": "code"}
-{"type": "move", "move": "14 15 14 16 q"}
-
