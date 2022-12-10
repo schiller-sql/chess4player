@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="55e6eeae-7eb7-494f-be6f-695432a9bc40" name="Changes" comment="TestClient v1">
-      <change beforePath="$PROJECT_DIR$/.idea/chess4player.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/chess4player.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/schmokclient/src/api/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/schmokclient/index.js" afterDir="false" />
+    <list default="true" id="55e6eeae-7eb7-494f-be6f-695432a9bc40" name="Changes" comment="TestClient v2">
+      <change afterPath="$PROJECT_DIR$/protocol.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,6 +45,7 @@
     "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
     "RunOnceActivity.go.watchers.conflict.with.on.save.actions.check.performed": "true",
     "WebServerToolWindowFactoryState": "false",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
     "go.import.settings.migrated": "true",
     "go.sdk.automatically.set": "true",
     "last_opened_file_path": "/home/lenni/Desktop/Projects/chess4player/Server",
@@ -136,7 +137,8 @@
     <MESSAGE value="Comments" />
     <MESSAGE value="I forgot some stuff sry :-(" />
     <MESSAGE value="TestClient v1" />
-    <option name="LAST_COMMIT_MESSAGE" value="TestClient v1" />
+    <MESSAGE value="TestClient v2" />
+    <option name="LAST_COMMIT_MESSAGE" value="TestClient v2" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
