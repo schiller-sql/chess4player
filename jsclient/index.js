@@ -1,11 +1,14 @@
 // api/index.js
-var socket = new WebSocket("ws://localhost:8080/ws");
+var W3CWebSocket = require('websocket').w3cwebsocket;
+var socket = new W3CWebSocket("ws://localhost:8080/ws");
 
 let connect = () => {
+
     console.log("Attempting Connection...");
 
     socket.onopen = () => {
         console.log("Successfully Connected");
+        sendMsg("joe mama")
     };
 
     socket.onmessage = msg => {
@@ -21,9 +24,12 @@ let connect = () => {
     };
 };
 
+connect()
+
 let sendMsg = msg => {
     console.log("sending msg: ", msg);
     socket.send(msg);
 };
 
-export { connect, sendMsg };
+
+//export { connect, sendMsg };
