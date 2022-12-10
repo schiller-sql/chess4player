@@ -2,11 +2,15 @@ package websocket
 
 import "fmt"
 
+/*
+channels for concurrent communication,
+as well as a map of clients.
+*/
 type Pool struct {
-	Register   chan *Client
-	Unregister chan *Client
-	Clients    map[*Client]bool
-	Broadcast  chan Message
+	Register   chan *Client     //Our register channel will send out New User Joined... to all of the clients within this pool when a new client connects.
+	Unregister chan *Client     //Will unregister a user and notify the pool when a client disconnects.
+	Clients    map[*Client]bool // a map of clients to a boolean value to dictate active/inactive but not disconnected further down the line based on browser focus.
+	Broadcast  chan Message     //a channel which, when it is passed a message, will loop through all clients in the pool and send the message through the socket connection.
 }
 
 func NewPool() *Pool {

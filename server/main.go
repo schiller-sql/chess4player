@@ -7,6 +7,9 @@ import (
 	"server/websocket"
 )
 
+/*
+create a new Client on every connection and to register that client with a Pool
+*/
 func handleWs(pool *websocket.Pool, w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Websocket endpoint hit")
 	conn, err := websocket.Upgrade(w, r)
@@ -27,7 +30,7 @@ func main() {
 	fmt.Println("Chat App v0.01")
 	pool := websocket.NewPool()
 	go pool.Start()
-
+	//setup routes
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Simple Server")
 	})
