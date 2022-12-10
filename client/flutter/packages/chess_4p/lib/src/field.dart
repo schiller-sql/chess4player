@@ -1,0 +1,39 @@
+class Field {
+  final int x, y;
+
+  Field(this.x, this.y);
+
+  Field get leftRotation => Field(leftRotateX(x, y), leftRotateY(x, y));
+
+
+  // TODO: replace with clockwise rotation
+  static int leftRotateX(int x, int y) {
+    if ((x <= 6 && y > 6) || (x > 6 && y <= 6)) {
+      return 13 - x;
+    }
+    return x;
+  }
+
+  static int leftRotateY(int x, int y) {
+    if ((x <= 6 && y <= 6) || (x > 6 && y > 6)) {
+      return 13 - y;
+    }
+    return y;
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Field &&
+          runtimeType == other.runtimeType &&
+          x == other.x &&
+          y == other.y;
+
+  @override
+  int get hashCode => x.hashCode ^ y.hashCode;
+
+  @override
+  String toString() {
+    return '($x|$y}';
+  }
+}

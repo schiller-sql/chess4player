@@ -1,0 +1,11 @@
+version: "Apple Swift version 5.7 (swiftlang-5.7.0.127.4 clang-1400.0.29.50)"
+options: "4b94efd1072a63f0cde93bf7b109516989760dd6ed74ad341055422db88b47ee"
+build_start_time: [1670625519, 448796987]
+build_end_time: [1670625533, 99920988]
+inputs:
+  ? "/Users/tonyborchert/Documents/Flutter/chess4player/client/flutter/packages/flutter_chess_4p/example/macos/Flutter/GeneratedPluginRegistrant.swift"
+  : [1670625503, 110855102]
+  ? "/Users/tonyborchert/Documents/Flutter/chess4player/client/flutter/packages/flutter_chess_4p/example/macos/Runner/AppDelegate.swift"
+  : [1666216651, 0]
+  ? "/Users/tonyborchert/Documents/Flutter/chess4player/client/flutter/packages/flutter_chess_4p/example/macos/Runner/MainFlutterWindow.swift"
+  : [1666216651, 0]
