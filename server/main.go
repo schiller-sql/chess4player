@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/mathew/go-react-chat/websocket"
 	"log"
 	"net/http"
+	"server/websocket"
 )
 
 func handleWs(pool *websocket.Pool, w http.ResponseWriter, r *http.Request) {
