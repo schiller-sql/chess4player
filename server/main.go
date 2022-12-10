@@ -16,7 +16,8 @@ func handleWs(pool *websocket.Pool, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Fprintf(w, "%+V\n", err)
 	}
-
+	fmt.Println("Remote Address:" + conn.RemoteAddr().String())
+	fmt.Println("Local Address:" + conn.LocalAddr().String())
 	client := &websocket.Client{
 		Conn: conn,
 		Pool: pool,
@@ -27,7 +28,6 @@ func handleWs(pool *websocket.Pool, w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	fmt.Println("Chat App v0.01")
 	pool := websocket.NewPool()
 	go pool.Start()
 	//setup routes
