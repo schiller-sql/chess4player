@@ -4,12 +4,11 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="55e6eeae-7eb7-494f-be6f-695432a9bc40" name="Changes" comment="protocol.txt">
+    <list default="true" id="55e6eeae-7eb7-494f-be6f-695432a9bc40" name="Changes" comment="progress">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/protocol.txt" beforeDir="false" afterPath="$PROJECT_DIR$/protocol.txt" afterDir="false" />
     </list>
-    <list id="3830fd36-5eaf-4941-bd71-b3461d390021" name="Changes by tonyborchert" comment="">
-      <change beforePath="$PROJECT_DIR$/protocol.txt" beforeDir="false" afterPath="$PROJECT_DIR$/protocol.txt" afterDir="false" />
-    </list>
+    <list id="3830fd36-5eaf-4941-bd71-b3461d390021" name="Changes by tonyborchert" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -27,16 +26,6 @@
   <component name="GOROOT" url="file:///snap/go/10008" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-  </component>
-  <component name="LineStatusTrackerManager">
-    <file path="$PROJECT_DIR$/protocol.txt">
-      <ranges>
-        <range start1="8" end1="9" start2="8" end2="9" changelist="55e6eeae-7eb7-494f-be6f-695432a9bc40" />
-        <range start1="24" end1="25" start2="24" end2="25" changelist="3830fd36-5eaf-4941-bd71-b3461d390021" />
-        <range start1="26" end1="26" start2="26" end2="27" changelist="3830fd36-5eaf-4941-bd71-b3461d390021" />
-        <range start1="34" end1="53" start2="35" end2="35" changelist="55e6eeae-7eb7-494f-be6f-695432a9bc40" />
-      </ranges>
-    </file>
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -151,7 +140,8 @@
     <MESSAGE value="TestClient v1" />
     <MESSAGE value="TestClient v2" />
     <MESSAGE value="protocol.txt" />
-    <option name="LAST_COMMIT_MESSAGE" value="protocol.txt" />
+    <MESSAGE value="progress" />
+    <option name="LAST_COMMIT_MESSAGE" value="progress" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
