@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/gorilla/websocket"
+	"github.com/mathew/go-react-chat/websocket"
 	"log"
 	"net/http"
 )
