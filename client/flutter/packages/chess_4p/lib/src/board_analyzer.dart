@@ -3,6 +3,7 @@ import 'direction.dart';
 import 'field.dart';
 import 'pieces/piece.dart';
 import 'pieces/piece_type.dart';
+import 'dart:math' as math;
 
 // TODO: en passent (first remove/but later pls)
 // TODO: für alle analysis nach einem zug wird eine klassenobject erstellt
@@ -196,6 +197,82 @@ class BoardAnalyzer {
     }
   }
 
+  bool _canAttackIgnoringOwnKing(
+      int x, int y, Piece piece, int attackingX, int attackingY) {
+    switch (piece.type) {
+      case PieceType.king:
+        return _kingCanReach(x, y, attackingX, attackingY);
+      case PieceType.bishop:
+        return _vectorsFromPointCanAttackIgnoringOwnKing(
+            x, y, attackingX, attackingY,
+            checkDiagonal: true);
+      case PieceType.rook:
+        return _vectorsFromPointCanAttackIgnoringOwnKing(
+            x, y, attackingX, attackingY,
+            checkStraight: true);
+      case PieceType.queen:
+        return _vectorsFromPointCanAttackIgnoringOwnKing(
+            x, y, attackingX, attackingY,
+            checkStraight: true, checkDiagonal: true);
+      case PieceType.knight:
+        return _knightCanReach(x, y, attackingX, attackingY);
+      case PieceType.pawn:
+        return _pawnCanAttack(x, y, piece.direction, attackingX, attackingY);
+    }
+  }
+
+  bool _kingCanReach(int x, int y, int attackingX, int attackingY) {
+    for (var i = 1; i >= -1; i--) {
+      for (var j = 1; j >= -1; j--) {
+        if (i == 0 && j == 0) continue;
+        if (x + i == attackingX && y + j == attackingY) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  bool _pieceIsOwnKing(Piece piece) {
+    return piece.type == PieceType.king &&
+        piece.direction == analyzingDirection;
+  }
+
+  bool _vectorsFromPointCanAttackIgnoringOwnKing(
+    int x,
+    int y,
+    int attackingX,
+    int attackingY, {
+    bool checkDiagonal = false,
+    bool checkStraight = false,
+  }) {
+    assert(checkDiagonal || checkStraight);
+    for (var dx = -1; dx <= 1; dx++) {
+      vectors:
+      for (var dy = -1; dy <= 1; dy++) {
+        if (dx == 0 && dy == 0) continue vectors;
+        final vectorIsStraight = dx == 0 || dy == 0;
+        if (!checkStraight && vectorIsStraight) continue vectors;
+        if (!checkDiagonal && !vectorIsStraight) continue vectors;
+
+        var tempX = x;
+        var tempY = y;
+        while (!board.isOut(tempX + dx, tempY + dy)) {
+          tempX += dx;
+          tempY += dy;
+          if (tempX == attackingX && tempY == attackingY) {
+            return true;
+          }
+          if (!board.isEmpty(tempX, tempY) &&
+              !_pieceIsOwnKing(board.getPiece(tempX, tempY))) {
+            continue vectors;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
   /// If a knight can reach [attackingX] and [attackingY]
   /// from [knightX] and [knightY]
   bool _knightCanReach(
@@ -366,14 +443,48 @@ class BoardAnalyzer {
       ..addAll(_allAccessibleFieldsFromRook(x, y));
   }
 
-  /// All valid fields the king can move to from [x] and [y],
+  Set<Field> _allAccessibleFieldsFromKing(int x, int y) {
+    final accessibleFields = <Field>{};
+    for (var i = 1; i >= -1; i--) {
+      for (var j = 1; j >= -1; j--) {
+        if (i == 0 && j == 0) continue;
+        final tempX = x + i;
+        final tempY = y + j;
+        if (!board.isOut(tempX, tempY) && _notOwnPiece(tempX, tempY)) {
+          accessibleFields.add(Field(tempX, tempY));
+        }
+      }
+    }
+    return accessibleFields;
+  }
+
+  int _smallestDistance(int x1, int y1, int x2, int y2) { // TODO: test
+    return math.min((x1 - x2).abs(), (y1 - y2).abs());
+  }
+
+  /// All valid fields the king can move to from [kingX] and [kingY],
   /// taking checking and castling into account.
   ///
   /// The field given for castling
   /// is the field on which the king stands after the castle.
-  Set<Field> _filteredAccessibleFieldsFromKing(int x, int y, Piece piece) {
-    // TODO: cache
-    throw UnimplementedError();
+  Set<Field> _filteredAccessibleFieldsFromKing(
+      int kingX, int kingY, Piece piece) {
+    final accessibleFields = _allAccessibleFieldsFromKing(kingX, kingY);
+    for (var y = 0; y < 14; y++) {
+      fields:
+      for (var x = 0; x < 14; x++) {
+        if (board.isOut(x, y)) continue fields;
+        if (board.isEmpty(x, y)) continue fields;
+        final piece = board.getPiece(x, y);
+        if (piece.direction == analyzingDirection) continue fields;
+        if (piece.type == PieceType.king || piece.type == PieceType.pawn) {
+          if (_smallestDistance(kingX, kingY, x, y) > 2) continue fields;
+        }
+        accessibleFields.retainWhere((field) =>
+            !_canAttackIgnoringOwnKing(x, y, piece, field.x, field.y));
+      }
+    }
+    return accessibleFields;
   }
 
   /// All valid fields a non king piece can move to from [x] and [y],
