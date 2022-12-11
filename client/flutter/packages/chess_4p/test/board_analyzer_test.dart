@@ -169,4 +169,54 @@ void main() {
       );
     });
   });
+
+  group("king attacked by queen, pawn and knight", () {
+    late Board board;
+    late BoardAnalyzer boardAnalyzer;
+
+    setUp(() {
+      board = Board.empty();
+      boardAnalyzer =
+          BoardAnalyzer(board: board, analyzingDirection: Direction.up);
+      // attacked king
+      board.writePiece(k0, 8, 8);
+      // queen (right above king)
+      board.writePiece(q1, 9, 7);
+      // knight (right under king)
+      board.writePiece(n3, 9, 11);
+      // pawn coming from left, attacking left field next to king (does not change anything)
+      board.writePiece(p1, 6, 8);
+    });
+
+    test("pawn does not exist, queen attack able", () {
+      board.removePiece(6, 8);
+      expect(
+        boardAnalyzer.accessibleFields(8, 8),
+        {Field(9, 7), Field(7, 8)},
+      );
+    });
+
+    test("queen attack able, field with own person", () {
+      board.writePiece(n0, 7, 8);
+      expect(
+        boardAnalyzer.accessibleFields(8, 8),
+        {Field(9, 7)},
+      );
+    });
+
+    test("queen not attack able (covered by pawn)", () {
+      board.writePiece(p3, 10, 6);
+      expect(
+        boardAnalyzer.accessibleFields(8, 8),
+        {Field(7, 8)},
+      );
+    });
+
+    test("queen attack able", () {
+      expect(
+        boardAnalyzer.accessibleFields(8, 8),
+        {Field(9, 7), Field(7, 8)},
+      );
+    });
+  });
 }

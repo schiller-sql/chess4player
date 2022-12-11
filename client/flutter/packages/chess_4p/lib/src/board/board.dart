@@ -55,6 +55,13 @@ class Board {
     _changeIndex++;
   }
 
+  void removePiece(int x, int y) {
+    assert(!isOut(x, y));
+    assert(!isEmpty(x, y));
+    _boardData[y][x] = null;
+    _changeIndex++;
+  }
+
   @override
   String toString() {
     const whiteEmp = "\u25FB";
