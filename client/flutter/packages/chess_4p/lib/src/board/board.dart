@@ -7,6 +7,7 @@ import '../pieces/piece.dart';
 class Board {
   final List<List<Piece?>> _boardData;
   int _changeIndex = 0;
+
   int get changeIndex => _changeIndex;
 
   Board.empty()
@@ -15,6 +16,8 @@ class Board {
                 .toList();
 
   Board.standard() : _boardData = genDefaultBoard();
+
+  Board._raw(this._boardData);
 
   bool isOut(int x, int y) {
     if (x < 0 || x >= 14 || y < 0 || y >= 14) {
@@ -34,20 +37,20 @@ class Board {
 
   void move(int x, int y, int nx, int ny) {
     Piece? p = _boardData[y].removeAt(x);
-    assert (p != null);
-    assert (isEmpty(nx, ny));
+    assert(p != null);
+    assert(isEmpty(nx, ny));
     _boardData[ny][nx] = p;
     _changeIndex++;
   }
 
   void overwritePiece(Piece piece, int x, int y) {
-    assert (!isOut(x, y));
+    assert(!isOut(x, y));
     _boardData[y][x] = piece;
     _changeIndex++;
   }
 
   void writePiece(Piece piece, int x, int y) {
-    assert (isEmpty(x, y));
+    assert(isEmpty(x, y));
     overwritePiece(piece, x, y);
     _changeIndex++;
   }
@@ -78,5 +81,11 @@ class Board {
       buffer.write("\n");
     }
     return buffer.toString();
+  }
+
+  Board clone() {
+    return Board._raw(
+      Iterable<List<Piece?>>.generate(14, (i) => [..._boardData[i]]).toList(),
+    );
   }
 }

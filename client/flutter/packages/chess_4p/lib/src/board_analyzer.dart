@@ -4,6 +4,9 @@ import 'field.dart';
 import 'pieces/piece.dart';
 import 'pieces/piece_type.dart';
 
+// TODO: en passent (first remove/but later pls)
+// TODO: für alle analysis nach einem zug wird eine klassenobject erstellt
+
 class _ChessVector {
   final int dx;
   final int dy;
@@ -14,20 +17,34 @@ class _ChessVector {
 }
 
 class BoardAnalyzer {
-  /// The board to analyze
+  /// The board to analyze.
   final Board board;
 
-  /// The direction to analyze
+  /// The direction to analyze from.
   final Direction analyzingDirection;
 
+  /// Which [Board.changeIndex] the current cache is made for.
   late int _cachedBoardChangeIndex;
+
+  /// Cached position of the king.
   late int _kingXCache;
   late int _kingYCache;
 
+  /// Which pawns and knights are checking the king.
   final List<Field> _cachedCheckingPawnsAndKnights;
-  final Map<Field, _ChessVector> _cachedCheckingVectors;
-  final Map<Field, _ChessVector> _cachedIndirectCheckingVectors;
 
+  /// From which fields a vector puts the king in check.
+  ///
+  /// This field can only contain bishop, rook, and queen.
+  ///
+  /// From a field max. one vector can hit the king,
+  /// which is the reason for the [Map]
+  final Map<Field, _ChessVector> _cachedCheckingVectors;
+
+  /// From which fields a vector pins a piece.
+  final Map<Field, _ChessVector> _cachedPinningVectors;
+
+  /// Cached calls of [accessibleFields]
   final Map<Field, Set<Field>> _cachedAccessibleFields;
 
   bool get isCheck =>
@@ -38,11 +55,13 @@ class BoardAnalyzer {
   BoardAnalyzer({required this.board, required this.analyzingDirection})
       : _cachedCheckingPawnsAndKnights = [],
         _cachedCheckingVectors = {},
-        _cachedIndirectCheckingVectors = {},
+        _cachedPinningVectors = {},
         _cachedAccessibleFields = {} {
     _updateKingCache();
   }
 
+  /// If a [_ChessVector] (param: [vector]) applied to [x] and [y],
+  /// can reach [targetX] and [targetY].
   bool _liesInPath(
       _ChessVector vector, int x, int y, int targetX, int targetY) {
     do {
@@ -55,11 +74,21 @@ class BoardAnalyzer {
     return false;
   }
 
-  bool notOwnPiece(int x, int y) {
+  /// If a piece at [x] and [y] is empty
+  /// or if it is not the analyzed direction.
+  bool _notOwnPiece(int x, int y) {
     return board.isEmpty(x, y) ||
         board.getPiece(x, y).direction != analyzingDirection;
   }
 
+  /// If a piece at [x] and [y] is not empty
+  /// and is the analyzed direction.
+  bool _ownPiece(int x, int y) {
+    return !_notOwnPiece(x, y);
+  }
+
+  /// Update [_kingXCache] and [_kingYCache],
+  /// which give the location of the king.
   void _updateKingCache() {
     for (var y = 0; y < 14; y++) {
       for (var x = 0; x < 14; x++) {
@@ -75,10 +104,13 @@ class BoardAnalyzer {
         "King with direction '$analyzingDirection' does not exist");
   }
 
+  /// Update [_cachedCheckingPawnsAndKnights], [_cachedCheckingVectors]
+  /// and [_cachedPinningVectors] for information
+  /// on how the king is checked and if pieces are pinned.
   void _updateCheckingPositions() {
     _cachedCheckingPawnsAndKnights.clear();
     _cachedCheckingVectors.clear();
-    _cachedIndirectCheckingVectors.clear();
+    _cachedPinningVectors.clear();
     for (var y = 0; y < 14; y++) {
       for (var x = 0; x < 14; x++) {
         if (board.isEmpty(x, y)) continue;
@@ -86,24 +118,25 @@ class BoardAnalyzer {
         if (piece.direction != analyzingDirection) continue;
         switch (piece.type) {
           case PieceType.pawn:
-            if (pawnCanAttack(
+            if (_pawnCanAttack(
                 x, y, piece.direction, _kingXCache, _kingYCache)) {
               _cachedCheckingPawnsAndKnights.add(Field(x, y));
             }
             break;
           case PieceType.knight:
-            if (knightCanReach(x, y, _kingXCache, _kingYCache)) {
+            if (_knightCanReach(x, y, _kingXCache, _kingYCache)) {
               _cachedCheckingPawnsAndKnights.add(Field(x, y));
             }
             break;
           case PieceType.bishop:
-            checkVector(x, y, checkDiagonal: true);
+            _analyzeVectorsFromPoint(x, y, checkDiagonal: true);
             break;
           case PieceType.rook:
-            checkVector(x, y, checkStraight: true);
+            _analyzeVectorsFromPoint(x, y, checkStraight: true);
             break;
           case PieceType.queen:
-            checkVector(x, y, checkDiagonal: true, checkStraight: true);
+            _analyzeVectorsFromPoint(x, y,
+                checkDiagonal: true, checkStraight: true);
             break;
           case PieceType.king:
             // king cannot check
@@ -113,7 +146,13 @@ class BoardAnalyzer {
     }
   }
 
-  void checkVector(
+  /// Check if a chess vectors from the point [x] and [y] check the king
+  /// or pin a piece; and cache these vectors in
+  /// [_cachedCheckingVectors] and [_cachedPinningVectors].
+  ///
+  /// Use [checkDiagonal] to analyze diagonal vectors and
+  /// [checkStraight] to analyze straight vectors.
+  void _analyzeVectorsFromPoint(
     int x,
     int y, {
     bool checkDiagonal = false,
@@ -146,7 +185,7 @@ class BoardAnalyzer {
                 _cachedCheckingVectors[field] = vector;
               } else {
                 // indirect check
-                _cachedIndirectCheckingVectors[field] = vector;
+                _cachedPinningVectors[field] = vector;
               }
               continue vectors;
             } else {
@@ -158,7 +197,9 @@ class BoardAnalyzer {
     }
   }
 
-  bool knightCanReach(
+  /// If a knight can reach [attackingX] and [attackingY]
+  /// from [knightX] and [knightY]
+  bool _knightCanReach(
     int knightX,
     int knightY,
     int attackingX,
@@ -171,7 +212,9 @@ class BoardAnalyzer {
         xDistance != yDistance;
   }
 
-  bool pawnCanAttack(
+  /// If a pawn with the direction [pawnDirection] can attack
+  /// [attackingX] and [attackingY] from [pawnX] and [pawnY]
+  bool _pawnCanAttack(
     int pawnX,
     int pawnY,
     Direction pawnDirection,
@@ -190,6 +233,7 @@ class BoardAnalyzer {
     }
   }
 
+  /// Updates and removes all caches if they are old.
   void _updateCacheIfNecessary([bool force = false]) {
     if (force || _cachedBoardChangeIndex == board.changeIndex) return;
 
@@ -200,13 +244,16 @@ class BoardAnalyzer {
     _updateCheckingPositions();
   }
 
-  Set<Field> allAccessibleFieldsFromPawn(int x, int y, Direction direction) {
+  /// All valid fields a pawn can move to from [x] and [y],
+  /// without taking checking into account.
+  Set<Field> _allAccessibleFieldsFromPawn(int x, int y, Piece piece) {
     final accessibleFields = <Field>{};
+    final direction = piece.direction;
     if (direction == Direction.down || direction == Direction.up) {
       y += direction.dy;
       for (var i = -1; i <= 1; i++) {
         final tempX = x + i;
-        if (!board.isOut(tempX, y) && (i == 0) != notOwnPiece(tempX, y)) {
+        if (!board.isOut(tempX, y) && (i == 0) != _notOwnPiece(tempX, y)) {
           accessibleFields.add(Field(tempX, y));
         }
       }
@@ -214,15 +261,23 @@ class BoardAnalyzer {
       x += direction.dx;
       for (var i = -1; i <= 1; i++) {
         final tempY = y + i;
-        if (!board.isOut(x, tempY) && (i == 0) != notOwnPiece(x, tempY)) {
+        if (!board.isOut(x, tempY) && (i == 0) != _notOwnPiece(x, tempY)) {
           accessibleFields.add(Field(x, tempY));
         }
       }
     }
+    y += direction.dy;
+    x += direction.dx;
+    // pawn move two forward
+    if (!piece.hasBeenMoved && !board.isOut(x, y) && board.isEmpty(x, y)) {
+      accessibleFields.add(Field(x, y));
+    }
     return accessibleFields;
   }
 
-  Set<Field> allAccessibleFieldsFromKnight(int x, int y) {
+  /// All valid fields a knight can move to from [x] and [y],
+  /// without taking checking into account.
+  Set<Field> _allAccessibleFieldsFromKnight(int x, int y) {
     final accessibleFields = <Field>{};
     var onX = true;
     do {
@@ -237,7 +292,7 @@ class BoardAnalyzer {
             tempX += shortShift;
             tempY += longShift;
           }
-          if (board.isOut(x, y) && notOwnPiece(x, y)) {
+          if (board.isOut(x, y) && _notOwnPiece(x, y)) {
             accessibleFields.add(Field(tempX, tempY));
           }
         }
@@ -247,30 +302,68 @@ class BoardAnalyzer {
     return accessibleFields;
   }
 
-  Set<Field> allAccessibleFieldsFromBishop(int x, int y) {
-    
-    for(var dx = 1; dx >= -1; dx--) {
-      for(var dy = 1; dy >= -1; dy--) {
-
+  /// All valid fields a bishop can move to from [x] and [y],
+  /// without taking checking into account.
+  Set<Field> _allAccessibleFieldsFromBishop(int x, int y) {
+    final accessibleFields = <Field>{};
+    for (var dx = 1; dx >= -1; dx -= 2) {
+      for (var dy = 1; dy >= -1; dy -= 2) {
+        int tempX = x + dx;
+        int tempY = y + dy;
+        while (!board.isOut(tempX, tempY)) {
+          if (_ownPiece(tempX, tempY)) break;
+          accessibleFields.add(Field(tempX, tempY));
+          if (!board.isEmpty(tempX, tempY)) break;
+          tempX += dx;
+          tempY += dy;
+        }
       }
     }
+    return accessibleFields;
   }
 
-  Set<Field> allAccessibleFieldsFromRook(int x, int y) {
-    throw UnimplementedError();
+  /// All valid fields a rook can move to from [x] and [y],
+  /// without taking checking into account.
+  Set<Field> _allAccessibleFieldsFromRook(int x, int y) {
+    final accessibleFields = <Field>{};
+    for (var dx = 1; dx >= -1; dx -= 1) {
+      for (var dy = 1; dy >= -1; dy -= 1) {
+        if ((dx == 0) != (dy == 0)) {
+          int tempX = x + dx;
+          int tempY = y + dy;
+          while (!board.isOut(tempX, tempY)) {
+            if (_ownPiece(tempX, tempY)) break;
+            accessibleFields.add(Field(tempX, tempY));
+            if (!board.isEmpty(tempX, tempY)) break;
+            tempX += dx;
+            tempY += dy;
+          }
+        }
+      }
+    }
+    return accessibleFields;
   }
 
-  Set<Field> allAccessibleFieldsFromQueen(int x, int y) {
-    return allAccessibleFieldsFromBishop(x, y)
-      ..addAll(allAccessibleFieldsFromRook(x, y));
+  /// All valid fields a rook can move to from [x] and [y],
+  /// without taking checking into account.
+  Set<Field> _allAccessibleFieldsFromQueen(int x, int y) {
+    return _allAccessibleFieldsFromBishop(x, y)
+      ..addAll(_allAccessibleFieldsFromRook(x, y));
   }
 
-  Set<Field> accessibleFieldsFromKing(int x, int y) {
+  /// All valid fields the king can move to from [x] and [y],
+  /// taking checking and castling into account.
+  ///
+  /// The field given for castling
+  /// is the field on which the king stands after the castle.
+  Set<Field> _filteredAccessibleFieldsFromKing(int x, int y, Piece piece) {
     // TODO: cache
     throw UnimplementedError();
   }
 
-  Set<Field> accessibleFieldsNonKing(int x, int y, Piece piece) {
+  /// All valid fields a non king piece can move to from [x] and [y],
+  /// taking checking into account.
+  Set<Field> _filteredAccessibleFieldsNonKing(int x, int y, Piece piece) {
     late final Set<Field> accessibleFields;
     if (_cachedCheckingPawnsAndKnights.isNotEmpty) {
       if (_cachedCheckingPawnsAndKnights.length > 1) {
@@ -281,24 +374,24 @@ class BoardAnalyzer {
     }
     switch (piece.type) {
       case PieceType.pawn:
-        accessibleFields = allAccessibleFieldsFromPawn(x, y, piece.direction);
+        accessibleFields = _allAccessibleFieldsFromPawn(x, y, piece);
         break;
       case PieceType.knight:
-        accessibleFields = allAccessibleFieldsFromKnight(x, y);
+        accessibleFields = _allAccessibleFieldsFromKnight(x, y);
         break;
       case PieceType.bishop:
-        accessibleFields = allAccessibleFieldsFromBishop(x, y);
+        accessibleFields = _allAccessibleFieldsFromBishop(x, y);
         break;
       case PieceType.rook:
-        accessibleFields = allAccessibleFieldsFromRook(x, y);
+        accessibleFields = _allAccessibleFieldsFromRook(x, y);
         break;
       case PieceType.queen:
-        accessibleFields = allAccessibleFieldsFromQueen(x, y);
+        accessibleFields = _allAccessibleFieldsFromQueen(x, y);
         break;
       case PieceType.king:
         break;
     }
-    _cachedIndirectCheckingVectors.forEach((checkingPieceField, vector) {
+    _cachedPinningVectors.forEach((checkingPieceField, vector) {
       if (_liesInPath(
           vector, checkingPieceField.x, checkingPieceField.y, x, y)) {
         accessibleFields.retainWhere((field) => _liesInPath(vector,
@@ -312,19 +405,26 @@ class BoardAnalyzer {
     return accessibleFields;
   }
 
+  /// All valid fields the piece at [x] and [y] can move to,
+  /// taking checking and castling into account.
+  ///
+  /// Will cache most of its analyzing
+  /// and the direct result in [_cachedAccessibleFields].
   Set<Field> accessibleFields(int x, int y) {
+    // update or delete cache if necessary
     _updateCacheIfNecessary();
     final field = Field(x, y);
+    // check if exact field has already been analysed
     final cachedAccessibleFields = _cachedAccessibleFields[field];
     if (cachedAccessibleFields != null) {
       return cachedAccessibleFields;
     }
-    late final Set<Field> accessibleFields;
     final piece = board.getPiece(x, y);
+    late final Set<Field> accessibleFields;
     if (piece.type == PieceType.king) {
-      accessibleFields = accessibleFieldsFromKing(x, y);
+      accessibleFields = _filteredAccessibleFieldsFromKing(x, y, piece);
     } else {
-      accessibleFields = accessibleFieldsNonKing(x, y, piece);
+      accessibleFields = _filteredAccessibleFieldsNonKing(x, y, piece);
     }
     _cachedAccessibleFields[field] = accessibleFields;
     return accessibleFields;
