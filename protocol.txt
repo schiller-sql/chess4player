@@ -43,3 +43,10 @@ SERVER:
     //if requester is the name of the client -> only confirmation popup
 {   "type": "game",        "subtype": "draw-requested",               "content": {"requester": "name"}}
     // after end all users are still in room, admin can start when he wants to
+
+    //if there is no room with this code
+{   "type": "room",        "subtype": "join-failed",                  "content": {"reason": "not found"}}
+    //if the room is already full
+{   "type": "room",        "subtype": "join-failed",                  "content": {"reason": "full"}}
+    //if the game has already started (does not matter if the room is full or not)
+{   "type": "room",        "subtype": "join-failed",                  "content": {"reason": "started"}}
