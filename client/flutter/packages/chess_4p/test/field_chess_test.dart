@@ -6,7 +6,7 @@ void main() {
     for(int y = 0; y < 14; y++) {
       for(int x = 0; x < 14; x++) {
         Field f = Field(x, y);
-        expect(f, f.leftRotation.leftRotation.leftRotation.leftRotation);
+        expect(f, f.clockwiseRotation.clockwiseRotation.clockwiseRotation.clockwiseRotation);
       }
     }
   });

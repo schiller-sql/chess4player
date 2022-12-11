@@ -3,19 +3,18 @@ class Field {
 
   Field(this.x, this.y);
 
-  Field get leftRotation => Field(leftRotateX(x, y), leftRotateY(x, y));
+  Field get clockwiseRotation =>
+      Field(clockwiseRotateX(x, y), clockwiseRotateY(x, y));
 
-
-  // TODO: replace with clockwise rotation
-  static int leftRotateX(int x, int y) {
-    if ((x <= 6 && y > 6) || (x > 6 && y <= 6)) {
+  static int clockwiseRotateX(int x, int y) {
+    if ((x <= 6 && y <= 6) || (x > 6 && y > 6)) {
       return 13 - x;
     }
     return x;
   }
 
-  static int leftRotateY(int x, int y) {
-    if ((x <= 6 && y <= 6) || (x > 6 && y > 6)) {
+  static int clockwiseRotateY(int x, int y) {
+    if ((x <= 6 && y > 6) || (x > 6 && y <= 6)) {
       return 13 - y;
     }
     return y;

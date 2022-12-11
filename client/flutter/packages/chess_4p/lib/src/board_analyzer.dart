@@ -458,7 +458,7 @@ class BoardAnalyzer {
     return accessibleFields;
   }
 
-  int _smallestDistance(int x1, int y1, int x2, int y2) {
+  int _smallestDistance(int x1, int y1, int x2, int y2) { // TODO: test
     return math.min((x1 - x2).abs(), (y1 - y2).abs());
   }
 
