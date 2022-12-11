@@ -7,7 +7,6 @@ import (
 	"server/websocket"
 )
 
-// creates a new Client on every connection and register that client with a Pool
 func handleWs(pool *websocket.Pool, w http.ResponseWriter, r *http.Request) {
 	fmt.Println("main: websocket endpoint hit")
 	conn, err := websocket.Upgrade(w, r)
@@ -21,7 +20,7 @@ func handleWs(pool *websocket.Pool, w http.ResponseWriter, r *http.Request) {
 	fmt.Println("main: register client")
 	pool.Register <- client
 	fmt.Println("main: listen on client")
-	client.Read() //TODO: probably call this as goroutine if http.HandleFunc does not do this fucking shit for me
+	client.Read() //TODO::::: start as goroutine?????????
 }
 
 func main() {

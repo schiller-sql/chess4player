@@ -4,14 +4,13 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="55e6eeae-7eb7-494f-be6f-695432a9bc40" name="Changes" comment="Fix some stuff (no server shit)">
-      <change afterPath="$PROJECT_DIR$/server/websocket/handler.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/websocket/room.go" afterDir="false" />
+    <list default="true" id="55e6eeae-7eb7-494f-be6f-695432a9bc40" name="Changes" comment="server: schmockes">
+      <change afterPath="$PROJECT_DIR$/client/go/main.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/cleanPort.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/websocket/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/websocket/client.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/websocket/pool.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/websocket/pool.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/websocket/websocket.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/websocket/websocket.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/websocket/room.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/websocket/room.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,25 +38,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.format.on.save.advertiser.fired&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.watchers.conflict.with.on.save.actions.check.performed&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/lenni&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;go.autoimport&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultGoTemplateProperty": "Go File",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.go.format.on.save.advertiser.fired": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "RunOnceActivity.go.watchers.conflict.with.on.save.actions.check.performed": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "go.import.settings.migrated": "true",
+    "go.sdk.automatically.set": "true",
+    "last_opened_file_path": "/home/lenni/Desktop/Projects/chess4player/client/go/main.go",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "go.autoimport"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/client" />
@@ -66,60 +65,27 @@
       <recent name="$PROJECT_DIR$/server/websocket" />
     </key>
   </component>
-  <component name="RunManager" selected="Go Build.go build server">
-    <configuration name="go build Client.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
-      <module name="chess4player" />
-      <working_directory value="$PROJECT_DIR$/TestClient" />
-      <kind value="PACKAGE" />
-      <package value="Client.go" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$/TestClient/Client.go" />
+  <component name="RunManager" selected="Go Build.go build client">
+    <configuration name="cleanupPort" type="ShConfigurationType">
+      <option name="SCRIPT_TEXT" value="" />
+      <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
+      <option name="SCRIPT_PATH" value="$PROJECT_DIR$/server/cleanPort.sh" />
+      <option name="SCRIPT_OPTIONS" value="" />
+      <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
+      <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="INDEPENDENT_INTERPRETER_PATH" value="true" />
+      <option name="INTERPRETER_PATH" value="/bin/bash" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="EXECUTE_IN_TERMINAL" value="true" />
+      <option name="EXECUTE_SCRIPT_FILE" value="true" />
+      <envs />
       <method v="2" />
     </configuration>
-    <configuration name="go build TestClient" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
-      <module name="chess4player" />
-      <working_directory value="$PROJECT_DIR$/TestClient" />
-      <kind value="PACKAGE" />
-      <package value="TestClient" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$/TestClient/TestClient.go" />
-      <method v="2" />
-    </configuration>
-    <configuration name="go build main" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
-      <module name="chess4player" />
-      <working_directory value="$PROJECT_DIR$/Server" />
-      <kind value="PACKAGE" />
-      <package value="main" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$/Server/main.go" />
-      <method v="2" />
-    </configuration>
-    <configuration name="go build main.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
-      <module name="chess4player" />
-      <working_directory value="$PROJECT_DIR$" />
-      <kind value="FILE" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$/Server/main.go" />
-      <method v="2" />
-    </configuration>
-    <configuration name="go build server" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
-      <module name="chess4player" />
-      <working_directory value="$PROJECT_DIR$/server" />
-      <kind value="PACKAGE" />
-      <package value="server" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$/server/main.go" />
-      <method v="2" />
-    </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Go Build.go build server" />
-        <item itemvalue="Go Build.go build TestClient" />
-        <item itemvalue="Go Build.go build main.go" />
-        <item itemvalue="Go Build.go build Client.go" />
-        <item itemvalue="Go Build.go build main" />
-      </list>
-    </recent_temporary>
+    <list>
+      <item itemvalue="Go Build.go build server" />
+      <item itemvalue="Go Build.go build client" />
+      <item itemvalue="Shell Script.cleanupPort" />
+    </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TypeScriptGeneratedFilesManager">
@@ -148,7 +114,8 @@
     <MESSAGE value="progress" />
     <MESSAGE value="Fix Game End in protocol.txt" />
     <MESSAGE value="Fix some stuff (no server shit)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix some stuff (no server shit)" />
+    <MESSAGE value="server: schmockes" />
+    <option name="LAST_COMMIT_MESSAGE" value="server: schmockes" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

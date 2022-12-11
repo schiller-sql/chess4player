@@ -9,11 +9,9 @@ import (
 	"time"
 )
 
-//channels for concurrent communication, as well as a map of clients.
-
 type Pool struct {
 	Register chan *Client
-	Clients  map[*Client]bool //a map of clients to a boolean value to dictate active/inactive but not disconnected further down the line based on browser focus.
+	Clients  map[*Client]bool
 	Rooms    map[string]*Room
 }
 
@@ -22,6 +20,17 @@ func NewPool() *Pool {
 		Register: make(chan *Client),
 		Clients:  make(map[*Client]bool),
 		Rooms:    make(map[string]*Room),
+	}
+}
+
+func (this *Pool) Start() {
+	fmt.Println("pool: pool started")
+	for {
+		select {
+		case client := <-this.Register:
+			this.Clients[client] = true
+			fmt.Println("pool: new user joined\nsize of connection pool:", len(this.Clients))
+		}
 	}
 }
 
@@ -43,17 +52,6 @@ func (this *Pool) Input(event ClientEvent) {
 	}
 }
 
-func (this *Pool) Start() {
-	fmt.Println("pool: pool started")
-	for {
-		select {
-		case client := <-this.Register:
-			this.Clients[client] = true
-			fmt.Println("pool: new user joined\nsize of connection pool:", len(this.Clients))
-		}
-	}
-}
-
 func (this *Pool) createRoom(input ClientEvent) {
 	var content = input.Message.Content
 	var client = input.Client
@@ -66,8 +64,8 @@ func (this *Pool) createRoom(input ClientEvent) {
 
 	this.Rooms[code] = room
 	go room.Start()
-	room.Clients[client] = name
-	room.Register <- client
+	var participant = Participant{client, name}
+	room.Register <- &participant
 	delete(this.Clients, client)
 
 	err := client.Conn.WriteJSON(Message{
