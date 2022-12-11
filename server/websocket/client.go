@@ -7,34 +7,44 @@ import (
 )
 
 type Client struct {
-	Id   string          //a uniquely identifiably string for a particular connection
-	Conn *websocket.Conn // pointer to a websocket.Conn object
-	Pool *Pool           //pointer to the Pool which this client will be part of
+	Conn    *websocket.Conn // pointer to a websocket.Conn object
+	Handler Handler         //pointer to the Pool which this client will be part of
 }
 
 type Message struct {
-	Type int    `json:"type:"`
-	Body string `json:"body"`
+	Type    string                 `json:"type:"`
+	SubType string                 `json:"subtype"`
+	Content map[string]interface{} `json:"content"`
+}
+
+type ClientEvent struct {
+	Message Message
+	Client  *Client
 }
 
 /*
-If there are any messages, it will pass these messages to the Pool’s Broadcast channel
+If there are any messages, it will pass these messages to the Pool’s Input channel
 which subsequently broadcasts the received message to every client within the pool.
 */
-func (c *Client) Read() {
+func (this *Client) Read() {
+	fmt.Println("client: listen...")
 	defer func() {
-		c.Pool.Unregister <- c
-		c.Conn.Close()
-	}()
-
-	for {
-		messageType, p, err := c.Conn.ReadMessage()
+		this.Handler.Unregister(this)
+		err := this.Conn.Close()
 		if err != nil {
 			log.Println(err)
 			return
 		}
-		message := Message{Type: messageType, Body: string(p)}
-		c.Pool.Broadcast <- message
-		fmt.Printf("MessageInput Received: %+v\n", message)
+	}()
+
+	for {
+		var input Message
+		err := this.Conn.ReadJSON(&input)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		this.Handler.Input(ClientEvent{input, this})
+		fmt.Printf("MessageInput Received: %+v\n", input)
 	}
 }
