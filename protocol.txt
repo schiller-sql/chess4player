@@ -6,30 +6,30 @@ four numbers from zero - thirteen: x1 y1 x2 y2
 and optional letter for pawn-promotion
 
 CLIENT:
-{"type": "room", "subtype": "create", "name": "asdf"}
-{"type": "room/join", "code": "asdbcd", "name": "asdfa1"} // wenn name falsch, wird name richtig generiert note: 'richtig' im ermessen der entwickler :D
-{"type": "room/join", "code": "asdbcd", "name": ""} // name wird generiert
-{"type": "room/leave"}//while round -> auto resign (disconnect or leave)
+{"type": "room",  "subtype": "create", "name": "asdf"}
+{"type": "room", "subtype": "join", "code": "asdbcd", "name": "asdfa1"} // wenn name falsch, wird name richtig generiert note: 'richtig' im ermessen der entwickler :D
+{"type": "room", "subtype": "join", "code": "asdbcd", "name": ""} // name wird generiert
+{"type": "room", "subtype": "leave"}//while round -> auto resign (disconnect or leave)
 
-{"type": "game/start", "time": 60000}
-{"type": "game/move", "move": [14, 15, 14, 16], "promotion?": "q"}
-{"type": "game/resign"}
-{"type": "game/draw-request"}
-{"type": "game/draw-accept"} // if everyone accepts, game end will follow
+{"type": "game", "subtype": "start", "time": 60000}
+{"type": "game", "subtype": "move", "move": [14, 15, 14, 16], "promotion?": "q"}
+{"type": "game", "subtype": "resign"}
+{"type": "game", "subtype": "draw-request"}
+{"type": "game", "subtype": "draw-accept"} // if everyone accepts, game end will follow
 
 SERVER:
-{"type": "room/created", "code": "asdf", "name": "asdf"}
-{"type": "room/joined", "name": "asdf"}
-{"type": "room/left"}
-{"type": "room/disbanded"} // if admin left
-{"type": "room/participants-count-update", "participants-count": 3} // when somebody leaves in a round, admin still gets updated participants count
+{"type": "room", "subtype": "created", "code": "asdf", "name": "asdf"}
+{"type": "room", "subtype": "joined", "name": "asdf"}
+{"type": "room", "subtype": "left"}
+{"type": "room", "subtype": "disbanded"} // if admin left
+{"type": "room", "subtype": "participants-count-update", "participants-count": 3} // when somebody leaves in a round, admin still gets updated participants count
 
 // after started p1 can start whenever he wants, not timelimit
-{"type": "game/started", "participants": ["p1", "p2", "p3", "p4"], "time": 59600} //order of array is equal to move-order
-{"type": "game/moved", "move": [14, 15, 14, 16], "promotion?": "q", "next-participant": "name", "remaining-time": 4734}
-{"type": "game/moved/accepted", "remaining-time": 6534, "next-participant": "name"}
-{"type": "game/player-lost", "participant": "name", "reason": "checkmate|resign"} // also happens when somebody leaves in a round
-{"type": "game/end", "reason": "checkmate|stalemate|50move-rule|out-of-time|remi|insufficient-material|resignation|draw", "winner": "p1"}
-{"type": "game/draw-requested", "requester": "name"} //if requester is the name of the client -> only confirmation popup
+{"type": "game", "subtype": "started", "participants": ["p1", "p2", "p3", "p4"], "time": 59600} //order of array is equal to move-order
+{"type": "game", "subtype": "moved", "move": [14, 15, 14, 16], "promotion?": "q", "next-participant": "name", "remaining-time": 4734}
+{"type": "game", "subtype": "move-accepted", "remaining-time": 6534, "next-participant": "name"}
+{"type": "game", "subtype": "player-lost", "participant": "name", "reason": "checkmate|resign"} // also happens when somebody leaves in a round
+{"type": "game", "subtype": "end", "reason": "checkmate|stalemate|50move-rule|out-of-time|remi|insufficient-material|resignation|draw", "winner": "p1"}
+{"type": "game", "subtype": "draw-requested", "requester": "name"} //if requester is the name of the client -> only confirmation popup
 
 // after end all users are still in room, admin can start when he wants to
