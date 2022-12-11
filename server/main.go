@@ -7,35 +7,36 @@ import (
 	"server/websocket"
 )
 
-/*
-create a new Client on every connection and to register that client with a Pool
-*/
+// creates a new Client on every connection and register that client with a Pool
 func handleWs(pool *websocket.Pool, w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Websocket endpoint hit")
+	fmt.Println("main: websocket endpoint hit")
 	conn, err := websocket.Upgrade(w, r)
 	if err != nil {
 		fmt.Fprintf(w, "%+V\n", err)
 	}
-	fmt.Println("Remote Address:" + conn.RemoteAddr().String())
-	fmt.Println("Local Address:" + conn.LocalAddr().String())
 	client := &websocket.Client{
-		Conn: conn,
-		Pool: pool,
+		Conn:    conn,
+		Handler: pool,
 	}
-
+	fmt.Println("main: register client")
 	pool.Register <- client
-	client.Read()
+	fmt.Println("main: listen on client")
+	client.Read() //TODO: probably call this as goroutine if http.HandleFunc does not do this fucking shit for me
 }
 
 func main() {
+	fmt.Println("main: starting pool")
 	pool := websocket.NewPool()
 	go pool.Start()
+	fmt.Println("main: setup routes")
 	//setup routes
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Simple Server")
-	})
-	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		handleWs(pool, w, r)
 	})
-	log.Fatalln(http.ListenAndServe(":8080", nil))
+	http.HandleFunc("/admin", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "TODO: Admin GUI here")
+	})
+	log.Fatalln(
+		http.ListenAndServe(":8080", nil),
+	)
 }

@@ -4,13 +4,14 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="55e6eeae-7eb7-494f-be6f-695432a9bc40" name="Changes" comment="Fix Game End in protocol.txt">
+    <list default="true" id="55e6eeae-7eb7-494f-be6f-695432a9bc40" name="Changes" comment="Fix some stuff (no server shit)">
+      <change afterPath="$PROJECT_DIR$/server/websocket/handler.go" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/server/websocket/room.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocol.txt" beforeDir="false" afterPath="$PROJECT_DIR$/protocol.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/main.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/websocket/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/websocket/client.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/websocket/pool.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/websocket/pool.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/websocket/websocket.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/websocket/websocket.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,6 +60,7 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/client" />
       <recent name="$PROJECT_DIR$/schmokclient" />
       <recent name="$PROJECT_DIR$/testclient/src" />
       <recent name="$PROJECT_DIR$/server/websocket" />
@@ -145,7 +147,8 @@
     <MESSAGE value="protocol.txt" />
     <MESSAGE value="progress" />
     <MESSAGE value="Fix Game End in protocol.txt" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix Game End in protocol.txt" />
+    <MESSAGE value="Fix some stuff (no server shit)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix some stuff (no server shit)" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
