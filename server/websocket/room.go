@@ -4,7 +4,7 @@ import "fmt"
 
 type Room struct {
 	Register chan *Participant
-	Clients  map[*Client]string
+	Clients  map[*Client]string //TODO: access by mutex
 	Code     string
 }
 
@@ -20,9 +20,9 @@ func NewRoom() *Room {
 	}
 }
 
-func (this *Room) Start() {
+func (this *Room) Start() { //TODO: cant register more than four people
 	for {
-		select {
+		select { //TODO: cant register if the game has already started or
 		case participant := <-this.Register:
 			this.Clients[participant.Client] = participant.Name
 			fmt.Println("room: new user joined\ncount of connected players:", len(this.Clients))
@@ -41,7 +41,10 @@ func (this *Room) Input(event ClientEvent) {
 	if event.Message.Type == "room" {
 		switch event.Message.SubType {
 		case "leave":
+
 			break
+		default:
+			//TODO: disconnect the client
 		}
 	}
 }

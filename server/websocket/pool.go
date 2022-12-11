@@ -46,15 +46,17 @@ func (this *Pool) Input(event ClientEvent) {
 		case "create":
 			this.createRoom(event)
 		case "join":
-
+			this.joinRoom(event)
 			break
+		default:
+			//TODO: disconnect the client
 		}
 	}
 }
 
-func (this *Pool) createRoom(input ClientEvent) {
-	var content = input.Message.Content
-	var client = input.Client
+func (this *Pool) createRoom(event ClientEvent) {
+	var content = event.Message.Content
+	var client = event.Client
 	var code = this.generateCode()
 	var room = NewRoom()
 	var name = (content["name"]).(string)
@@ -81,6 +83,66 @@ func (this *Pool) createRoom(input ClientEvent) {
 	}
 }
 
+func (this *Pool) joinRoom(event ClientEvent) {
+	var content = event.Message.Content
+	var client = event.Client
+	var code = (content["code"]).(string)
+	var name = (content["name"]).(string)
+	var room, exists = this.Rooms[code]
+	if !exists {
+		err := client.Conn.WriteJSON(Message{
+			Type:    "room",
+			SubType: "join-failed",
+			Content: map[string]interface{}{
+				"reason": "not found",
+			},
+		})
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		return
+	}
+	if len(room.Clients) > 3 {
+		err := client.Conn.WriteJSON(Message{
+			Type:    "room",
+			SubType: "join-failed",
+			Content: map[string]interface{}{
+				"reason": "full",
+			},
+		})
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		return
+	}
+	//TODO: check here if the game has already started
+	if name == "" {
+		name = generateName(room)
+	}
+	for client := range room.Clients {
+		if name == room.Clients[client] {
+			name = generateName(room)
+			break
+		}
+	}
+	var participant = Participant{client, name}
+	room.Register <- &participant
+	delete(this.Clients, client)
+
+	err := client.Conn.WriteJSON(Message{
+		Type:    "room",
+		SubType: "joined",
+		Content: map[string]interface{}{
+			"name": name},
+	})
+	if err != nil {
+		log.Println(err)
+		return
+	}
+}
+
 const letterBytes = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 func (this *Pool) generateCode() string {
@@ -99,7 +161,7 @@ func (this *Pool) generateCode() string {
 
 func generateName(room *Room) string {
 	var count = 0
-	for client, _ := range room.Clients {
+	for client := range room.Clients {
 		if !strings.Contains(room.Clients[client], "Player") {
 			count++
 		}
