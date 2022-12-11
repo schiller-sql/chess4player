@@ -6,7 +6,7 @@ four numbers from zero - thirteen: x1 y1 x2 y2
 and optional letter for pawn-promotion
 
 CLIENT:
-{"type": "room",  "subtype": "create", "name": "asdf"}
+{"type": "room", "subtype": "create", "name": "asdf"}
 {"type": "room", "subtype": "join", "code": "asdbcd", "name": "asdfa1"} // wenn name falsch, wird name richtig generiert note: 'richtig' im ermessen der entwickler :D
 {"type": "room", "subtype": "join", "code": "asdbcd", "name": ""} // name wird generiert
 {"type": "room", "subtype": "leave"}//while round -> auto resign (disconnect or leave)
@@ -29,7 +29,7 @@ SERVER:
 {"type": "game", "subtype": "moved", "move": [14, 15, 14, 16], "promotion?": "q", "next-participant": "name", "remaining-time": 4734}
 {"type": "game", "subtype": "move-accepted", "remaining-time": 6534, "next-participant": "name"}
 {"type": "game", "subtype": "player-lost", "participant": "name", "reason": "checkmate|resign"} // also happens when somebody leaves in a round
-{"type": "game", "subtype": "end", "reason": "checkmate|stalemate|50move-rule|out-of-time|remi|insufficient-material|resignation|draw", "winner": "p1"}
+{"type": "game", "subtype": "end", "reason": "checkmate|stalemate|50move-rule|out-of-time|remi|insufficient-material|resignation|draw", "winner": ["p1"]} //if draw => all remaining players in this array
 {"type": "game", "subtype": "draw-requested", "requester": "name"} //if requester is the name of the client -> only confirmation popup
 
 // after end all users are still in room, admin can start when he wants to
