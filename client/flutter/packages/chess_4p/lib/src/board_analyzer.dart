@@ -24,7 +24,7 @@ class BoardAnalyzer {
   final Direction analyzingDirection;
 
   /// Which [Board.changeIndex] the current cache is made for.
-  late int _cachedBoardChangeIndex;
+  int? _cachedBoardChangeIndex;
 
   /// Cached position of the king.
   late int _kingXCache;
@@ -56,9 +56,7 @@ class BoardAnalyzer {
       : _cachedCheckingPawnsAndKnights = [],
         _cachedCheckingVectors = {},
         _cachedPinningVectors = {},
-        _cachedAccessibleFields = {} {
-    _updateKingCache();
-  }
+        _cachedAccessibleFields = {};
 
   /// If a [_ChessVector] (param: [vector]) applied to [x] and [y],
   /// can reach [targetX] and [targetY].
@@ -92,6 +90,7 @@ class BoardAnalyzer {
   void _updateKingCache() {
     for (var y = 0; y < 14; y++) {
       for (var x = 0; x < 14; x++) {
+        if (board.isEmpty(x, y)) continue;
         final p = board.getPiece(x, y);
         if (p.direction == analyzingDirection && p.type == PieceType.king) {
           _kingXCache = x;
@@ -115,7 +114,7 @@ class BoardAnalyzer {
       for (var x = 0; x < 14; x++) {
         if (board.isEmpty(x, y)) continue;
         final piece = board.getPiece(x, y);
-        if (piece.direction != analyzingDirection) continue;
+        if (piece.direction == analyzingDirection) continue;
         switch (piece.type) {
           case PieceType.pawn:
             if (_pawnCanAttack(
@@ -169,11 +168,11 @@ class BoardAnalyzer {
 
         var tempX = x;
         var tempY = y;
-        var hasHitOwnPiece = true;
-        do {
+        var hasHitOwnPiece = false;
+        while (!board.isOut(tempX + dx, tempY + dy)) {
           tempX += dx;
           tempY += dy;
-          if (!board.isEmpty(tempY, tempY)) {
+          if (!board.isEmpty(tempX, tempY)) {
             final piece = board.getPiece(tempX, tempY);
             if (piece.direction != analyzingDirection || hasHitOwnPiece) {
               continue vectors;
@@ -192,7 +191,7 @@ class BoardAnalyzer {
               hasHitOwnPiece = true;
             }
           }
-        } while (!board.isOut(tempX + dx, tempY + dy));
+        }
       }
     }
   }
@@ -214,6 +213,9 @@ class BoardAnalyzer {
 
   /// If a pawn with the direction [pawnDirection] can attack
   /// [attackingX] and [attackingY] from [pawnX] and [pawnY]
+  ///
+  /// This assumes that at [attackingX] and [attackingY],
+  /// there is an enemy piece.
   bool _pawnCanAttack(
     int pawnX,
     int pawnY,
@@ -253,7 +255,11 @@ class BoardAnalyzer {
       y += direction.dy;
       for (var i = -1; i <= 1; i++) {
         final tempX = x + i;
-        if (!board.isOut(tempX, y) && (i == 0) != _notOwnPiece(tempX, y)) {
+        if (!board.isOut(tempX, y) &&
+            (((i == 0) && board.isEmpty(tempX, y)) ||
+                ((i != 0) &&
+                    !board.isEmpty(tempX, y) &&
+                    _notOwnPiece(tempX, y)))) {
           accessibleFields.add(Field(tempX, y));
         }
       }
@@ -261,16 +267,25 @@ class BoardAnalyzer {
       x += direction.dx;
       for (var i = -1; i <= 1; i++) {
         final tempY = y + i;
-        if (!board.isOut(x, tempY) && (i == 0) != _notOwnPiece(x, tempY)) {
+        (i == 0) != _notOwnPiece(x, tempY);
+        if (!board.isOut(x, tempY) &&
+            (((i == 0) && board.isEmpty(x, tempY)) ||
+                ((i != 0) &&
+                    !board.isEmpty(x, tempY) &&
+                    _notOwnPiece(x, tempY)))) {
           accessibleFields.add(Field(x, tempY));
         }
       }
     }
-    y += direction.dy;
-    x += direction.dx;
+    // x and y is now the piece in front of the pawn
+
     // pawn move two forward
-    if (!piece.hasBeenMoved && !board.isOut(x, y) && board.isEmpty(x, y)) {
-      accessibleFields.add(Field(x, y));
+    if (board.isEmpty(x, y)) {
+      y += direction.dy;
+      x += direction.dx;
+      if (!piece.hasBeenMoved && !board.isOut(x, y) && board.isEmpty(x, y)) {
+        accessibleFields.add(Field(x, y));
+      }
     }
     return accessibleFields;
   }
@@ -282,7 +297,7 @@ class BoardAnalyzer {
     var onX = true;
     do {
       for (var longShift = 2; longShift >= -2; longShift -= 4) {
-        for (var shortShift = 1; longShift >= -1; longShift -= 2) {
+        for (var shortShift = 1; shortShift >= -1; shortShift -= 2) {
           var tempX = x;
           var tempY = y;
           if (onX) {
@@ -292,7 +307,7 @@ class BoardAnalyzer {
             tempX += shortShift;
             tempY += longShift;
           }
-          if (board.isOut(x, y) && _notOwnPiece(x, y)) {
+          if (!board.isOut(tempX, tempY) && _notOwnPiece(tempX, tempY)) {
             accessibleFields.add(Field(tempX, tempY));
           }
         }
@@ -420,6 +435,7 @@ class BoardAnalyzer {
       return cachedAccessibleFields;
     }
     final piece = board.getPiece(x, y);
+    assert(piece.direction == analyzingDirection);
     late final Set<Field> accessibleFields;
     if (piece.type == PieceType.king) {
       accessibleFields = _filteredAccessibleFieldsFromKing(x, y, piece);

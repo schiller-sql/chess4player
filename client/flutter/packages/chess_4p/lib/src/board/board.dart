@@ -28,7 +28,7 @@ class Board {
   }
 
   bool isEmpty(int x, int y) {
-    return _boardData[x][y] == null;
+    return _boardData[y][x] == null;
   }
 
   Piece getPiece(int x, int y) {
