@@ -8,13 +8,19 @@ import 'dart:math' as math;
 // TODO: en passent (first remove/but later pls)
 // TODO: für alle analysis nach einem zug wird eine klassenobject erstellt
 
+/// A vector on a chess board,
+/// representing the possible straight and diagonal paths of
+/// rooks, bishops and queens.
 class _ChessVector {
   final int dx;
   final int dy;
 
+  /// [dx] and [dy] can either be 0 or 1, but one of them needs to be 1,
+  /// or else there would not be a vector.
   const _ChessVector(this.dx, this.dy)
       : assert(dx <= 1 && dx >= -1),
-        assert(dy <= 1 && dy >= -1);
+        assert(dy <= 1 && dy >= -1),
+        assert(dx != 0 || dy != 0);
 }
 
 class BoardAnalyzer {
@@ -48,10 +54,12 @@ class BoardAnalyzer {
   /// Cached calls of [accessibleFields]
   final Map<Field, Set<Field>> _cachedAccessibleFields;
 
-  bool get isCheck =>
+  bool get _isCheck =>
       _cachedCheckingPawnsAndKnights.isNotEmpty &&
       _cachedCheckingVectors.isNotEmpty;
 
+  /// Default constructor, give [board] to analyze
+  /// and which direction ([analyzingDirection])
   BoardAnalyzer({required this.board, required this.analyzingDirection})
       : _cachedCheckingPawnsAndKnights = [],
         _cachedCheckingVectors = {},
@@ -196,6 +204,10 @@ class BoardAnalyzer {
     }
   }
 
+  /// If the [piece] would be able to attack [attackingX] and [attackingY]
+  /// from [x] and [y].
+  ///
+  /// It also ignores the king for vectors.
   bool _canAttackIgnoringOwnKing(
       int x, int y, Piece piece, int attackingX, int attackingY) {
     switch (piece.type) {
@@ -220,6 +232,8 @@ class BoardAnalyzer {
     }
   }
 
+  /// If a king would be able to attack [attackingX] and [attackingY]
+  /// from [x] and [y].
   bool _kingCanReach(int x, int y, int attackingX, int attackingY) {
     for (var i = 1; i >= -1; i--) {
       for (var j = 1; j >= -1; j--) {
@@ -232,11 +246,20 @@ class BoardAnalyzer {
     return false;
   }
 
+  /// If a piece is the king of the [analyzingDirection].
   bool _pieceIsOwnKing(Piece piece) {
     return piece.type == PieceType.king &&
         piece.direction == analyzingDirection;
   }
 
+  /// Check if a chess vectors from the point [x] and [y]
+  /// can reach [attackingX] and [attackingY].
+  /// If the vectors reach the from the [analyzingDirection],
+  /// without having reached the point,
+  /// they will simply ignore the king and continue.
+  ///
+  /// Use [checkDiagonal] to analyze diagonal vectors and
+  /// [checkStraight] to analyze straight vectors.
   bool _vectorsFromPointCanAttackIgnoringOwnKing(
     int x,
     int y,
@@ -442,6 +465,8 @@ class BoardAnalyzer {
       ..addAll(_allAccessibleFieldsFromRook(x, y));
   }
 
+  /// All valid fields a king can move to from [x] and [y],
+  /// without taking checking into account.
   Set<Field> _allAccessibleFieldsFromKing(int x, int y) {
     final accessibleFields = <Field>{};
     for (var i = 1; i >= -1; i--) {
@@ -457,11 +482,15 @@ class BoardAnalyzer {
     return accessibleFields;
   }
 
+  /// the smallest non-diagonal distance between two points in chess
   int _smallestDistance(int x1, int y1, int x2, int y2) {
     // TODO: test
     return math.min((x1 - x2).abs(), (y1 - y2).abs());
   }
 
+  /// Get a [Piece] (or null if empty) for a point at [x] and [y].
+  /// However the coordinates are rotated
+  /// according to the [analyzingDirection.clockwiseRotationsFromUp].
   Piece? _getPieceInRotationToAnalyzingDirection(int x, int y) {
     final rotatedX = Field.clockwiseRotateXBy(
         x, y, analyzingDirection.clockwiseRotationsFromUp);
@@ -511,7 +540,7 @@ class BoardAnalyzer {
     final king = _getPieceInRotationToAnalyzingDirection(7, 13);
     if (kingPiece != king) return;
     if (king!.hasBeenMoved) return;
-    if (isCheck) return;
+    if (_isCheck) return;
 
     final leftRook = _getPieceInRotationToAnalyzingDirection(3, 13);
     final leftEmpty1 = _getPieceInRotationToAnalyzingDirection(4, 13);
@@ -527,7 +556,8 @@ class BoardAnalyzer {
             5, 13) &&
         !_canAnyEnemyAttackIgnoringOwnKingInRotationToAnalyzingDirection(
             6, 13)) {
-      set.add(Field.rotatedClockwise(5, 13, analyzingDirection.clockwiseRotationsFromUp));
+      set.add(Field.rotatedClockwise(
+          5, 13, analyzingDirection.clockwiseRotationsFromUp));
     }
 
     final rightEmpty1 = _getPieceInRotationToAnalyzingDirection(8, 13);
@@ -541,7 +571,8 @@ class BoardAnalyzer {
             8, 13) &&
         !_canAnyEnemyAttackIgnoringOwnKingInRotationToAnalyzingDirection(
             9, 13)) {
-      set.add(Field.rotatedClockwise(9, 13, analyzingDirection.clockwiseRotationsFromUp));
+      set.add(Field.rotatedClockwise(
+          9, 13, analyzingDirection.clockwiseRotationsFromUp));
     }
   }
 
@@ -640,5 +671,11 @@ class BoardAnalyzer {
     }
     _cachedAccessibleFields[field] = accessibleFields;
     return accessibleFields;
+  }
+
+  /// if the king piece of the [analyzingDirection] is in check
+  bool isKingInCheck() {
+    _updateCacheIfNecessary();
+    return _isCheck;
   }
 }
