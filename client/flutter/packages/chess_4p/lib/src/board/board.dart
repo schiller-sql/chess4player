@@ -36,7 +36,8 @@ class Board {
   }
 
   void move(int x, int y, int nx, int ny) {
-    Piece? p = _boardData[y].removeAt(x);
+    Piece? p = _boardData[y][x];
+    _boardData[y][x] = null;
     assert(p != null);
     assert(isEmpty(nx, ny));
     _boardData[ny][nx] = p;
