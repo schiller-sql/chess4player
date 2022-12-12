@@ -25,6 +25,7 @@ SERVER:
 {   "type": "room",        "subtype": "created",                      "content": {"code": "asdf", "name": "asdf"}}
 {   "type": "room",        "subtype": "joined",                       "content": {"name": "asdf"}}
     // nur selber bekommt das wenn man leaved als bestätigung, der admin bekommt participants-count-update und alle anderen + auch admin bekommen wenn im spiel verlassen ein resigned
+    // wenn admin leavt, bekommt er left und nicht disbanded
 {   "type": "room",        "subtype": "left",                         "content": {}}
     // if admin left
 {   "type": "room",        "subtype": "disbanded",                    "content": {}}
