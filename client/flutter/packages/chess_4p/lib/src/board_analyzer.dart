@@ -50,8 +50,7 @@ class BoardAnalyzer {
 
   bool get isCheck =>
       _cachedCheckingPawnsAndKnights.isNotEmpty &&
-      _cachedCheckingVectors.isNotEmpty &&
-      _cachedAccessibleFields.isNotEmpty;
+      _cachedCheckingVectors.isNotEmpty;
 
   BoardAnalyzer({required this.board, required this.analyzingDirection})
       : _cachedCheckingPawnsAndKnights = [],
@@ -458,8 +457,92 @@ class BoardAnalyzer {
     return accessibleFields;
   }
 
-  int _smallestDistance(int x1, int y1, int x2, int y2) { // TODO: test
+  int _smallestDistance(int x1, int y1, int x2, int y2) {
+    // TODO: test
     return math.min((x1 - x2).abs(), (y1 - y2).abs());
+  }
+
+  Piece? _getPieceInRotationToAnalyzingDirection(int x, int y) {
+    final rotatedX = Field.clockwiseRotateXBy(
+        x, y, analyzingDirection.clockwiseRotationsFromUp);
+    final rotatedY = Field.clockwiseRotateYBy(
+        x, y, analyzingDirection.clockwiseRotationsFromUp);
+    if (board.isEmpty(rotatedX, rotatedY)) {
+      return null;
+    }
+    return board.getPiece(rotatedX, rotatedY);
+  }
+
+  bool _canAnyEnemyAttackIgnoringOwnKingInRotationToAnalyzingDirection(
+    int attackingX,
+    int attackingY,
+  ) {
+    // rotate
+    final rotatedX = Field.clockwiseRotateXBy(
+        attackingX, attackingY, analyzingDirection.clockwiseRotationsFromUp);
+    attackingY = Field.clockwiseRotateYBy(
+        attackingX, attackingY, analyzingDirection.clockwiseRotationsFromUp);
+    attackingX = rotatedX;
+    for (int y = 0; y < 14; y++) {
+      fields:
+      for (int x = 0; x < 14; x++) {
+        if (board.isOut(x, y) || board.isEmpty(x, y)) continue fields;
+        final piece = board.getPiece(x, y);
+        if (piece.direction == analyzingDirection) continue fields;
+        if (_canAttackIgnoringOwnKing(x, y, piece, attackingX, attackingY)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /// Adds [Field]s to [set] if the king at [x] and [y] can castle,
+  /// to his left and/or right side.
+  ///
+  /// From Wikipedia:
+  /// Castling is permitted only if neither the king nor the rook has previously moved;
+  /// the squares between the king and the rook are vacant; and the king does not leave,
+  /// cross over, or end up on a square attacked by an opposing piece
+  void _addCastleFieldsFromKingToSet(Piece kingPiece, Set<Field> set) {
+    assert(kingPiece.type == PieceType.king);
+
+    // TODO: not all fields have to be checked, as they are checked in _filteredAccessibleFieldsFromKing
+    final king = _getPieceInRotationToAnalyzingDirection(7, 13);
+    if (kingPiece != king) return;
+    if (king!.hasBeenMoved) return;
+    if (isCheck) return;
+
+    final leftRook = _getPieceInRotationToAnalyzingDirection(3, 13);
+    final leftEmpty1 = _getPieceInRotationToAnalyzingDirection(4, 13);
+    final leftEmpty2 = _getPieceInRotationToAnalyzingDirection(5, 13);
+    final leftEmpty3 = _getPieceInRotationToAnalyzingDirection(6, 13);
+
+    if (leftRook?.type == PieceType.rook &&
+        leftRook?.hasBeenMoved == false &&
+        leftEmpty1 == null &&
+        leftEmpty2 == null &&
+        leftEmpty3 == null &&
+        !_canAnyEnemyAttackIgnoringOwnKingInRotationToAnalyzingDirection(
+            5, 13) &&
+        !_canAnyEnemyAttackIgnoringOwnKingInRotationToAnalyzingDirection(
+            6, 13)) {
+      set.add(Field.rotatedClockwise(5, 13, analyzingDirection.clockwiseRotationsFromUp));
+    }
+
+    final rightEmpty1 = _getPieceInRotationToAnalyzingDirection(8, 13);
+    final rightEmpty2 = _getPieceInRotationToAnalyzingDirection(9, 13);
+    final rightRook = _getPieceInRotationToAnalyzingDirection(10, 13);
+    if (rightRook?.type == PieceType.rook &&
+        rightRook?.hasBeenMoved == false &&
+        rightEmpty1 == null &&
+        rightEmpty2 == null &&
+        !_canAnyEnemyAttackIgnoringOwnKingInRotationToAnalyzingDirection(
+            8, 13) &&
+        !_canAnyEnemyAttackIgnoringOwnKingInRotationToAnalyzingDirection(
+            9, 13)) {
+      set.add(Field.rotatedClockwise(9, 13, analyzingDirection.clockwiseRotationsFromUp));
+    }
   }
 
   /// All valid fields the king can move to from [kingX] and [kingY],
@@ -484,6 +567,8 @@ class BoardAnalyzer {
             !_canAttackIgnoringOwnKing(x, y, piece, field.x, field.y));
       }
     }
+    final kingPiece = board.getPiece(kingX, kingY);
+    _addCastleFieldsFromKingToSet(kingPiece, accessibleFields);
     return accessibleFields;
   }
 
