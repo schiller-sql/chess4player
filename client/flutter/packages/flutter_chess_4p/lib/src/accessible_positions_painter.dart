@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class AccessiblePositionsPainter extends CustomPainter {
   static final Paint accessiblePositionPaint = Paint()
     ..color = Colors.grey[600]!.withAlpha(200);
-  final List<Field> accessiblePositions;
+  final Set<Field> accessiblePositions;
 
   AccessiblePositionsPainter(this.accessiblePositions);
 
