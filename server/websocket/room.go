@@ -97,7 +97,7 @@ func (this *Room) Input(event ClientEvent) {
 	this.InputEvent <- event
 }
 
-func (this *Room) leaveRoom(event ClientEvent) {
+func (this *Room) leaveRoom(event ClientEvent) { //TODO: unwanted behavior here
 	this.Participants.Lock()
 	defer this.Participants.Unlock()
 	this.InGame.Lock()

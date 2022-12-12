@@ -22,10 +22,6 @@ type ClientEvent struct {
 	Client  *Client
 }
 
-/*
-If there are any messages, it will pass these messages to the Pool’s Input channel
-which subsequently broadcasts the received message to every client within the pool.
-*/
 func (this *Client) Read() {
 	defer func() {
 		this.Disconnect()
