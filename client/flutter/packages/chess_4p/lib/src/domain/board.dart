@@ -1,3 +1,4 @@
+import 'package:chess_4p/src/board_handlers/board_serializer.dart';
 import 'package:chess_4p/src/domain/default_board.dart';
 
 import 'direction.dart';
@@ -80,30 +81,7 @@ class Board {
 
   @override
   String toString() {
-    const whiteEmp = "\u25FB";
-    const blackEmp = "\u25FC";
-
-    final buffer = StringBuffer();
-    var isBlack = false;
-    for (var y = 0; y < 14; y++) {
-      for (var x = 0; x < 14; x++) {
-        isBlack = !isBlack;
-        if (isOut(x, y)) {
-          buffer.write(" ");
-        } else if (isEmpty(x, y)) {
-          buffer.write(isBlack ? blackEmp : whiteEmp);
-        } else {
-          final piece = getPiece(x, y);
-          final pieceIsWhite =
-              [Direction.up, Direction.down].contains(piece.direction);
-          buffer.write(piece.type.toStringBW(pieceIsWhite));
-        }
-        buffer.write("  ");
-      }
-      isBlack = !isBlack;
-      buffer.write("\n");
-    }
-    return buffer.toString();
+    return BoardSerializer(board: this).toString();
   }
 
   Board clone() {
