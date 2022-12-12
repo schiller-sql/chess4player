@@ -1,3 +1,4 @@
+/// The direction a [Piece] can face in 4 players chess.
 enum Direction {
   down(0, 1, 2), // y = 0
   left(-1, 0, 3), // x = 0
@@ -10,6 +11,7 @@ enum Direction {
 
   const Direction(this.dx, this.dy, this.clockwiseRotationsFromUp);
 
+  /// Rotate the direction by one clockwise.
   Direction get clockwiseRotate {
     switch (this) {
       case down:

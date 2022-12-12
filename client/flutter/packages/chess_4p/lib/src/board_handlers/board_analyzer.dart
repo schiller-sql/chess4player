@@ -1,8 +1,8 @@
-import 'board/board.dart';
-import 'direction.dart';
-import 'field.dart';
-import 'pieces/piece.dart';
-import 'pieces/piece_type.dart';
+import '../domain/board.dart';
+import '../domain/direction.dart';
+import '../domain/field.dart';
+import '../domain/piece.dart';
+import '../domain/piece_type.dart';
 import 'dart:math' as math;
 
 // TODO: en passent (first remove/but later pls)

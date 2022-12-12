@@ -1,3 +1,4 @@
+/// A piece type in chess.
 enum PieceType {
   king,
   queen,

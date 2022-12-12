@@ -1,7 +1,7 @@
-import 'package:chess_4p/src/board/board.dart';
-import 'package:chess_4p/src/board/default_board.dart';
-import 'package:chess_4p/src/board_mover.dart';
-import 'package:chess_4p/src/pieces/piece_type.dart';
+import 'package:chess_4p/src/domain/board.dart';
+import 'package:chess_4p/src/domain/default_board.dart';
+import 'package:chess_4p/src/board_handlers/board_mover.dart';
+import 'package:chess_4p/src/domain/piece_type.dart';
 import 'package:test/test.dart';
 
 final promotion_promotion_possible_test_expect = """

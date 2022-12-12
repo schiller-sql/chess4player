@@ -1,9 +1,9 @@
-import 'package:chess_4p/src/board/board.dart';
-import 'package:chess_4p/src/board_analyzer.dart';
+import 'package:chess_4p/src/domain/board.dart';
+import 'package:chess_4p/src/board_handlers/board_analyzer.dart';
 
-import 'field.dart';
-import 'pieces/piece.dart';
-import 'pieces/piece_type.dart';
+import '../domain/field.dart';
+import '../domain/piece.dart';
+import '../domain/piece_type.dart';
 
 /// Moves pieces around on a given [Board].
 ///

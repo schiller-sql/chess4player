@@ -1,9 +1,9 @@
 import 'package:chess_4p/chess_4p.dart';
-import 'package:chess_4p/src/board/board.dart';
-import 'package:chess_4p/src/board/default_board.dart';
-import 'package:chess_4p/src/board_analyzer.dart';
-import 'package:chess_4p/src/direction.dart';
-import 'package:chess_4p/src/pieces/piece.dart';
+import 'package:chess_4p/src/domain/board.dart';
+import 'package:chess_4p/src/domain/default_board.dart';
+import 'package:chess_4p/src/board_handlers/board_analyzer.dart';
+import 'package:chess_4p/src/domain/direction.dart';
+import 'package:chess_4p/src/domain/piece.dart';
 import 'package:test/test.dart';
 
 void main() {
