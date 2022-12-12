@@ -33,23 +33,39 @@ func main() {
 	if err != nil {
 		log.Fatal("dial:", err)
 	}
-	defer c.Close()
+	defer func(c *websocket.Conn) {
+		err := c.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(c)
 
 	done := make(chan struct{})
 
 	go func() {
 		defer close(done)
 		for {
-			_, message, err := c.ReadMessage()
+			var message Message
+			err := c.ReadJSON(&message)
 			if err != nil {
 				log.Println("read:", err)
 				return
 			}
 			log.Printf("recv: %s", message)
+			if message.Type == "room" && message.SubType == "created" {
+				err = c.WriteJSON(Message{
+					Type:    "room",
+					SubType: "leave",
+					Content: map[string]interface{}{},
+				})
+				if err != nil {
+					log.Println("write:", err)
+					return
+				}
+			}
 		}
 	}()
 
-	//TODO: send leave after confirmation
 	err = c.WriteJSON(Message{
 		Type:    "room",
 		SubType: "create",
