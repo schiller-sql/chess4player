@@ -41,7 +41,7 @@ func (this *Client) Read() {
 		var input Message
 		err := this.Conn.ReadJSON(&input)
 		if err != nil {
-			log.Println(err)
+			log.Println(err) //TODO: handle close error
 			return
 		}
 		this.Handler.Input(ClientEvent{input, this})
