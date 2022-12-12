@@ -10,16 +10,22 @@ import (
 )
 
 type Pool struct {
-	Register chan *Client
-	Clients  map[*Client]bool
-	Rooms    map[string]*Room
+	Register         chan *Client
+	Clients          map[*Client]bool
+	Rooms            map[string]*Room
+	UnregisterRoom   chan *Room
+	UnregisterClient chan *Client
+	InputEvent       chan ClientEvent
 }
 
 func NewPool() *Pool {
 	return &Pool{
-		Register: make(chan *Client),
-		Clients:  make(map[*Client]bool),
-		Rooms:    make(map[string]*Room),
+		Register:         make(chan *Client),
+		Clients:          make(map[*Client]bool),
+		Rooms:            make(map[string]*Room),
+		UnregisterRoom:   make(chan *Room),
+		UnregisterClient: make(chan *Client),
+		InputEvent:       make(chan ClientEvent),
 	}
 }
 
@@ -30,35 +36,43 @@ func (this *Pool) Start() {
 		case client := <-this.Register:
 			this.Clients[client] = true
 			fmt.Println("pool: new user joined\nsize of connection pool:", len(this.Clients))
+			break
+		case client := <-this.UnregisterClient:
+			delete(this.Clients, client)
+			fmt.Println("pool: size of connection pool", len(this.Clients))
+			break
+		case event := <-this.InputEvent:
+			fmt.Println("pool: receiving input from client")
+			if event.Message.Type == "room" {
+				switch event.Message.SubType {
+				case "create":
+					this.createRoom(event)
+					break
+				case "join":
+					this.joinRoom(event)
+					break
+				default:
+					//TODO: disconnect the client
+				}
+			}
+			break
 		}
 	}
 }
 
 func (this *Pool) Unregister(client *Client) {
-	delete(this.Clients, client)
-	fmt.Println("pool: size of connection pool", len(this.Clients))
+	this.UnregisterClient <- client
 }
 
 func (this *Pool) Input(event ClientEvent) {
-	fmt.Println("pool: receiving input from client")
-	if event.Message.Type == "room" {
-		switch event.Message.SubType {
-		case "create":
-			this.createRoom(event)
-		case "join":
-			this.joinRoom(event)
-			break
-		default:
-			//TODO: disconnect the client
-		}
-	}
+	this.InputEvent <- event
 }
 
 func (this *Pool) createRoom(event ClientEvent) {
 	var content = event.Message.Content
 	var client = event.Client
 	var code = this.generateCode()
-	var room = NewRoom()
+	var room = NewRoom(client, this)
 	var name = (content["name"]).(string)
 	if name == "" { //TODO: replace all unwanted characters
 		name = generateName(room)
@@ -151,8 +165,8 @@ func (this *Pool) generateCode() string {
 	for i := range b {
 		b[i] = letterBytes[rand.Intn(len(letterBytes))]
 	}
-	for _, room := range this.Rooms {
-		if room.Code == string(b) {
+	for code, _ := range this.Rooms {
+		if code == string(b) {
 			return this.generateCode()
 		}
 	}
