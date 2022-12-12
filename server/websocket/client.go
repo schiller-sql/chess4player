@@ -27,24 +27,40 @@ If there are any messages, it will pass these messages to the Pool’s Input cha
 which subsequently broadcasts the received message to every client within the pool.
 */
 func (this *Client) Read() {
-	fmt.Println("client: listen...")
 	defer func() {
-		this.Handler.Unregister(this)
-		err := this.Conn.Close()
-		if err != nil {
-			log.Println(err)
-			return
-		}
+		this.Disconnect()
 	}()
 
 	for {
 		var input Message
 		err := this.Conn.ReadJSON(&input)
 		if err != nil {
-			log.Println(err) //TODO: handle close error
+			log.Println(err)
+			this.Disconnect()
 			return
 		}
 		this.Handler.Input(ClientEvent{input, this})
 		fmt.Printf("MessageInput Received: %+v\n", input)
+	}
+}
+
+func (this *Client) Write(returnType string, returnSubType string, returnContent map[string]interface{}) {
+	err := this.Conn.WriteJSON(Message{
+		Type:    returnType,
+		SubType: returnSubType,
+		Content: returnContent,
+	})
+	if err != nil {
+		log.Println(err)
+		return
+	}
+}
+
+func (this *Client) Disconnect() {
+	this.Handler.Unregister(this)
+	err := this.Conn.Close()
+	if err != nil {
+		log.Println(err)
+		return
 	}
 }

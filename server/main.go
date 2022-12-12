@@ -8,8 +8,8 @@ import (
 )
 
 func handleWs(pool *websocket.Pool, w http.ResponseWriter, r *http.Request) {
-	fmt.Println("main: websocket endpoint hit")
 	conn, err := websocket.Upgrade(w, r)
+	fmt.Println("new connection from " + conn.RemoteAddr().String())
 	if err != nil {
 		fmt.Fprintf(w, "%+V\n", err)
 	}
@@ -17,9 +17,7 @@ func handleWs(pool *websocket.Pool, w http.ResponseWriter, r *http.Request) {
 		Conn:    conn,
 		Handler: pool,
 	}
-	fmt.Println("main: register client")
 	pool.Register <- client
-	fmt.Println("main: listen on client")
 	client.Read() //TODO::::: start as goroutine?????????
 }
 
