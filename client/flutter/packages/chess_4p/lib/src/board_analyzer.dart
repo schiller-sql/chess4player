@@ -23,6 +23,8 @@ class _ChessVector {
         assert(dx != 0 || dy != 0);
 }
 
+/// Analyzes a [Board] for all possible moves of a piece,
+/// that has the direction of [analyzingDirection].
 class BoardAnalyzer {
   /// The board to analyze.
   final Board board;
