@@ -1,0 +1,128 @@
+import 'package:chess_4p/src/board/board.dart';
+import 'package:chess_4p/src/board/default_board.dart';
+import 'package:chess_4p/src/board_mover.dart';
+import 'package:chess_4p/src/pieces/piece_type.dart';
+import 'package:test/test.dart';
+
+final promotion_promotion_possible_test_expect = """
+         ◻  ◼  ◻  ♝  ◻  ◼  ◻  ◼           
+         ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻           
+         ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼           
+◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  
+◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  
+◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  
+◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  
+◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  
+◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  
+◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  
+◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  
+         ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻           
+         ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼           
+         ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻           
+""";
+
+final castle_left_castle_test_expect = """
+         ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼           
+         ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻           
+         ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼           
+◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ♜  
+◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  
+◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  
+◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  
+◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ♜  
+◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ♚  
+◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  
+◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  
+         ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻           
+         ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼           
+         ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻           
+""";
+
+final castle_right_castle_test_expect = """
+         ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼           
+         ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻           
+         ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼           
+◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  
+◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ♚  
+◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ♜  
+◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  
+◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  
+◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  
+◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  
+◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ♜  
+         ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻           
+         ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼           
+         ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻           
+""";
+
+final castle_no_castle_test_expect = """
+         ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼           
+         ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻           
+         ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼           
+◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ♜  
+◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  
+◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ♚  
+◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  
+◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  
+◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  
+◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  
+◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ♜  
+         ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻           
+         ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼           
+         ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻           
+""";
+
+void main() {
+  group("castle", () {
+    late Board board;
+    late BoardMover boardMover;
+
+    setUp(() {
+      board = Board.empty();
+      board.writePiece(k3, 13, 6);
+      board.writePiece(r3, 13, 3);
+      board.writePiece(r3, 13, 10);
+      boardMover = BoardMover(board: board);
+    });
+
+    test("left castle", () {
+      boardMover.nonPromotionMove(13, 6, 13, 8);
+      print(board);
+      expect(board.toString(), castle_left_castle_test_expect);
+    });
+
+    test("right castle", () {
+      boardMover.nonPromotionMove(13, 6, 13, 4);
+      print(board);
+      expect(board.toString(), castle_right_castle_test_expect);
+    });
+
+    test("no castle", () {
+      boardMover.nonPromotionMove(13, 6, 13, 5);
+      print(board);
+      expect(board.toString(), castle_no_castle_test_expect);
+    });
+  });
+
+  group("promotion", () {
+    late Board board;
+    late BoardMover boardMover;
+
+    setUp(() {
+      board = Board.empty();
+      board.writePiece(p3, 7, 0);
+      boardMover = BoardMover(board: board);
+    });
+
+    test("promotion possible", () {
+      expect(boardMover.moveIsPromotion(7, 0, 6, 0), true);
+      boardMover.promotion(7, 0, 6, 0, PieceType.bishop);
+      expect(board.toString(), promotion_promotion_possible_test_expect);
+    });
+
+    test("no promotion possible", () {
+      board.move(7, 0, 8, 0);
+      expect(boardMover.moveIsPromotion(8, 0, 7, 0), false);
+    });
+  });
+}
