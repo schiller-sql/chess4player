@@ -22,6 +22,7 @@ CLIENT:
 {   "type": "game",        "subtype": "draw-accept",                  "content": {}}
 
 SERVER:
+// after the room is created, a participants-count-update is not given
 {   "type": "room",        "subtype": "created",                      "content": {"code": "asdf", "name": "asdf"}}
 {   "type": "room",        "subtype": "joined",                       "content": {"name": "asdf"}}
     // nur selber bekommt das wenn man leaved als bestätigung, der admin bekommt participants-count-update und alle anderen + auch admin bekommen wenn im spiel verlassen ein resigned

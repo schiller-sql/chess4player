@@ -1,7 +1,7 @@
-import 'package:chess_4p/src/direction.dart';
-import 'package:chess_4p/src/pieces/piece_type.dart';
+import 'package:chess_4p/src/domain/direction.dart';
+import 'package:chess_4p/src/domain/piece_type.dart';
 
-import '../pieces/piece.dart';
+import 'piece.dart';
 
 /// up
 get k0 => Piece(direction: Direction.up, type: PieceType.king);

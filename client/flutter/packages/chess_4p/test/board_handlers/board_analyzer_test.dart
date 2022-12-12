@@ -1,9 +1,9 @@
 import 'package:chess_4p/chess_4p.dart';
-import 'package:chess_4p/src/board/board.dart';
-import 'package:chess_4p/src/board/default_board.dart';
-import 'package:chess_4p/src/board_analyzer.dart';
-import 'package:chess_4p/src/direction.dart';
-import 'package:chess_4p/src/pieces/piece.dart';
+import 'package:chess_4p/src/domain/board.dart';
+import 'package:chess_4p/src/domain/default_board.dart';
+import 'package:chess_4p/src/board_handlers/board_analyzer.dart';
+import 'package:chess_4p/src/domain/direction.dart';
+import 'package:chess_4p/src/domain/piece.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -217,6 +217,102 @@ void main() {
         boardAnalyzer.accessibleFields(8, 8),
         {Field(9, 7), Field(7, 8)},
       );
+    });
+  });
+
+  group("castle", () {
+    group("direction up", () {
+      late Board board;
+      late BoardAnalyzer boardAnalyzer;
+
+      setUp(() {
+        board = Board.empty();
+        boardAnalyzer =
+            BoardAnalyzer(board: board, analyzingDirection: Direction.up);
+        // easiest two way castle scenario
+        board.writePiece(k0, 7, 13);
+        board.writePiece(r0, 3, 13);
+        board.writePiece(r0, 10, 13);
+      });
+
+      test("two ways castle possible", () {
+        expect(
+          boardAnalyzer.accessibleFields(7, 13),
+          containsAll({Field(5, 13), Field(9, 13)}),
+        );
+      });
+    });
+
+    group("direction left", () {
+      late Board board;
+      late BoardAnalyzer boardAnalyzer;
+
+      setUp(() {
+        board = Board.empty();
+        boardAnalyzer =
+            BoardAnalyzer(board: board, analyzingDirection: Direction.left);
+        // easiest two way castle scenario
+        board.writePiece(k3, 13, 6);
+        board.writePiece(r3, 13, 3);
+        board.writePiece(r3, 13, 10);
+        // TODO: does not give back castling pieces, but the other ones
+      });
+
+      test("two way castle possible", () {
+        expect(
+          boardAnalyzer.accessibleFields(13, 6),
+          containsAll({Field(13, 4), Field(13, 8)}),
+        );
+      });
+
+      test("king being attacked", () {
+        board.writePiece(n0, 11, 7);
+        expect(
+          boardAnalyzer.accessibleFields(13, 6),
+          isNot(containsAll({Field(13, 4), Field(13, 8)})),
+        );
+      });
+
+      test("right castle position (position where king would be) attacked", () {
+        board.writePiece(n0, 11, 9);
+        expect(
+          boardAnalyzer.accessibleFields(13, 6),
+          contains(Field(13, 4)),
+        );
+
+        expect(
+          boardAnalyzer.accessibleFields(13, 6),
+          isNot(
+            contains(
+              Field(13, 8),
+            ),
+          ),
+        );
+      });
+
+      test("friendly or unfriendly piece between left rook and king", () {
+        // friendly
+        board.writePiece(p3, 13, 4);
+        final pieces0 = boardAnalyzer.accessibleFields(13, 6);
+        // unfriendly
+        board.overwritePiece(p1, 13, 4);
+        final pieces1 = boardAnalyzer.accessibleFields(13, 6);
+        expect(pieces0, pieces1);
+
+        expect(
+          pieces0,
+          contains(Field(13, 8)),
+        );
+
+        expect(
+          pieces0,
+          isNot(
+            contains(
+              Field(13, 4),
+            ),
+          ),
+        );
+      });
     });
   });
 }

@@ -18,4 +18,12 @@ void main() {
       }
     }
   });
+
+  test("explicit values", (){
+    expect(Field(9,13).rotateClockwiseBy(0), Field(9, 13));
+    expect(Field(9,13).rotateClockwiseBy(1), Field(0, 9));
+    expect(Field(9,13).rotateClockwiseBy(2), Field(4,0));
+    expect(Field(9,13).rotateClockwiseBy(3), Field(13,4));
+    expect(Field(9,13).rotateClockwiseBy(4), Field(9, 13));
+  });
 }

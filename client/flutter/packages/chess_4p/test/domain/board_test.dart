@@ -1,4 +1,4 @@
-import 'package:chess_4p/src/board/board.dart';
+import 'package:chess_4p/src/domain/board.dart';
 import 'package:test/test.dart';
 
 const defaultBoard = """

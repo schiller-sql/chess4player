@@ -1,22 +1,30 @@
-import 'board/board.dart';
-import 'direction.dart';
-import 'field.dart';
-import 'pieces/piece.dart';
-import 'pieces/piece_type.dart';
+import '../domain/board.dart';
+import '../domain/direction.dart';
+import '../domain/field.dart';
+import '../domain/piece.dart';
+import '../domain/piece_type.dart';
 import 'dart:math' as math;
 
 // TODO: en passent (first remove/but later pls)
 // TODO: für alle analysis nach einem zug wird eine klassenobject erstellt
 
+/// A vector on a chess board,
+/// representing the possible straight and diagonal paths of
+/// rooks, bishops and queens.
 class _ChessVector {
   final int dx;
   final int dy;
 
+  /// [dx] and [dy] can either be 0 or 1, but one of them needs to be 1,
+  /// or else there would not be a vector.
   const _ChessVector(this.dx, this.dy)
       : assert(dx <= 1 && dx >= -1),
-        assert(dy <= 1 && dy >= -1);
+        assert(dy <= 1 && dy >= -1),
+        assert(dx != 0 || dy != 0);
 }
 
+/// Analyzes a [Board] for all possible moves of a piece,
+/// that has the direction of [analyzingDirection].
 class BoardAnalyzer {
   /// The board to analyze.
   final Board board;
@@ -48,11 +56,12 @@ class BoardAnalyzer {
   /// Cached calls of [accessibleFields]
   final Map<Field, Set<Field>> _cachedAccessibleFields;
 
-  bool get isCheck =>
+  bool get _isCheck =>
       _cachedCheckingPawnsAndKnights.isNotEmpty &&
-      _cachedCheckingVectors.isNotEmpty &&
-      _cachedAccessibleFields.isNotEmpty;
+      _cachedCheckingVectors.isNotEmpty;
 
+  /// Default constructor, give [board] to analyze
+  /// and which direction ([analyzingDirection])
   BoardAnalyzer({required this.board, required this.analyzingDirection})
       : _cachedCheckingPawnsAndKnights = [],
         _cachedCheckingVectors = {},
@@ -197,6 +206,10 @@ class BoardAnalyzer {
     }
   }
 
+  /// If the [piece] would be able to attack [attackingX] and [attackingY]
+  /// from [x] and [y].
+  ///
+  /// It also ignores the king for vectors.
   bool _canAttackIgnoringOwnKing(
       int x, int y, Piece piece, int attackingX, int attackingY) {
     switch (piece.type) {
@@ -221,6 +234,8 @@ class BoardAnalyzer {
     }
   }
 
+  /// If a king would be able to attack [attackingX] and [attackingY]
+  /// from [x] and [y].
   bool _kingCanReach(int x, int y, int attackingX, int attackingY) {
     for (var i = 1; i >= -1; i--) {
       for (var j = 1; j >= -1; j--) {
@@ -233,11 +248,20 @@ class BoardAnalyzer {
     return false;
   }
 
+  /// If a piece is the king of the [analyzingDirection].
   bool _pieceIsOwnKing(Piece piece) {
     return piece.type == PieceType.king &&
         piece.direction == analyzingDirection;
   }
 
+  /// Check if a chess vectors from the point [x] and [y]
+  /// can reach [attackingX] and [attackingY].
+  /// If the vectors reach the from the [analyzingDirection],
+  /// without having reached the point,
+  /// they will simply ignore the king and continue.
+  ///
+  /// Use [checkDiagonal] to analyze diagonal vectors and
+  /// [checkStraight] to analyze straight vectors.
   bool _vectorsFromPointCanAttackIgnoringOwnKing(
     int x,
     int y,
@@ -443,6 +467,8 @@ class BoardAnalyzer {
       ..addAll(_allAccessibleFieldsFromRook(x, y));
   }
 
+  /// All valid fields a king can move to from [x] and [y],
+  /// without taking checking into account.
   Set<Field> _allAccessibleFieldsFromKing(int x, int y) {
     final accessibleFields = <Field>{};
     for (var i = 1; i >= -1; i--) {
@@ -458,8 +484,98 @@ class BoardAnalyzer {
     return accessibleFields;
   }
 
-  int _smallestDistance(int x1, int y1, int x2, int y2) { // TODO: test
+  /// the smallest non-diagonal distance between two points in chess
+  int _smallestDistance(int x1, int y1, int x2, int y2) {
+    // TODO: test
     return math.min((x1 - x2).abs(), (y1 - y2).abs());
+  }
+
+  /// Get a [Piece] (or null if empty) for a point at [x] and [y].
+  /// However the coordinates are rotated
+  /// according to the [analyzingDirection.clockwiseRotationsFromUp].
+  Piece? _getPieceInRotationToAnalyzingDirection(int x, int y) {
+    final rotatedX = Field.clockwiseRotateXBy(
+        x, y, analyzingDirection.clockwiseRotationsFromUp);
+    final rotatedY = Field.clockwiseRotateYBy(
+        x, y, analyzingDirection.clockwiseRotationsFromUp);
+    if (board.isEmpty(rotatedX, rotatedY)) {
+      return null;
+    }
+    return board.getPiece(rotatedX, rotatedY);
+  }
+
+  bool _canAnyEnemyAttackIgnoringOwnKingInRotationToAnalyzingDirection(
+    int attackingX,
+    int attackingY,
+  ) {
+    // rotate
+    final rotatedX = Field.clockwiseRotateXBy(
+        attackingX, attackingY, analyzingDirection.clockwiseRotationsFromUp);
+    attackingY = Field.clockwiseRotateYBy(
+        attackingX, attackingY, analyzingDirection.clockwiseRotationsFromUp);
+    attackingX = rotatedX;
+    for (int y = 0; y < 14; y++) {
+      fields:
+      for (int x = 0; x < 14; x++) {
+        if (board.isOut(x, y) || board.isEmpty(x, y)) continue fields;
+        final piece = board.getPiece(x, y);
+        if (piece.direction == analyzingDirection) continue fields;
+        if (_canAttackIgnoringOwnKing(x, y, piece, attackingX, attackingY)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /// Adds [Field]s to [set] if the king at [x] and [y] can castle,
+  /// to his left and/or right side.
+  ///
+  /// From Wikipedia:
+  /// Castling is permitted only if neither the king nor the rook has previously moved;
+  /// the squares between the king and the rook are vacant; and the king does not leave,
+  /// cross over, or end up on a square attacked by an opposing piece
+  void _addCastleFieldsFromKingToSet(Piece kingPiece, Set<Field> set) {
+    assert(kingPiece.type == PieceType.king);
+
+    // TODO: not all fields have to be checked, as they are checked in _filteredAccessibleFieldsFromKing
+    final king = _getPieceInRotationToAnalyzingDirection(7, 13);
+    if (kingPiece != king) return;
+    if (king!.hasBeenMoved) return;
+    if (_isCheck) return;
+
+    final leftRook = _getPieceInRotationToAnalyzingDirection(3, 13);
+    final leftEmpty1 = _getPieceInRotationToAnalyzingDirection(4, 13);
+    final leftEmpty2 = _getPieceInRotationToAnalyzingDirection(5, 13);
+    final leftEmpty3 = _getPieceInRotationToAnalyzingDirection(6, 13);
+
+    if (leftRook?.type == PieceType.rook &&
+        leftRook?.hasBeenMoved == false &&
+        leftEmpty1 == null &&
+        leftEmpty2 == null &&
+        leftEmpty3 == null &&
+        !_canAnyEnemyAttackIgnoringOwnKingInRotationToAnalyzingDirection(
+            5, 13) &&
+        !_canAnyEnemyAttackIgnoringOwnKingInRotationToAnalyzingDirection(
+            6, 13)) {
+      set.add(Field.rotatedClockwise(
+          5, 13, analyzingDirection.clockwiseRotationsFromUp));
+    }
+
+    final rightEmpty1 = _getPieceInRotationToAnalyzingDirection(8, 13);
+    final rightEmpty2 = _getPieceInRotationToAnalyzingDirection(9, 13);
+    final rightRook = _getPieceInRotationToAnalyzingDirection(10, 13);
+    if (rightRook?.type == PieceType.rook &&
+        rightRook?.hasBeenMoved == false &&
+        rightEmpty1 == null &&
+        rightEmpty2 == null &&
+        !_canAnyEnemyAttackIgnoringOwnKingInRotationToAnalyzingDirection(
+            8, 13) &&
+        !_canAnyEnemyAttackIgnoringOwnKingInRotationToAnalyzingDirection(
+            9, 13)) {
+      set.add(Field.rotatedClockwise(
+          9, 13, analyzingDirection.clockwiseRotationsFromUp));
+    }
   }
 
   /// All valid fields the king can move to from [kingX] and [kingY],
@@ -484,6 +600,8 @@ class BoardAnalyzer {
             !_canAttackIgnoringOwnKing(x, y, piece, field.x, field.y));
       }
     }
+    final kingPiece = board.getPiece(kingX, kingY);
+    _addCastleFieldsFromKingToSet(kingPiece, accessibleFields);
     return accessibleFields;
   }
 
@@ -555,5 +673,11 @@ class BoardAnalyzer {
     }
     _cachedAccessibleFields[field] = accessibleFields;
     return accessibleFields;
+  }
+
+  /// if the king piece of the [analyzingDirection] is in check
+  bool isKingInCheck() {
+    _updateCacheIfNecessary();
+    return _isCheck;
   }
 }
