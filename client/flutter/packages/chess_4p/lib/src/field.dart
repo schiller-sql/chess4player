@@ -3,6 +3,12 @@ class Field {
 
   Field(this.x, this.y);
 
+  factory Field.rotatedClockwise(int x, int y, int clockwiseRotation) {
+    final rotatedX = clockwiseRotateXBy(x, y, clockwiseRotation);
+    final rotatedY = clockwiseRotateYBy(x, y, clockwiseRotation);
+    return Field(rotatedX, rotatedY);
+  }
+
   Field get clockwiseRotation =>
       Field(clockwiseRotateX(x, y), clockwiseRotateY(x, y));
 
@@ -21,36 +27,26 @@ class Field {
 
   static int clockwiseRotateXBy(int x, int y, int rotations) {
     rotations = _minPosRotations(rotations);
-    final shouldBeRotatedFirstTime = (x <= 6 && y <= 6) || (x > 6 && y > 6);
-    if ((shouldBeRotatedFirstTime && rotations < 3 && rotations > 0) ||
-        (!shouldBeRotatedFirstTime && rotations > 1)) {
-      return 13 - x;
-    }
-    return x;
+    if(rotations == 0) return x;
+    if(rotations == 1) return 13 - y;
+    if(rotations == 2) return 13 - x;
+    return y;
   }
 
   static int clockwiseRotateYBy(int x, int y, int rotations) {
     rotations = _minPosRotations(rotations);
-    final shouldBeRotatedFirstTime = (x <= 6 && y > 6) || (x > 6 && y <= 6);
-    if ((shouldBeRotatedFirstTime && rotations < 3 && rotations > 0)||
-        (!shouldBeRotatedFirstTime && rotations > 1)) {
-      return 13 - y;
-    }
-    return y;
+    if(rotations == 0) return y;
+    if(rotations == 1) return x;
+    if(rotations == 2) return 13 - y;
+    return 13 - x;
   }
 
   static int clockwiseRotateX(int x, int y) {
-    if ((x <= 6 && y <= 6) || (x > 6 && y > 6)) {
-      return 13 - x;
-    }
-    return x;
+    return 13 - y;
   }
 
   static int clockwiseRotateY(int x, int y) {
-    if ((x <= 6 && y > 6) || (x > 6 && y <= 6)) {
-      return 13 - y;
-    }
-    return y;
+    return x;
   }
 
   @override
@@ -66,6 +62,6 @@ class Field {
 
   @override
   String toString() {
-    return '($x|$y}';
+    return '($x,$y)';
   }
 }
