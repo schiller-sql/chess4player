@@ -2,6 +2,7 @@
   <configuration default="false" name="go build server" type="GoApplicationRunConfiguration" factoryName="Go Application">
     <module name="chess4player" />
     <working_directory value="$PROJECT_DIR$/server" />
+    <parameters value="GOMAXPROCS=16" />
     <kind value="FILE" />
     <directory value="$PROJECT_DIR$" />
     <filePath value="$PROJECT_DIR$/server/main.go" />
