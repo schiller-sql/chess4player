@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="go build go client" type="GoApplicationRunConfiguration" factoryName="Go Application" singleton="false">
+    <module name="chess4player" />
+    <working_directory value="$PROJECT_DIR$/client/go/universal" />
+    <kind value="FILE" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/client/go/universal/main.go" />
+    <method v="2" />
+  </configuration>
+</component>

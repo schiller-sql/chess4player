@@ -51,6 +51,6 @@ SERVER:
     //if the room is already full
 {   "type": "room",        "subtype": "join-failed",                  "content": {"reason": "full"}}
     //if the game has already started (does not matter if the room is full or not)
-{   "type": "room",        "subtype": "join-failed",                  "content": {"reason": "started"}}
+{   "type": "room",        "subtype": "join-failed",                  "content": {"reason": "full"}}
 
 //TODO: if the admin left while the game is running, the game continues and disbanded in the end
