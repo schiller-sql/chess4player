@@ -108,7 +108,9 @@ func main() {
 				switch input.SubType {
 				case "participants-count-update":
 					fmt.Println("participants-count-update: " + strconv.Itoa(int(input.Content["participants-count"].(float64))))
+					break
 				}
+				break
 			}
 			break
 		}

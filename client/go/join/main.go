@@ -33,7 +33,12 @@ func main() {
 	if err != nil {
 		log.Fatal("dial:", err)
 	}
-	defer c.Close()
+	defer func(c *websocket.Conn) {
+		err := c.Close()
+		if err != nil {
+			log.Println("ERROR ", err)
+		}
+	}(c)
 
 	done := make(chan struct{})
 
