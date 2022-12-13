@@ -46,7 +46,7 @@ func (this *Room) Start() { //TODO: cant register more than four people
 	fmt.Println("room: room started")
 	for {
 		select {
-		case participant := <-this.Register: //TODO: causes infinity loop
+		case participant := <-this.Register:
 			this.Participants.Lock()
 			this.Participants.Clients[participant.Client] = participant.Name
 			this.Participants.Unlock()
@@ -106,8 +106,10 @@ func (this *Room) leaveRoom(event ClientEvent) { //TODO: unwanted behavior here
 	var client = event.Client
 	client.Write("room", "left", map[string]interface{}{})
 	if client == this.Host {
+		fmt.Println("room-debug: host left room by leave-statement")
 		this.hostLeft()
 	} else {
+		fmt.Println("room-debug: participant left room by leave-statement")
 		delete(this.Participants.Clients, client)
 		this.Pool.Register <- client
 		client.Handler = this.Pool
@@ -119,8 +121,6 @@ func (this *Room) leaveRoom(event ClientEvent) { //TODO: unwanted behavior here
 }
 
 func (this *Room) participantCountUpdate() {
-	this.Participants.Lock()
-	defer this.Participants.Unlock()
 	this.Host.Write(
 		"room",
 		"participants-count-update",

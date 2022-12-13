@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 )
 
@@ -103,7 +104,11 @@ func main() {
 			break
 		case input := <-socketEvent:
 			switch input.Type {
-
+			case "room":
+				switch input.SubType {
+				case "participants-count-update":
+					fmt.Println("participants-count-update: " + strconv.Itoa(int(input.Content["participants-count"].(float64))))
+				}
 			}
 			break
 		}

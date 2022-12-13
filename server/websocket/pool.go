@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"math/rand"
 	"regexp"
+	"sort"
 	"strconv"
-	"strings"
 	"time"
+	"unicode"
 )
 
 type Pool struct {
@@ -70,18 +71,16 @@ func (this *Pool) Input(event ClientEvent) {
 }
 
 func (this *Pool) createRoom(event ClientEvent) {
-	fmt.Println("creating new room")
+	fmt.Println("pool-debug: creating new room")
 	var messageContent = event.Message.Content
 	var client = event.Client
 	var code = this.generateCode()
 	var room = NewRoom(client, this)
-	var name = (messageContent["name"]).(string)
-	match := regexp.MustCompile(`[^a-zA-Z_0-9]`) //TODO: should name look like this? idk...
-	name = match.ReplaceAllString(name, "")
-	if name == "" {
-		name = generateName(room)
-	}
-	//TODO: server is stuck after this print
+
+	room.Participants.Lock()
+	defer room.Participants.Unlock()
+
+	var name = validateName(messageContent["name"].(string), room)
 	go room.Start()
 	this.Rooms[code] = room
 	room.Register <- &Participant{client, name}
@@ -90,22 +89,37 @@ func (this *Pool) createRoom(event ClientEvent) {
 	client.Write("room", "created", map[string]interface{}{"code": code, "name": name})
 }
 
+func validateName(name string, room *Room) string {
+	match := regexp.MustCompile(`[^a-zA-Z_0-9]`) //TODO: should name look like this? idk...
+	name = match.ReplaceAllString(name, "")
+	if name == "" {
+		fmt.Println("pool-debug: generate name")
+		return generateName(room)
+	}
+	return name
+}
+
 func (this *Pool) joinRoom(event ClientEvent) {
+	fmt.Println("pool-debug: join room event triggered 0")
 	var content = event.Message.Content
 	var client = event.Client
 	var code = (content["code"]).(string)
 	var name = (content["name"]).(string)
-	var room, exists = this.Rooms[code]
+	var room, exist = this.Rooms[code]
 
-	if !exists {
-		room.InGame.Lock()
-		defer room.InGame.Unlock()
-		room.Participants.Lock()
-		defer room.Participants.Unlock()
-
+	if !exist {
+		fmt.Println("pool-debug: room not found")
 		client.Write("room", "join-failed", map[string]interface{}{"reason": "not found"})
 		return
 	}
+	fmt.Println("pool-debug: room found")
+	room.InGame.Lock()
+	defer room.InGame.Unlock()
+	room.Participants.Lock()
+	defer room.Participants.Unlock()
+	fmt.Println("pool-debug: mutex set")
+	name = validateName(name, room)
+	fmt.Println("pool-debug: join room event triggered 1")
 	if len(room.Participants.Clients) > 3 {
 		client.Write("room", "join-failed", map[string]interface{}{"reason": "full"})
 		return
@@ -113,15 +127,6 @@ func (this *Pool) joinRoom(event ClientEvent) {
 	if room.InGame.value {
 		client.Write("room", "join-failed", map[string]interface{}{"reason": "started"})
 		return
-	}
-	if name == "" {
-		name = generateName(room)
-	}
-	for client := range room.Participants.Clients {
-		if name == room.Participants.Clients[client] {
-			name = generateName(room)
-			break
-		}
 	}
 	client.Handler = room
 	var participant = Participant{client, name}
@@ -147,12 +152,19 @@ func (this *Pool) generateCode() string {
 }
 
 func generateName(room *Room) string {
-	room.Participants.Lock()
-	defer room.Participants.Unlock()
-
-	var count = 0
+	var names = make([]string, len(room.Participants.Clients))
+	var i = 0
 	for client := range room.Participants.Clients {
-		if !strings.Contains(room.Participants.Clients[client], "Player") {
+		var currentName = room.Participants.Clients[client]
+		if len(currentName) == 7 && currentName[0:6] == "Player" && unicode.IsDigit(int32(currentName[6])) {
+			names[i] = string(currentName[6])
+			i++
+		}
+	}
+	sort.Strings(names)
+	var count = 1
+	for _, name := range names {
+		if name == strconv.Itoa(count) {
 			count++
 		}
 	}
