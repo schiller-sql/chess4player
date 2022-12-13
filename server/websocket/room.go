@@ -1,7 +1,7 @@
 package websocket
 
 import (
-	"fmt"
+	"log"
 	"sync"
 )
 
@@ -30,6 +30,8 @@ type Participant struct {
 	Name   string
 }
 
+//TODO: mutex is not correctly set up in this file
+
 func NewRoom(host *Client, pool *Pool) *Room {
 	return &Room{
 		Register:         make(chan *Participant),
@@ -43,7 +45,6 @@ func NewRoom(host *Client, pool *Pool) *Room {
 }
 
 func (this *Room) Start() { //TODO: cant register more than four people
-	fmt.Println("room: room started")
 	for {
 		select {
 		case participant := <-this.Register:
@@ -59,19 +60,22 @@ func (this *Room) Start() { //TODO: cant register more than four people
 			delete(this.Participants.Clients, client)
 			this.Participants.Unlock()
 			if client == this.Host {
+				this.Participants.Lock()
 				this.hostLeft()
+				this.Participants.Unlock()
 				break
 			}
 			this.participantCountUpdate()
 			this.InGame.Lock()
 			if this.InGame.value {
+				this.Participants.Lock()
 				this.participantResigned(client)
+				this.Participants.Unlock()
 			}
 			this.InGame.Unlock()
 			break
 		case event := <-this.InputEvent:
 			{
-				fmt.Println("room: received input from participant")
 				if event.Message.Type == "room" {
 					switch event.Message.SubType {
 					case "leave":
@@ -79,7 +83,7 @@ func (this *Room) Start() { //TODO: cant register more than four people
 						break
 
 					default:
-						fmt.Println("room: unexpected statement\n   => disconnecting client")
+						log.Println("WARNING unexpected statement\n   => disconnecting client")
 						event.Client.Disconnect()
 					}
 				}
@@ -97,7 +101,7 @@ func (this *Room) Input(event ClientEvent) {
 	this.InputEvent <- event
 }
 
-func (this *Room) leaveRoom(event ClientEvent) { //TODO: unwanted behavior here
+func (this *Room) leaveRoom(event ClientEvent) {
 	this.Participants.Lock()
 	defer this.Participants.Unlock()
 	this.InGame.Lock()
@@ -106,10 +110,8 @@ func (this *Room) leaveRoom(event ClientEvent) { //TODO: unwanted behavior here
 	var client = event.Client
 	client.Write("room", "left", map[string]interface{}{})
 	if client == this.Host {
-		fmt.Println("room-debug: host left room by leave-statement")
 		this.hostLeft()
 	} else {
-		fmt.Println("room-debug: participant left room by leave-statement")
 		delete(this.Participants.Clients, client)
 		this.Pool.Register <- client
 		client.Handler = this.Pool
@@ -127,26 +129,20 @@ func (this *Room) participantCountUpdate() {
 		map[string]interface{}{"participants-count": len(this.Participants.Clients)})
 }
 
-func (this *Room) hostLeft() {
-	this.Participants.Lock()
-	defer this.Participants.Unlock()
-
+func (this *Room) hostLeft() { //TODO: does not work correctly
 	for client := range this.Participants.Clients {
 		if client != this.Host {
 			client.Write("room", "disbanded", map[string]interface{}{})
 		}
 	}
-	this.Pool.UnregisterRoom <- this
 	for client := range this.Participants.Clients {
 		this.Pool.Register <- client
 		client.Handler = this.Pool
 	}
+	this.Pool.UnregisterRoom <- this
 }
 
 func (this *Room) participantResigned(participant *Client) {
-	this.Participants.Lock()
-	defer this.Participants.Unlock()
-
 	for client := range this.Participants.Clients {
 		if client != participant {
 			client.Write("game", "player-lost", map[string]interface{}{"participant": this.Participants.Clients[participant], "reason": "resign"})

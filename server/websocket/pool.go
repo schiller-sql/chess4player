@@ -1,7 +1,7 @@
 package websocket
 
 import (
-	"fmt"
+	"log"
 	"math/rand"
 	"regexp"
 	"sort"
@@ -31,19 +31,15 @@ func NewPool() *Pool {
 }
 
 func (this *Pool) Start() {
-	fmt.Println("pool: pool started")
 	for {
 		select {
 		case client := <-this.Register:
 			this.Clients[client] = true
-			fmt.Println("pool: new size of connection pool:", len(this.Clients))
 			break
 		case client := <-this.UnregisterClient:
 			delete(this.Clients, client)
-			fmt.Println("pool: new size of connection pool", len(this.Clients))
 			break
 		case event := <-this.InputEvent:
-			fmt.Println("pool: receiving input from client")
 			if event.Message.Type == "room" {
 				switch event.Message.SubType {
 				case "create":
@@ -53,7 +49,7 @@ func (this *Pool) Start() {
 					this.joinRoom(event)
 					break
 				default:
-					fmt.Println("pool: unexpected statement\n   => disconnecting client")
+					log.Println("WARNING unexpected statement\n   => disconnecting client")
 					event.Client.Disconnect()
 				}
 			}
@@ -71,7 +67,6 @@ func (this *Pool) Input(event ClientEvent) {
 }
 
 func (this *Pool) createRoom(event ClientEvent) {
-	fmt.Println("pool-debug: creating new room")
 	var messageContent = event.Message.Content
 	var client = event.Client
 	var code = this.generateCode()
@@ -93,38 +88,40 @@ func validateName(name string, room *Room) string {
 	match := regexp.MustCompile(`[^a-zA-Z_0-9]`) //TODO: should name look like this? idk...
 	name = match.ReplaceAllString(name, "")
 	if name == "" {
-		fmt.Println("pool-debug: generate name")
 		return generateName(room)
+	}
+	for client := range room.Participants.Clients {
+		if name == room.Participants.Clients[client] {
+			return generateName(room)
+		}
 	}
 	return name
 }
 
 func (this *Pool) joinRoom(event ClientEvent) {
-	fmt.Println("pool-debug: join room event triggered 0")
 	var content = event.Message.Content
 	var client = event.Client
 	var code = (content["code"]).(string)
 	var name = (content["name"]).(string)
 	var room, exist = this.Rooms[code]
 
-	if !exist {
-		fmt.Println("pool-debug: room not found")
+	if !exist { //TODO: is not true on false code
+		log.Println("WARNING room '" + code + "' not found")
 		client.Write("room", "join-failed", map[string]interface{}{"reason": "not found"})
 		return
 	}
-	fmt.Println("pool-debug: room found")
 	room.InGame.Lock()
 	defer room.InGame.Unlock()
 	room.Participants.Lock()
 	defer room.Participants.Unlock()
-	fmt.Println("pool-debug: mutex set")
 	name = validateName(name, room)
-	fmt.Println("pool-debug: join room event triggered 1")
 	if len(room.Participants.Clients) > 3 {
+		log.Println("WARNING room '" + code + "' is full")
 		client.Write("room", "join-failed", map[string]interface{}{"reason": "full"})
 		return
 	}
 	if room.InGame.value {
+		log.Println("WARNING room '" + code + "' has already started")
 		client.Write("room", "join-failed", map[string]interface{}{"reason": "started"})
 		return
 	}

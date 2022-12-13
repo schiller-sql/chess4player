@@ -1,39 +1,67 @@
 package main
 
 import (
-	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"os"
 	"server/websocket"
 )
 
 func handleWs(pool *websocket.Pool, w http.ResponseWriter, r *http.Request) {
 	conn, err := websocket.Upgrade(w, r)
-	fmt.Println("new connection from " + conn.RemoteAddr().String())
 	if err != nil {
-		fmt.Fprintf(w, "%+V\n", err)
+		log.Println("ERROR ", err)
 	}
+	log.Println("INFO socket endpoint hit from " + conn.RemoteAddr().String())
 	client := &websocket.Client{
 		Conn:    conn,
 		Handler: pool,
 	}
 	pool.Register <- client
-	client.Read() //TODO::::: start as goroutine?????????
+	client.Read()
 }
 
+/*
+TODO: different log levels
+lowest to highest:
+trace(Something very low level),
+debug(Useful debugging information),
+info(Something noteworthy happened),
+warn(You should probably take a look at this),
+error(Something failed but I'm not quitting),
+fatal(Bye and exit),
+panic(I'm bailing and calling panic())
+*/
 func main() {
-	fmt.Println("main: starting pool")
+	file, err := os.OpenFile("tmp/server.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Printf("ERROR  %v\n", err)
+		os.Exit(1)
+	}
+	defer func(f *os.File) {
+		err := f.Close()
+		if err != nil {
+			log.Println("ERROR ", err)
+		}
+	}(file)
+	wrt := io.MultiWriter(os.Stdout, file)
+	log.SetOutput(wrt)
 	pool := websocket.NewPool()
 	go pool.Start()
-	fmt.Println("main: setup routes")
-	//setup routes
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		handleWs(pool, w, r)
 	})
-	http.HandleFunc("/admin", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "TODO: Admin GUI here")
-	})
-	log.Fatalln(
-		http.ListenAndServe(":8080", nil),
+	/*
+		http.HandleFunc("/admin", func(w http.ResponseWriter, r *http.Request) {
+			_, err := fmt.Fprintf(w, "Admin GUI here")
+			if err != nil {
+				log.Error(err)
+			}
+		})
+	*/
+	log.Println(
+		"ERROR ", http.ListenAndServe(":8080", nil),
 	)
+	os.Exit(1)
 }

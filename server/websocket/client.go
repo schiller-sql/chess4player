@@ -1,14 +1,13 @@
 package websocket
 
 import (
-	"fmt"
 	"github.com/gorilla/websocket"
 	"log"
 )
 
 type Client struct {
-	Conn    *websocket.Conn // pointer to a websocket.Conn object
-	Handler Handler         //pointer to the Pool which this client will be part of
+	Conn    *websocket.Conn
+	Handler Handler
 }
 
 type Message struct {
@@ -31,12 +30,11 @@ func (this *Client) Read() {
 		var input Message
 		err := this.Conn.ReadJSON(&input)
 		if err != nil {
-			log.Println(err)
+			log.Println("ERROR ", err)
 			this.Disconnect()
 			return
 		}
 		this.Handler.Input(ClientEvent{input, this})
-		fmt.Printf("MessageInput Received: %+v\n", input)
 	}
 }
 
@@ -47,7 +45,7 @@ func (this *Client) Write(returnType string, returnSubType string, returnContent
 		Content: returnContent,
 	})
 	if err != nil {
-		log.Println(err)
+		log.Println("ERROR ", err)
 		return
 	}
 }
@@ -56,7 +54,7 @@ func (this *Client) Disconnect() {
 	this.Handler.Unregister(this)
 	err := this.Conn.Close()
 	if err != nil {
-		log.Println(err)
+		log.Println("ERROR ", err)
 		return
 	}
 }
