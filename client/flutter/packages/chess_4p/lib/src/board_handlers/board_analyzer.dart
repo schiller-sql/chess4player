@@ -675,6 +675,13 @@ class BoardAnalyzer {
     return accessibleFields;
   }
 
+  /// If a field is analyzable;
+  /// if a piece of the [analyzingDirection] is on this field.
+  bool canAnalyze(int x, int y) {
+    return !board.isEmpty(x, y) &&
+        board.getPiece(x, y).direction == analyzingDirection;
+  }
+
   /// if the king piece of the [analyzingDirection] is in check
   bool isKingInCheck() {
     _updateCacheIfNecessary();

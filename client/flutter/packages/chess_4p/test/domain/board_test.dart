@@ -2,7 +2,7 @@ import 'package:chess_4p/src/domain/board.dart';
 import 'package:test/test.dart';
 
 const defaultBoard = """
-         ♖  ♘  ♗  ♔  ♕  ♗  ♔  ♖           
+         ♖  ♘  ♗  ♔  ♕  ♗  ♘  ♖           
          ♙  ♙  ♙  ♙  ♙  ♙  ♙  ♙           
          ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼           
 ♜  ♟︎  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ♟︎  ♜  
@@ -15,7 +15,7 @@ const defaultBoard = """
 ♜  ♟︎  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻  ♟︎  ♜  
          ◼  ◻  ◼  ◻  ◼  ◻  ◼  ◻           
          ♙  ♙  ♙  ♙  ♙  ♙  ♙  ♙           
-         ♖  ♘  ♗  ♕  ♔  ♗  ♔  ♖           
+         ♖  ♘  ♗  ♕  ♔  ♗  ♘  ♖           
 """;
 
 void main() {
