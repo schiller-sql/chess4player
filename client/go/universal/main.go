@@ -111,6 +111,13 @@ func main() {
 					break
 				}
 				break
+			case "game":
+				switch input.SubType {
+				case "started":
+					fmt.Println("started: " + (input.Content["participants"]).(string) + (input.Content["time"]).(string))
+					break
+				}
+				break
 			}
 			break
 		}
