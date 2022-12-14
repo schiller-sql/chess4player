@@ -51,6 +51,7 @@ func (this *Pool) Start() {
 				default:
 					log.Println("WARNING unexpected statement\n   => disconnecting client")
 					event.Client.Disconnect()
+					break
 				}
 			}
 			break

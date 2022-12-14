@@ -2,6 +2,7 @@ package websocket
 
 import (
 	"log"
+	"server/chess"
 	"sync"
 )
 
@@ -13,6 +14,7 @@ type Room struct {
 	Host             *Client
 	Pool             *Pool
 	InGame           *InGame
+	Game             *chess.Game
 }
 
 type InGame struct {
@@ -41,6 +43,7 @@ func NewRoom(host *Client, pool *Pool) *Room {
 		Host:             host,
 		Pool:             pool,
 		InGame:           &InGame{value: false, Mutex: sync.Mutex{}},
+		Game:             &chess.Game{Players: make(map[*Client]bool), Time: 600000, Board: make([][]chess.Piece, 8)},
 	}
 }
 
@@ -75,19 +78,7 @@ func (this *Room) Start() { //TODO: cant register more than four people
 			this.InGame.Unlock()
 			break
 		case event := <-this.InputEvent:
-			{
-				if event.Message.Type == "room" {
-					switch event.Message.SubType {
-					case "leave":
-						this.leaveRoom(event)
-						break
-
-					default:
-						log.Println("WARNING unexpected statement\n   => disconnecting client")
-						event.Client.Disconnect()
-					}
-				}
-			}
+			this.handleEvent(event)
 			break
 		}
 	}
@@ -101,12 +92,56 @@ func (this *Room) Input(event ClientEvent) {
 	this.InputEvent <- event
 }
 
+func (this *Room) handleEvent(event ClientEvent) {
+	switch event.Message.Type {
+	case "room":
+		switch event.Message.SubType {
+		case "leave":
+			this.leaveRoom(event)
+			break
+		default:
+			log.Println("WARNING unexpected statement\n   => disconnecting client")
+			event.Client.Disconnect()
+			break
+		}
+		break
+	case "game": //TODO:
+		switch event.Message.SubType {
+		case "start":
+			var content = event.Message.Content
+			this.InGame.value = true
+			this.Game.Start((content["time"]).(int))
+			break
+		case "move":
+			var content = event.Message.Content
+			this.Game.Move((content["move"]).([]int), (content["promotion"]).(string))
+			break
+		case "resign":
+			this.Game.Resign()
+			break
+		case "draw-request":
+			this.Game.DrawRequest()
+			break
+		case "draw accept":
+			this.Game.DrawAccept()
+			break
+		default:
+			log.Println("WARNING unexpected statement\n   => disconnecting client")
+			event.Client.Disconnect()
+			break
+		}
+	default:
+		log.Println("WARNING unexpected statement\n   => disconnecting client")
+		event.Client.Disconnect()
+		break
+	}
+}
+
 func (this *Room) leaveRoom(event ClientEvent) {
 	this.Participants.Lock()
 	defer this.Participants.Unlock()
 	this.InGame.Lock()
 	defer this.InGame.Unlock()
-
 	var client = event.Client
 	client.Write("room", "left", map[string]interface{}{})
 	if client == this.Host {
