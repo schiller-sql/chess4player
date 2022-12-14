@@ -3,15 +3,16 @@ package websocket
 import (
 	"log"
 	"server/chess"
+	"server/domain"
 	"sync"
 )
 
 type Room struct {
 	Register         chan *Participant
 	Participants     *Participants
-	InputEvent       chan ClientEvent
-	UnregisterClient chan *Client
-	Host             *Client
+	InputEvent       chan domain.ClientEvent
+	UnregisterClient chan *domain.Client
+	Host             *domain.Client
 	Pool             *Pool
 	InGame           *InGame
 	Game             *chess.Game
@@ -23,27 +24,27 @@ type InGame struct {
 }
 
 type Participants struct {
-	Clients map[*Client]string
+	Clients map[*domain.Client]string
 	sync.Mutex
 }
 
 type Participant struct {
-	Client *Client
+	Client *domain.Client
 	Name   string
 }
 
 //TODO: mutex is not correctly set up in this file
 
-func NewRoom(host *Client, pool *Pool) *Room {
+func NewRoom(host *domain.Client, pool *Pool) *Room {
 	return &Room{
 		Register:         make(chan *Participant),
-		Participants:     &Participants{Clients: make(map[*Client]string)},
-		InputEvent:       make(chan ClientEvent),
-		UnregisterClient: make(chan *Client),
+		Participants:     &Participants{Clients: make(map[*domain.Client]string)},
+		InputEvent:       make(chan domain.ClientEvent),
+		UnregisterClient: make(chan *domain.Client),
 		Host:             host,
 		Pool:             pool,
 		InGame:           &InGame{value: false, Mutex: sync.Mutex{}},
-		Game:             &chess.Game{Players: make(map[*Client]int), MoveOrder: make([]*Client, 4), Board: make([][]chess.Piece, 8)},
+		Game:             &chess.Game{Players: make(map[*domain.Client]int), MoveOrder: make([]*domain.Client, 4), Board: make([][]chess.Piece, 8)},
 	}
 }
 
@@ -84,15 +85,15 @@ func (this *Room) Start() { //TODO: cant register more than four people
 	}
 }
 
-func (this *Room) Unregister(client *Client) {
+func (this *Room) Unregister(client *domain.Client) {
 	this.UnregisterClient <- client
 }
 
-func (this *Room) Input(event ClientEvent) {
+func (this *Room) Input(event domain.ClientEvent) {
 	this.InputEvent <- event
 }
 
-func (this *Room) handleEvent(event ClientEvent) {
+func (this *Room) handleEvent(event domain.ClientEvent) {
 	switch event.Message.Type {
 	case "room":
 		switch event.Message.SubType {
@@ -117,7 +118,15 @@ func (this *Room) handleEvent(event ClientEvent) {
 			break
 		case "move":
 			var content = event.Message.Content
-			this.Game.Move(event.Client, (content["move"]).([]int), (content["promotion"]).(string))
+			this.Game.Move((content["move"]).([]int), (content["promotion"]).(string))
+			for participant := range this.Participants.Clients {
+				participant.Write(
+					"game",
+					"started",
+					map[string]interface{}{
+						"participants": this.namesOfParticipants(this.Game.MoveOrder),
+						"time":         this.Game.Timer.Time})
+			}
 			break
 		case "resign":
 			this.Game.Resign()
@@ -140,7 +149,7 @@ func (this *Room) handleEvent(event ClientEvent) {
 	}
 }
 
-func (this *Room) leaveRoom(event ClientEvent) {
+func (this *Room) leaveRoom(event domain.ClientEvent) {
 	this.Participants.Lock()
 	defer this.Participants.Unlock()
 	this.InGame.Lock()
@@ -180,10 +189,20 @@ func (this *Room) hostLeft() { //TODO: does not work correctly
 	this.Pool.UnregisterRoom <- this
 }
 
-func (this *Room) participantResigned(participant *Client) {
+func (this *Room) participantResigned(participant *domain.Client) {
 	for client := range this.Participants.Clients {
 		if client != participant {
 			client.Write("game", "player-lost", map[string]interface{}{"participant": this.Participants.Clients[participant], "reason": "resign"})
 		}
 	}
+}
+
+func (this *Room) namesOfParticipants(participants []*domain.Client) []string {
+	names := make([]string, len(participants))
+	index := 0
+	for _, participant := range participants {
+		names[index] = this.Participants.Clients[participant]
+		index++
+	}
+	return names
 }

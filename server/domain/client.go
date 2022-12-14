@@ -1,4 +1,4 @@
-package websocket
+package domain
 
 import (
 	"github.com/gorilla/websocket"

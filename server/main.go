@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"server/domain"
 	"server/websocket"
 )
 
@@ -14,7 +15,7 @@ func handleWs(pool *websocket.Pool, w http.ResponseWriter, r *http.Request) {
 		log.Println("ERROR ", err)
 	}
 	log.Println("INFO socket endpoint hit from " + conn.RemoteAddr().String())
-	client := &websocket.Client{
+	client := &domain.Client{
 		Conn:    conn,
 		Handler: pool,
 	}

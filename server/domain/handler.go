@@ -1,4 +1,4 @@
-package websocket
+package domain
 
 type Handler interface {
 	Unregister(this *Client)

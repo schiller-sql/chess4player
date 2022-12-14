@@ -4,6 +4,7 @@ import (
 	"log"
 	"math/rand"
 	"regexp"
+	"server/domain"
 	"sort"
 	"strconv"
 	"time"
@@ -11,22 +12,22 @@ import (
 )
 
 type Pool struct {
-	Register         chan *Client
-	Clients          map[*Client]bool
+	Register         chan *domain.Client
+	Clients          map[*domain.Client]bool
 	Rooms            map[string]*Room
 	UnregisterRoom   chan *Room
-	UnregisterClient chan *Client
-	InputEvent       chan ClientEvent
+	UnregisterClient chan *domain.Client
+	InputEvent       chan domain.ClientEvent
 }
 
 func NewPool() *Pool {
 	return &Pool{
-		Register:         make(chan *Client),
-		Clients:          make(map[*Client]bool),
+		Register:         make(chan *domain.Client),
+		Clients:          make(map[*domain.Client]bool),
 		Rooms:            make(map[string]*Room),
 		UnregisterRoom:   make(chan *Room),
-		UnregisterClient: make(chan *Client),
-		InputEvent:       make(chan ClientEvent),
+		UnregisterClient: make(chan *domain.Client),
+		InputEvent:       make(chan domain.ClientEvent),
 	}
 }
 
@@ -59,15 +60,15 @@ func (this *Pool) Start() {
 	}
 }
 
-func (this *Pool) Unregister(client *Client) {
+func (this *Pool) Unregister(client *domain.Client) {
 	this.UnregisterClient <- client
 }
 
-func (this *Pool) Input(event ClientEvent) {
+func (this *Pool) Input(event domain.ClientEvent) {
 	this.InputEvent <- event
 }
 
-func (this *Pool) createRoom(event ClientEvent) {
+func (this *Pool) createRoom(event domain.ClientEvent) {
 	var messageContent = event.Message.Content
 	var client = event.Client
 	var code = this.generateCode()
@@ -99,7 +100,7 @@ func validateName(name string, room *Room) string {
 	return name
 }
 
-func (this *Pool) joinRoom(event ClientEvent) {
+func (this *Pool) joinRoom(event domain.ClientEvent) {
 	var content = event.Message.Content
 	var client = event.Client
 	var code = (content["code"]).(string)

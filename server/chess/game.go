@@ -1,7 +1,7 @@
 package chess
 
 import (
-	"server/websocket"
+	"server/domain"
 )
 
 type Piece int
@@ -16,11 +16,11 @@ const (
 )
 
 type Game struct {
-	Players   map[*websocket.Client]int //the int represents the time this player has left, on mate/resign,.. the time is set to 0
-	MoveOrder []*websocket.Client
+	Players   map[*domain.Client]int //the int represents the time this player has left, on mate/resign,.. the time is set to 0
+	MoveOrder []*domain.Client
 	Board     [][]Piece
 	Timer     *Timer
-	Player    *websocket.Client
+	Player    *domain.Client
 }
 
 func (this *Game) Start() {
@@ -41,11 +41,11 @@ func (this *Game) Start() {
 	this.Player = this.MoveOrder[0]
 	var time = int64(this.Players[this.Player])
 	this.Timer = NewTimer(time, this)
-	this.Timer.startTime <- time
 	go this.Timer.Start()
+	this.Timer.startTime <- time
 }
 
-func (this *Game) Move(client *websocket.Client, move []int, promotion string) {
+func (this *Game) Move(move []int, promotion string) {
 	this.Timer.isStopped <- true
 	this.Players[this.Player] = int(this.Timer.Time)
 	this.Player = this.nextPlayer()
@@ -81,7 +81,7 @@ func (this *Game) DrawAccept() {
 
 }
 
-func (this *Game) nextPlayer() *websocket.Client {
+func (this *Game) nextPlayer() *domain.Client {
 	for index, player := range this.MoveOrder {
 		if player == this.Player {
 			current := this.MoveOrder[index+1]
