@@ -15,11 +15,25 @@ import (
 
 var addr = flag.String("addr", "localhost:8080", "http service address")
 
+var board = make([][]Piece, 8)
+
 type Message struct {
 	Type    string                 `json:"type:"`
 	SubType string                 `json:"subtype"`
 	Content map[string]interface{} `json:"content"`
 }
+
+type Piece int
+
+const (
+	Empty Piece = iota
+	Pawn
+	Rook
+	Knight
+	Bishop
+	Queen
+	King
+)
 
 func main() {
 	flag.Parse()
@@ -41,8 +55,19 @@ func main() {
 	inputEvent := make(chan string)
 	socketEvent := make(chan Message)
 
+	for i := 0; i < 8; i++ {
+		if i == 0 || i == 7 {
+			board[i] = []Piece{Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook}
+		} else if i == 1 || i == 6 {
+			board[i] = []Piece{Pawn, Pawn, Pawn, Pawn, Pawn, Pawn, Pawn, Pawn}
+		} else {
+			board[i] = []Piece{Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty}
+		}
+	}
+
 	go func() {
 		defer close(inputEvent)
+		printMainMenu()
 		for {
 			consoleReader := bufio.NewReader(os.Stdin)
 			fmt.Print(">")
@@ -67,7 +92,7 @@ func main() {
 				log.Println("read:", err)
 				return
 			}
-			log.Printf("recv: %s", message)
+			log.Printf("\nrecv: %s", message)
 			socketEvent <- message
 		}
 	}()
@@ -92,13 +117,41 @@ func main() {
 			case strings.Contains(order, "create"):
 				name := order[7 : len(order)-1]
 				write(conn, "room", "create", map[string]interface{}{"name": name})
+				printGameMenu()
 				break
 			case strings.Contains(order, "join"):
-				code := order[5 : len(order)-1]
-				write(conn, "room", "join", map[string]interface{}{"code": code, "name": ""})
+				code := order[5:11]
+				name := order[12 : len(order)-1]
+				write(conn, "room", "join", map[string]interface{}{"code": code, "name": name})
+				printGameMenu()
 				break
 			case strings.Contains(order, "leave"):
 				write(conn, "room", "leave", map[string]interface{}{})
+				printMainMenu()
+				break
+			case strings.Contains(order, "start"):
+				time, _ := strconv.Atoi(order[6 : len(order)-1])
+				write(conn, "game", "start", map[string]interface{}{"time": time})
+				printInGameMenu()
+				printBoard()
+				break
+			case strings.Contains(order, "move 1 2 3 4 b"):
+				x1, _ := strconv.Atoi(order[5:6])
+				y1, _ := strconv.Atoi(order[7:8])
+				x2, _ := strconv.Atoi(order[9:10])
+				y2, _ := strconv.Atoi(order[11:12])
+				var promotion = ""
+				if len(order) == 14 {
+					promotion = string(order[13])
+				}
+				move(x1, y1, x2, y2, promotion)
+				printBoard()
+				break
+			case strings.Contains(order, "resign"):
+				break
+			case strings.Contains(order, "draw-request"):
+				break
+			case strings.Contains(order, "draw-accept"):
 				break
 			}
 			break
@@ -107,14 +160,16 @@ func main() {
 			case "room":
 				switch input.SubType {
 				case "participants-count-update":
-					fmt.Println("participants-count-update: " + strconv.Itoa(int(input.Content["participants-count"].(float64))))
+					fmt.Println("participants-count-update: " + strconv.Itoa(int(input.Content["participants-count"].(float64))) + "\n>")
 					break
 				}
 				break
 			case "game":
 				switch input.SubType {
 				case "started":
-					fmt.Println("started: " + (input.Content["participants"]).(string) + (input.Content["time"]).(string))
+					fmt.Println("started: player: " +
+						((input.Content["participants"]).([]interface{})[0]).(string) + " time: " +
+						strconv.Itoa(int(input.Content["time"].(float64))) + "\n>")
 					break
 				}
 				break
@@ -134,4 +189,37 @@ func write(conn *websocket.Conn, messageType string, messageSubType string, mess
 		log.Println(err)
 		return
 	}
+}
+
+func printMainMenu() {
+	fmt.Println("\navailable commands: ")
+	fmt.Println("1. create [optional <name>]")
+	fmt.Println("2. join <code> [optional <name>]")
+}
+
+func printGameMenu() {
+	fmt.Println("\navailable commands: ")
+	fmt.Println("1. start <time>")
+	fmt.Println("2. leave")
+}
+
+func printInGameMenu() {
+	fmt.Println("\navailable commands: ")
+	fmt.Println("1. move x1 y1 x2 y2 [optional <promotion>]")
+	fmt.Println("2. resign")
+	fmt.Println("3. draw-request")
+	fmt.Println("4. draw-accept")
+}
+
+func printBoard() {
+	for row := 0; row < 8; row++ {
+		for column := 0; column < 8; column++ {
+			fmt.Print(board[row][column], " ")
+		}
+		fmt.Print("\n")
+	}
+}
+
+func move(x1 int, y1 int, x2 int, y2 int, promotion string) {
+
 }
