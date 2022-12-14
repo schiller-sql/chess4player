@@ -44,7 +44,7 @@ func NewRoom(host *domain.Client, pool *Pool) *Room {
 		Host:             host,
 		Pool:             pool,
 		InGame:           &InGame{value: false, Mutex: sync.Mutex{}},
-		Game:             &chess.Game{Players: make(map[*domain.Client]int), MoveOrder: make([]*domain.Client, 4), Board: make([][]chess.Piece, 8)},
+		Game:             &chess.Game{Players: make(map[*domain.Client]*chess.PlayerAttributes), Board: make([][]chess.Piece, 8)},
 	}
 }
 
@@ -62,6 +62,7 @@ func (this *Room) Start() { //TODO: cant register more than four people
 		case client := <-this.UnregisterClient: //only called if client lost connection
 			this.Participants.Lock()
 			delete(this.Participants.Clients, client)
+			delete(this.Game.Players, client) //TODO: remove player from game.moveOrder by resizing moveOrder
 			this.Participants.Unlock()
 			if client == this.Host {
 				this.Participants.Lock()
@@ -73,7 +74,8 @@ func (this *Room) Start() { //TODO: cant register more than four people
 			this.InGame.Lock()
 			if this.InGame.value {
 				this.Participants.Lock()
-				this.participantResigned(client)
+				this.Game.Player = client
+				this.Game.Resign()
 				this.Participants.Unlock()
 			}
 			this.InGame.Unlock()
@@ -106,27 +108,19 @@ func (this *Room) handleEvent(event domain.ClientEvent) {
 			break
 		}
 		break
-	case "game": //TODO:
+	case "game":
 		switch event.Message.SubType {
 		case "start":
 			var content = event.Message.Content
 			this.InGame.value = true
-			for participant := range this.Participants.Clients {
-				this.Game.Players[participant] = (content["time"]).(int)
+			for participant, name := range this.Participants.Clients {
+				this.Game.Players[participant] = &chess.PlayerAttributes{Time: int((content["time"]).(float64)), Name: name}
 			}
 			this.Game.Start()
 			break
 		case "move":
 			var content = event.Message.Content
 			this.Game.Move((content["move"]).([]int), (content["promotion"]).(string))
-			for participant := range this.Participants.Clients {
-				participant.Write(
-					"game",
-					"started",
-					map[string]interface{}{
-						"participants": this.namesOfParticipants(this.Game.MoveOrder),
-						"time":         this.Game.Timer.Time})
-			}
 			break
 		case "resign":
 			this.Game.Resign()
@@ -160,11 +154,13 @@ func (this *Room) leaveRoom(event domain.ClientEvent) {
 		this.hostLeft()
 	} else {
 		delete(this.Participants.Clients, client)
+		delete(this.Game.Players, client) //TODO: remove player from game.moveOrder by resizing moveOrder
 		this.Pool.Register <- client
 		client.Handler = this.Pool
 		this.participantCountUpdate()
 		if this.InGame.value {
-			this.participantResigned(client)
+			this.Game.Player = client
+			this.Game.Resign()
 		}
 	}
 }
@@ -187,22 +183,4 @@ func (this *Room) hostLeft() { //TODO: does not work correctly
 		client.Handler = this.Pool
 	}
 	this.Pool.UnregisterRoom <- this
-}
-
-func (this *Room) participantResigned(participant *domain.Client) {
-	for client := range this.Participants.Clients {
-		if client != participant {
-			client.Write("game", "player-lost", map[string]interface{}{"participant": this.Participants.Clients[participant], "reason": "resign"})
-		}
-	}
-}
-
-func (this *Room) namesOfParticipants(participants []*domain.Client) []string {
-	names := make([]string, len(participants))
-	index := 0
-	for _, participant := range participants {
-		names[index] = this.Participants.Clients[participant]
-		index++
-	}
-	return names
 }

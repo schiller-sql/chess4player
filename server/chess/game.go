@@ -16,14 +16,20 @@ const (
 )
 
 type Game struct {
-	Players   map[*domain.Client]int //the int represents the time this player has left, on mate/resign,.. the time is set to 0
+	Players   map[*domain.Client]*PlayerAttributes //the int represents the time this player has left, on mate/resign,.. the time is set to 0
 	MoveOrder []*domain.Client
 	Board     [][]Piece
 	Timer     *Timer
 	Player    *domain.Client
 }
 
+type PlayerAttributes struct {
+	Time int
+	Name string
+}
+
 func (this *Game) Start() {
+	this.MoveOrder = make([]*domain.Client, len(this.Players))
 	var index = 0
 	for player := range this.Players {
 		this.MoveOrder[index] = player
@@ -39,17 +45,20 @@ func (this *Game) Start() {
 		}
 	}
 	this.Player = this.MoveOrder[0]
-	var time = int64(this.Players[this.Player])
+	var time = int64(this.Players[this.Player].Time)
 	this.Timer = NewTimer(time, this)
 	go this.Timer.Start()
 	this.Timer.startTime <- time
+	for player := range this.Players {
+		player.Write("game", "started", map[string]interface{}{"participants": this.namesOfParticipants(this.MoveOrder), "time": time})
+	}
 }
 
 func (this *Game) Move(move []int, promotion string) {
 	this.Timer.isStopped <- true
-	this.Players[this.Player] = int(this.Timer.Time)
+	this.Players[this.Player].Time = int(this.Timer.Time)
 	this.Player = this.nextPlayer()
-	time := int64(this.Players[this.Player])
+	time := int64(this.Players[this.Player].Time)
 	this.Timer = NewTimer(time, this)
 	this.Timer.startTime <- time
 	//this.Time += int(time.Until(start) / time.Millisecond)
@@ -70,7 +79,9 @@ func (this *Game) Move(move []int, promotion string) {
 }
 
 func (this *Game) Resign() {
-
+	for client := range this.Players {
+		client.Write("game", "player-lost", map[string]interface{}{"participant": this.Players[this.Player].Name, "reason": "resign"})
+	}
 }
 
 func (this *Game) DrawRequest() {
@@ -93,4 +104,12 @@ func (this *Game) nextPlayer() *domain.Client {
 		}
 	}
 	return nil
+}
+
+func (this *Game) namesOfParticipants(participants []*domain.Client) []string {
+	names := make([]string, len(participants))
+	for index, participant := range participants {
+		names[index] = this.Players[participant].Name
+	}
+	return names
 }
