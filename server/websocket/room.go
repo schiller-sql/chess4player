@@ -43,7 +43,7 @@ func NewRoom(host *Client, pool *Pool) *Room {
 		Host:             host,
 		Pool:             pool,
 		InGame:           &InGame{value: false, Mutex: sync.Mutex{}},
-		Game:             &chess.Game{Players: make(map[*Client]bool), Time: 600000, Board: make([][]chess.Piece, 8)},
+		Game:             &chess.Game{Players: make(map[*Client]int), MoveOrder: make([]*Client, 4), Board: make([][]chess.Piece, 8)},
 	}
 }
 
@@ -110,11 +110,14 @@ func (this *Room) handleEvent(event ClientEvent) {
 		case "start":
 			var content = event.Message.Content
 			this.InGame.value = true
-			this.Game.Start((content["time"]).(int))
+			for participant := range this.Participants.Clients {
+				this.Game.Players[participant] = (content["time"]).(int)
+			}
+			this.Game.Start()
 			break
 		case "move":
 			var content = event.Message.Content
-			this.Game.Move((content["move"]).([]int), (content["promotion"]).(string))
+			this.Game.Move(event.Client, (content["move"]).([]int), (content["promotion"]).(string))
 			break
 		case "resign":
 			this.Game.Resign()
