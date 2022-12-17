@@ -62,3 +62,26 @@
 2022/12/14 20:41:55 ERROR  websocket: close 1000 (normal)
 2022/12/14 20:42:00 INFO socket endpoint hit from 127.0.0.1:44056
 2022/12/14 20:43:01 ERROR  websocket: close 1000 (normal)
+2022/12/17 21:26:04 INFO socket endpoint hit from 127.0.0.1:51204
+2022/12/17 21:26:04 ERROR  websocket: close 1006 (abnormal closure): unexpected EOF
+2022/12/17 21:26:04 ERROR  close tcp 127.0.0.1:8080->127.0.0.1:51204: use of closed network connection
+2022/12/17 21:28:10 INFO socket endpoint hit from 127.0.0.1:49812
+2022/12/17 21:28:22 INFO socket endpoint hit from 127.0.0.1:37858
+2022/12/17 21:28:37 ERROR  websocket: close 1006 (abnormal closure): unexpected EOF
+2022/12/17 21:28:37 ERROR  close tcp 127.0.0.1:8080->127.0.0.1:37858: use of closed network connection
+2022/12/17 21:30:09 INFO socket endpoint hit from 127.0.0.1:57824
+2022/12/17 21:30:33 ERROR  websocket: close 1006 (abnormal closure): unexpected EOF
+2022/12/17 21:30:44 INFO socket endpoint hit from 127.0.0.1:41038
+2022/12/17 21:30:58 INFO socket endpoint hit from 127.0.0.1:49244
+2022/12/17 21:34:27 INFO socket endpoint hit from 127.0.0.1:43196
+2022/12/17 21:34:30 INFO socket endpoint hit from 127.0.0.1:43208
+2022/12/17 21:40:48 INFO socket endpoint hit from 127.0.0.1:33628
+2022/12/17 21:40:50 INFO socket endpoint hit from 127.0.0.1:33638
+2022/12/17 21:44:32 INFO socket endpoint hit from 127.0.0.1:56754
+2022/12/17 21:44:34 INFO socket endpoint hit from 127.0.0.1:56762
+2022/12/17 23:47:28 INFO socket endpoint hit from 127.0.0.1:57032
+2022/12/17 23:47:29 INFO socket endpoint hit from 127.0.0.1:57048
+2022/12/17 23:55:49 INFO socket endpoint hit from 127.0.0.1:34442
+2022/12/17 23:55:49 INFO socket endpoint hit from 127.0.0.1:34454
+2022/12/17 23:57:04 INFO socket endpoint hit from 127.0.0.1:55614
+2022/12/17 23:57:05 INFO socket endpoint hit from 127.0.0.1:36076
