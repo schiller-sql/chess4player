@@ -35,9 +35,11 @@ func (this *Pool) Start() {
 	for {
 		select {
 		case client := <-this.Register:
+			log.Println("TRACE register new client in pool")
 			this.Clients[client] = true
 			break
 		case client := <-this.UnregisterClient:
+			log.Println("TRACE unregister client in pool")
 			delete(this.Clients, client)
 			break
 		case event := <-this.InputEvent:
@@ -73,6 +75,7 @@ func (this *Pool) createRoom(event domain.ClientEvent) {
 	var client = event.Client
 	var code = this.generateCode()
 	var room = NewRoom(client, this)
+	log.Println("TRACE new room '" + code + "'created")
 
 	room.Participants.Lock()
 	defer room.Participants.Unlock()
@@ -108,7 +111,7 @@ func (this *Pool) joinRoom(event domain.ClientEvent) {
 	var room, exist = this.Rooms[code]
 
 	if !exist { //TODO: is not true on false code
-		log.Println("WARNING room '" + code + "' not found")
+		log.Println("TRACE join in room '" + code + "' rejected\n   => reason: room was not found")
 		client.Write("room", "join-failed", map[string]interface{}{"reason": "not found"})
 		return
 	}
@@ -118,12 +121,12 @@ func (this *Pool) joinRoom(event domain.ClientEvent) {
 	defer room.Participants.Unlock()
 	name = validateName(name, room)
 	if len(room.Participants.Clients) > 3 {
-		log.Println("WARNING room '" + code + "' is full")
+		log.Println("TRACE join in room '" + code + "' rejected\n   => reason: room is full")
 		client.Write("room", "join-failed", map[string]interface{}{"reason": "full"})
 		return
 	}
 	if room.InGame.value {
-		log.Println("WARNING room '" + code + "' has already started")
+		log.Println("TRACE join in room '" + code + "' rejected\n   => reason: room has already started")
 		client.Write("room", "join-failed", map[string]interface{}{"reason": "started"})
 		return
 	}

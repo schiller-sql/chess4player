@@ -111,3 +111,15 @@
 2022/12/18 14:38:45 INFO socket endpoint hit from 127.0.0.1:54734
 2022/12/18 14:38:46 INFO socket endpoint hit from 127.0.0.1:54750
 2022/12/18 15:34:29 ERROR  websocket: close 1000 (normal)
+2022/12/18 19:37:31 INFO starting pool
+2022/12/18 19:37:31 INFO handle routing
+2022/12/18 19:37:37 INFO socket successfully upgraded
+2022/12/18 19:37:37 DEBUG socket endpoint hit from 127.0.0.1:48548
+2022/12/18 19:37:37 TRACE register new client in pool
+2022/12/18 19:37:47 INFO socket successfully upgraded
+2022/12/18 19:37:47 DEBUG socket endpoint hit from 127.0.0.1:57820
+2022/12/18 19:37:47 TRACE register new client in pool
+2022/12/18 19:37:53 TRACE new room created
+2022/12/18 19:37:53 TRACE register new client in room
+2022/12/18 19:38:02 TRACE register new client in room
+2022/12/18 19:38:14 TRACE room started game

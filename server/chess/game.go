@@ -1,7 +1,7 @@
 package chess
 
 import (
-	"fmt"
+	"log"
 	"server/domain"
 )
 
@@ -62,13 +62,12 @@ func (this *Game) Move(move [4]int, promotion string) {
 	this.Players[this.Player].Time = int(this.Timer.Time)
 	nextPlayer := this.nextPlayer()
 	if !this.validMove(move, promotion) {
+		log.Println("WARNING unexpected statement\n   => disconnecting client")
 		this.Player.Disconnect()
 		return
 	}
-	fmt.Println("move accepted")
 	switch promotion {
 	case "":
-		fmt.Println("no promotion")
 		this.Board[move[2]][move[3]] = this.Board[move[0]][move[1]]
 		this.Board[move[0]][move[1]] = nil
 		break
@@ -86,9 +85,9 @@ func (this *Game) Move(move [4]int, promotion string) {
 		break
 	default:
 		this.Player.Disconnect()
+		log.Println("WARNING unexpected statement\n   => disconnecting client")
 		return
 	}
-	fmt.Println("sending confirmation")
 	for player := range this.Players {
 		if player != this.Player {
 			player.Write("game", "moved", map[string]interface{}{
