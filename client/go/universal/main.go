@@ -146,9 +146,11 @@ func main() {
 				break
 			case strings.Contains(order, "resign"):
 				break
-			case strings.Contains(order, "draw-request"):
+			case strings.Contains(order, "draw request"):
+				write(conn, "game", "draw-request", map[string]interface{}{})
 				break
-			case strings.Contains(order, "draw-accept"):
+			case strings.Contains(order, "draw accept"):
+				write(conn, "game", "draw-accept", map[string]interface{}{})
 				break
 			}
 			break
@@ -241,5 +243,5 @@ func printBoard() {
 
 func move(x1 int, y1 int, x2 int, y2 int, promotion string) {
 	board[x2][y2] = board[x1][y1]
-	board[x1][y1] = 0
+	board[x1][y1] = 1
 }
