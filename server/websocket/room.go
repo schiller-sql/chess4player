@@ -130,10 +130,10 @@ func (this *Room) handleEvent(event domain.ClientEvent) {
 			this.Game.Resign()
 			break
 		case "draw-request":
-			this.Game.DrawRequest()
+			this.Game.DrawRequest(event.Client)
 			break
 		case "draw accept":
-			this.Game.DrawAccept()
+			this.Game.DrawAccept(event.Client)
 			break
 		default:
 			log.Println("WARNING unexpected statement\n   => disconnecting client")

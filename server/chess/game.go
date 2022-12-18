@@ -17,12 +17,13 @@ const (
 )
 
 type Game struct {
-	Players   map[*domain.Client]*PlayerAttributes //the int represents the time this player has left, on mate/resign,.. the time is set to 0
-	MoveOrder []*domain.Client
-	Board     [14][14]*Piece
-	Timer     *Timer
-	Player    *domain.Client
-	EnPassant []*Piece
+	Players      map[*domain.Client]*PlayerAttributes //the int represents the time this player has left, on mate/resign,.. the time is set to 0
+	MoveOrder    []*domain.Client
+	Board        [14][14]*Piece
+	Timer        *Timer
+	Player       *domain.Client
+	EnPassant    []*Piece
+	DrawAccepted map[*domain.Client]bool //TODO: store if player s in game
 }
 
 type PlayerAttributes struct {
@@ -39,9 +40,11 @@ type Piece struct {
 func (this *Game) Start() {
 	this.MoveOrder = make([]*domain.Client, len(this.Players))
 	this.EnPassant = make([]*Piece, len(this.Players))
+	this.DrawAccepted = make(map[*domain.Client]bool)
 	var index = 0
 	for player := range this.Players {
 		this.MoveOrder[index] = player
+		this.DrawAccepted[player] = false
 		index++
 	}
 	this.generateBard()
@@ -49,22 +52,20 @@ func (this *Game) Start() {
 	var time = int64(this.Players[this.Player].Time)
 	this.Timer = NewTimer(time, this)
 	go this.Timer.Start()
-	this.Timer.startTime <- time
 	for player := range this.Players {
 		player.Write("game", "started", map[string]interface{}{"participants": this.namesOfParticipants(this.MoveOrder), "time": time})
 	}
 }
 
 func (this *Game) Move(move [4]int, promotion string) {
-	fmt.Println("player moved") //TODO: this is executed
-	this.Timer.isStopped <- true
+	this.Timer.Stop()
 	this.Players[this.Player].Time = int(this.Timer.Time)
 	nextPlayer := this.nextPlayer()
 	if !this.validMove(move, promotion) {
 		this.Player.Disconnect()
 		return
 	}
-	fmt.Println("move accepted") //TODO: this is not executed
+	fmt.Println("move accepted")
 	switch promotion {
 	case "":
 		fmt.Println("no promotion")
@@ -91,17 +92,17 @@ func (this *Game) Move(move [4]int, promotion string) {
 	for player := range this.Players {
 		if player != this.Player {
 			player.Write("game", "moved", map[string]interface{}{
-				"move": move, "promotion": promotion, "next-participant": nextPlayer, "remaining-time": this.Players[this.Player].Time,
+				"move": move, "promotion": promotion, "next-participant": this.Players[nextPlayer].Name, "remaining-time": this.Players[this.Player].Time,
 			})
 		}
 	}
 	this.Player.Write("game", "move-accepted", map[string]interface{}{
-		"next-participant": nextPlayer, "remaining-time": this.Players[this.Player].Time,
+		"next-participant": this.Players[nextPlayer].Name, "remaining-time": this.Players[this.Player].Time,
 	})
 	this.Player = nextPlayer
 	time := int64(this.Players[this.Player].Time)
 	this.Timer = NewTimer(time, this)
-	this.Timer.startTime <- time
+	go this.Timer.Start()
 }
 
 func (this *Game) Resign() {
@@ -110,12 +111,26 @@ func (this *Game) Resign() {
 	}
 }
 
-func (this *Game) DrawRequest() {
-
+func (this *Game) DrawRequest(requester *domain.Client) {
+	for client := range this.Players {
+		if client != requester {
+			client.Write("game", "draw-requested", map[string]interface{}{"requester": this.Players[requester].Name, "reason": "resign"})
+		}
+	}
+	this.DrawAccepted[requester] = true
 }
 
-func (this *Game) DrawAccept() {
-
+func (this *Game) DrawAccept(acceptor *domain.Client) {
+	this.DrawAccepted[acceptor] = true
+	for _, hasAccepted := range this.DrawAccepted {
+		if !hasAccepted {
+			return
+		}
+	}
+	for client := range this.Players {
+		//TODO: only players, still in the game
+		client.Write("game", "end", map[string]interface{}{"reason": "draw", "winner": this.namesOfParticipants(this.MoveOrder)})
+	}
 }
 
 func (this *Game) nextPlayer() *domain.Client { //TODO: test if this method s valid
