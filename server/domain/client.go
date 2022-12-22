@@ -51,6 +51,7 @@ func (this *Client) Write(returnType string, returnSubType string, returnContent
 }
 
 func (this *Client) Disconnect() {
+	log.Println("DEBUG disconnecting client")
 	this.Handler.Unregister(this)
 	err := this.Conn.Close()
 	if err != nil {

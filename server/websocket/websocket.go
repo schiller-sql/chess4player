@@ -20,5 +20,6 @@ func Upgrade(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) {
 		log.Println("ERROR ", err)
 		return ws, err
 	}
+	log.Println("INFO socket successfully upgraded")
 	return ws, nil
 }

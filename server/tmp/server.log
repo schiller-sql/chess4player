@@ -62,3 +62,64 @@
 2022/12/14 20:41:55 ERROR  websocket: close 1000 (normal)
 2022/12/14 20:42:00 INFO socket endpoint hit from 127.0.0.1:44056
 2022/12/14 20:43:01 ERROR  websocket: close 1000 (normal)
+2022/12/17 21:26:04 INFO socket endpoint hit from 127.0.0.1:51204
+2022/12/17 21:26:04 ERROR  websocket: close 1006 (abnormal closure): unexpected EOF
+2022/12/17 21:26:04 ERROR  close tcp 127.0.0.1:8080->127.0.0.1:51204: use of closed network connection
+2022/12/17 21:28:10 INFO socket endpoint hit from 127.0.0.1:49812
+2022/12/17 21:28:22 INFO socket endpoint hit from 127.0.0.1:37858
+2022/12/17 21:28:37 ERROR  websocket: close 1006 (abnormal closure): unexpected EOF
+2022/12/17 21:28:37 ERROR  close tcp 127.0.0.1:8080->127.0.0.1:37858: use of closed network connection
+2022/12/17 21:30:09 INFO socket endpoint hit from 127.0.0.1:57824
+2022/12/17 21:30:33 ERROR  websocket: close 1006 (abnormal closure): unexpected EOF
+2022/12/17 21:30:44 INFO socket endpoint hit from 127.0.0.1:41038
+2022/12/17 21:30:58 INFO socket endpoint hit from 127.0.0.1:49244
+2022/12/17 21:34:27 INFO socket endpoint hit from 127.0.0.1:43196
+2022/12/17 21:34:30 INFO socket endpoint hit from 127.0.0.1:43208
+2022/12/17 21:40:48 INFO socket endpoint hit from 127.0.0.1:33628
+2022/12/17 21:40:50 INFO socket endpoint hit from 127.0.0.1:33638
+2022/12/17 21:44:32 INFO socket endpoint hit from 127.0.0.1:56754
+2022/12/17 21:44:34 INFO socket endpoint hit from 127.0.0.1:56762
+2022/12/17 23:47:28 INFO socket endpoint hit from 127.0.0.1:57032
+2022/12/17 23:47:29 INFO socket endpoint hit from 127.0.0.1:57048
+2022/12/17 23:55:49 INFO socket endpoint hit from 127.0.0.1:34442
+2022/12/17 23:55:49 INFO socket endpoint hit from 127.0.0.1:34454
+2022/12/17 23:57:04 INFO socket endpoint hit from 127.0.0.1:55614
+2022/12/17 23:57:05 INFO socket endpoint hit from 127.0.0.1:36076
+2022/12/18 00:06:19 INFO socket endpoint hit from 127.0.0.1:37684
+2022/12/18 00:06:20 INFO socket endpoint hit from 127.0.0.1:37696
+2022/12/18 00:11:13 INFO socket endpoint hit from 127.0.0.1:40218
+2022/12/18 00:11:14 INFO socket endpoint hit from 127.0.0.1:40232
+2022/12/18 00:22:24 INFO socket endpoint hit from 127.0.0.1:46952
+2022/12/18 00:22:25 INFO socket endpoint hit from 127.0.0.1:46962
+2022/12/18 00:23:50 INFO socket endpoint hit from 127.0.0.1:37108
+2022/12/18 00:23:50 INFO socket endpoint hit from 127.0.0.1:37114
+2022/12/18 00:25:03 INFO socket endpoint hit from 127.0.0.1:52576
+2022/12/18 00:25:05 INFO socket endpoint hit from 127.0.0.1:52586
+2022/12/18 14:13:05 INFO socket endpoint hit from 127.0.0.1:58812
+2022/12/18 14:13:06 INFO socket endpoint hit from 127.0.0.1:58820
+2022/12/18 14:15:52 INFO socket endpoint hit from 127.0.0.1:58552
+2022/12/18 14:15:53 INFO socket endpoint hit from 127.0.0.1:58564
+2022/12/18 14:33:12 INFO socket endpoint hit from 127.0.0.1:53564
+2022/12/18 14:33:14 INFO socket endpoint hit from 127.0.0.1:53578
+2022/12/18 14:35:12 INFO socket endpoint hit from 127.0.0.1:42516
+2022/12/18 14:35:13 INFO socket endpoint hit from 127.0.0.1:42530
+2022/12/18 14:35:50 ERROR  json: unsupported type: chan *websocket.Participant
+2022/12/18 14:35:50 ERROR  json: unsupported type: chan *websocket.Participant
+2022/12/18 14:37:18 INFO socket endpoint hit from 127.0.0.1:41756
+2022/12/18 14:37:19 INFO socket endpoint hit from 127.0.0.1:41760
+2022/12/18 14:37:53 ERROR  json: unsupported type: chan *websocket.Participant
+2022/12/18 14:38:45 INFO socket endpoint hit from 127.0.0.1:54734
+2022/12/18 14:38:46 INFO socket endpoint hit from 127.0.0.1:54750
+2022/12/18 15:34:29 ERROR  websocket: close 1000 (normal)
+2022/12/18 19:37:31 INFO starting pool
+2022/12/18 19:37:31 INFO handle routing
+2022/12/18 19:37:37 INFO socket successfully upgraded
+2022/12/18 19:37:37 DEBUG socket endpoint hit from 127.0.0.1:48548
+2022/12/18 19:37:37 TRACE register new client in pool
+2022/12/18 19:37:47 INFO socket successfully upgraded
+2022/12/18 19:37:47 DEBUG socket endpoint hit from 127.0.0.1:57820
+2022/12/18 19:37:47 TRACE register new client in pool
+2022/12/18 19:37:53 TRACE new room created
+2022/12/18 19:37:53 TRACE register new client in room
+2022/12/18 19:38:02 TRACE register new client in room
+2022/12/18 19:38:14 TRACE room started game

@@ -15,7 +15,7 @@ import (
 
 var addr = flag.String("addr", "localhost:8080", "http service address")
 
-var board = make([][]Piece, 8)
+var board = [14][14]Piece{}
 
 type Message struct {
 	Type    string                 `json:"type:"`
@@ -26,7 +26,8 @@ type Message struct {
 type Piece int
 
 const (
-	Empty Piece = iota
+	NULL Piece = iota
+	Empty
 	Pawn
 	Rook
 	Knight
@@ -55,15 +56,7 @@ func main() {
 	inputEvent := make(chan string)
 	socketEvent := make(chan Message)
 
-	for i := 0; i < 8; i++ {
-		if i == 0 || i == 7 {
-			board[i] = []Piece{Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook}
-		} else if i == 1 || i == 6 {
-			board[i] = []Piece{Pawn, Pawn, Pawn, Pawn, Pawn, Pawn, Pawn, Pawn}
-		} else {
-			board[i] = []Piece{Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty}
-		}
-	}
+	generateBoard()
 
 	go func() {
 		defer close(inputEvent)
@@ -121,7 +114,10 @@ func main() {
 				break
 			case strings.Contains(order, "join"):
 				code := order[5:11]
-				name := order[12 : len(order)-1]
+				name := ""
+				if len(order) > 12 {
+					name = order[12 : len(order)-1]
+				}
 				write(conn, "room", "join", map[string]interface{}{"code": code, "name": name})
 				printGameMenu()
 				break
@@ -135,7 +131,7 @@ func main() {
 				printInGameMenu()
 				printBoard()
 				break
-			case strings.Contains(order, "move 1 2 3 4 b"):
+			case strings.Contains(order, "move"):
 				x1, _ := strconv.Atoi(order[5:6])
 				y1, _ := strconv.Atoi(order[7:8])
 				x2, _ := strconv.Atoi(order[9:10])
@@ -144,14 +140,17 @@ func main() {
 				if len(order) == 14 {
 					promotion = string(order[13])
 				}
+				write(conn, "game", "move", map[string]interface{}{"move": []int{x1, y1, x2, y2}, "promotion": promotion})
 				move(x1, y1, x2, y2, promotion)
 				printBoard()
 				break
 			case strings.Contains(order, "resign"):
 				break
-			case strings.Contains(order, "draw-request"):
+			case strings.Contains(order, "draw request"):
+				write(conn, "game", "draw-request", map[string]interface{}{})
 				break
-			case strings.Contains(order, "draw-accept"):
+			case strings.Contains(order, "draw accept"):
+				write(conn, "game", "draw-accept", map[string]interface{}{})
 				break
 			}
 			break
@@ -175,6 +174,28 @@ func main() {
 				break
 			}
 			break
+		}
+	}
+}
+
+func generateBoard() {
+	for p := 0; p < 4; p++ {
+		board[0] = [14]Piece{NULL, NULL, NULL, Rook, Knight, Bishop, King, Queen, Bishop, Knight, Rook, NULL, NULL, NULL}
+		board[1] = [14]Piece{NULL, NULL, NULL, Pawn, Pawn, Pawn, Pawn, Pawn, Pawn, Pawn, Pawn, NULL, NULL, NULL}
+		board[2] = [14]Piece{NULL, NULL, NULL, Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty, NULL, NULL, NULL}
+		for i := 0; i < 6; i++ { //rotate
+			for j := i; j < 13-i; j++ {
+				temp := board[i][j]
+				board[i][j] = board[13-j][i]
+				board[13-j][i] = board[13-i][13-j]
+				board[13-i][14-1-j] = board[j][13-i]
+				board[j][13-i] = temp
+			}
+		}
+	}
+	for r := 3; r < 11; r++ {
+		for c := 3; c < 11; c++ {
+			board[r][c] = Empty
 		}
 	}
 }
@@ -212,8 +233,8 @@ func printInGameMenu() {
 }
 
 func printBoard() {
-	for row := 0; row < 8; row++ {
-		for column := 0; column < 8; column++ {
+	for row := 0; row < 14; row++ {
+		for column := 0; column < 14; column++ {
 			fmt.Print(board[row][column], " ")
 		}
 		fmt.Print("\n")
@@ -221,5 +242,6 @@ func printBoard() {
 }
 
 func move(x1 int, y1 int, x2 int, y2 int, promotion string) {
-
+	board[x2][y2] = board[x1][y1]
+	board[x1][y1] = 1
 }

@@ -44,7 +44,7 @@ func NewRoom(host *domain.Client, pool *Pool) *Room {
 		Host:             host,
 		Pool:             pool,
 		InGame:           &InGame{value: false, Mutex: sync.Mutex{}},
-		Game:             &chess.Game{Players: make(map[*domain.Client]*chess.PlayerAttributes), Board: make([][]chess.Piece, 8)},
+		Game:             &chess.Game{Players: make(map[*domain.Client]*chess.PlayerAttributes)},
 	}
 }
 
@@ -52,6 +52,7 @@ func (this *Room) Start() { //TODO: cant register more than four people
 	for {
 		select {
 		case participant := <-this.Register:
+			log.Println("TRACE register new client in room")
 			this.Participants.Lock()
 			this.Participants.Clients[participant.Client] = participant.Name
 			this.Participants.Unlock()
@@ -60,6 +61,7 @@ func (this *Room) Start() { //TODO: cant register more than four people
 			}
 			break
 		case client := <-this.UnregisterClient: //only called if client lost connection
+			log.Println("INFO room lost connection to client")
 			this.Participants.Lock()
 			delete(this.Participants.Clients, client)
 			delete(this.Game.Players, client) //TODO: remove player from game.moveOrder by resizing moveOrder
@@ -111,6 +113,7 @@ func (this *Room) handleEvent(event domain.ClientEvent) {
 	case "game":
 		switch event.Message.SubType {
 		case "start":
+			log.Println("TRACE room started game")
 			var content = event.Message.Content
 			this.InGame.value = true
 			for participant, name := range this.Participants.Clients {
@@ -120,16 +123,20 @@ func (this *Room) handleEvent(event domain.ClientEvent) {
 			break
 		case "move":
 			var content = event.Message.Content
-			this.Game.Move((content["move"]).([]int), (content["promotion"]).(string))
+			var move [4]int
+			for i, v := range (content["move"]).([]interface{}) {
+				move[i] = int(v.(float64))
+			}
+			this.Game.Move(move, (content["promotion"]).(string))
 			break
 		case "resign":
 			this.Game.Resign()
 			break
 		case "draw-request":
-			this.Game.DrawRequest()
+			this.Game.DrawRequest(event.Client)
 			break
 		case "draw accept":
-			this.Game.DrawAccept()
+			this.Game.DrawAccept(event.Client)
 			break
 		default:
 			log.Println("WARNING unexpected statement\n   => disconnecting client")
@@ -144,6 +151,7 @@ func (this *Room) handleEvent(event domain.ClientEvent) {
 }
 
 func (this *Room) leaveRoom(event domain.ClientEvent) {
+	log.Println("TRACE unregister client in room")
 	this.Participants.Lock()
 	defer this.Participants.Unlock()
 	this.InGame.Lock()
@@ -173,6 +181,7 @@ func (this *Room) participantCountUpdate() {
 }
 
 func (this *Room) hostLeft() { //TODO: does not work correctly
+	log.Println("DEBUG room disbanded\n   => host left")
 	for client := range this.Participants.Clients {
 		if client != this.Host {
 			client.Write("room", "disbanded", map[string]interface{}{})
