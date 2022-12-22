@@ -63,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Center(child: ChessBoard()),
+      body: Center(child: ChessBoard(pieceSet: WikiColoredPieceSet(),)),
     );
   }
 }
