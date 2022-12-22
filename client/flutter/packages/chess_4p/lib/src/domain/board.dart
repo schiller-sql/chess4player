@@ -51,7 +51,6 @@ class Board {
     Piece? p = _boardData[y][x];
     _boardData[y][x] = null;
     assert(p != null);
-    assert(isEmpty(nx, ny));
     _boardData[ny][nx] = p;
     _changeIndex++;
   }

@@ -57,7 +57,7 @@ class BoardAnalyzer {
   final Map<Field, Set<Field>> _cachedAccessibleFields;
 
   bool get _isCheck =>
-      _cachedCheckingPawnsAndKnights.isNotEmpty &&
+      _cachedCheckingPawnsAndKnights.isNotEmpty ||
       _cachedCheckingVectors.isNotEmpty;
 
   /// Default constructor, give [board] to analyze
@@ -184,9 +184,8 @@ class BoardAnalyzer {
           tempY += dy;
           if (!board.isEmpty(tempX, tempY)) {
             final piece = board.getPiece(tempX, tempY);
-            if (piece.direction != analyzingDirection || hasHitOwnPiece) {
-              continue vectors;
-            } else if (piece.type == PieceType.king) {
+            if (piece.direction == analyzingDirection &&
+                piece.type == PieceType.king) {
               final field = Field(x, y);
               final vector = _ChessVector(dx, dy);
               if (!hasHitOwnPiece) {
@@ -196,6 +195,9 @@ class BoardAnalyzer {
                 // indirect check
                 _cachedPinningVectors[field] = vector;
               }
+              continue vectors;
+            } else if (piece.direction != analyzingDirection ||
+                hasHitOwnPiece) {
               continue vectors;
             } else {
               hasHitOwnPiece = true;
