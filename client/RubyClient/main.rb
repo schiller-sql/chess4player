@@ -29,7 +29,7 @@ BEGIN {
 
 config = JSON.load File.open "./config.json"
 
-first_thread = Thread.new {
+server_thread = Thread.new {
     EM.run {
         socket = Faye::WebSocket::Client.new "ws://#{config['hostname']}:#{config['port']}/"
         socket.on :open do |event|
@@ -44,4 +44,4 @@ first_thread = Thread.new {
         end
     }
 }
-first_thread.join
+server_thread.join
