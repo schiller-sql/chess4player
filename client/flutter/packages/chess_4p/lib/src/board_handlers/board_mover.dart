@@ -49,28 +49,32 @@ class BoardMover {
     if (piece.type == PieceType.king) {
       final toXRotated = Field.clockwiseRotateXBy(
           toX, toY, -piece.direction.clockwiseRotationsFromUp);
-      if (toXRotated == 5) {
-        // left
-        final rookFromX = Field.clockwiseRotateXBy(
-            3, 13, piece.direction.clockwiseRotationsFromUp);
-        final rookFromY = Field.clockwiseRotateYBy(
-            3, 13, piece.direction.clockwiseRotationsFromUp);
-        final rookToX = Field.clockwiseRotateXBy(
-            6, 13, piece.direction.clockwiseRotationsFromUp);
-        final rookToY = Field.clockwiseRotateYBy(
-            6, 13, piece.direction.clockwiseRotationsFromUp);
-        board.move(rookFromX, rookFromY, rookToX, rookToY);
-      } else if (toXRotated == 9) {
-        // right
-        final rookFromX = Field.clockwiseRotateXBy(
-            10, 13, piece.direction.clockwiseRotationsFromUp);
-        final rookFromY = Field.clockwiseRotateYBy(
-            10, 13, piece.direction.clockwiseRotationsFromUp);
-        final rookToX = Field.clockwiseRotateXBy(
-            8, 13, piece.direction.clockwiseRotationsFromUp);
-        final rookToY = Field.clockwiseRotateYBy(
-            8, 13, piece.direction.clockwiseRotationsFromUp);
-        board.move(rookFromX, rookFromY, rookToX, rookToY);
+      final toYRotated = Field.clockwiseRotateYBy(
+          toX, toY, -piece.direction.clockwiseRotationsFromUp);
+      if (toYRotated == 13) {
+        if (toXRotated == 5) {
+          // left
+          final rookFromX = Field.clockwiseRotateXBy(
+              3, 13, piece.direction.clockwiseRotationsFromUp);
+          final rookFromY = Field.clockwiseRotateYBy(
+              3, 13, piece.direction.clockwiseRotationsFromUp);
+          final rookToX = Field.clockwiseRotateXBy(
+              6, 13, piece.direction.clockwiseRotationsFromUp);
+          final rookToY = Field.clockwiseRotateYBy(
+              6, 13, piece.direction.clockwiseRotationsFromUp);
+          board.move(rookFromX, rookFromY, rookToX, rookToY);
+        } else if (toXRotated == 9) {
+          // right
+          final rookFromX = Field.clockwiseRotateXBy(
+              10, 13, piece.direction.clockwiseRotationsFromUp);
+          final rookFromY = Field.clockwiseRotateYBy(
+              10, 13, piece.direction.clockwiseRotationsFromUp);
+          final rookToX = Field.clockwiseRotateXBy(
+              8, 13, piece.direction.clockwiseRotationsFromUp);
+          final rookToY = Field.clockwiseRotateYBy(
+              8, 13, piece.direction.clockwiseRotationsFromUp);
+          board.move(rookFromX, rookFromY, rookToX, rookToY);
+        }
       }
     }
   }
