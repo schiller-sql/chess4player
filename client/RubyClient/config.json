@@ -1,0 +1,8 @@
+{
+  "hostname": "localhost",
+  "port": 8080,
+  "gems": {
+    "priority": ["glimmer-dsl-libui"],
+    "not_priority": ["eventmachine", "faye-websocket"]
+  }
+}
