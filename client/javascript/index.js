@@ -1,6 +1,6 @@
 // api/index.js
 var W3CWebSocket = require('websocket').w3cwebsocket;
-var socket = new W3CWebSocket("ws://localhost:8080/ws");
+var socket = new W3CWebSocket("ws://localhost:8080/");
 
 let connect = () => {
 

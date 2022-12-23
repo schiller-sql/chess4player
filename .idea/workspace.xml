@@ -5,12 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="55e6eeae-7eb7-494f-be6f-695432a9bc40" name="Changes" comment="server: schmockes">
-      <change afterPath="$PROJECT_DIR$/client/go/main.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/cleanPort.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client/RubyClient/config.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client/RubyClient/main.rb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/chess4player.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/chess4player.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/websocket/pool.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/websocket/pool.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/websocket/room.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/websocket/room.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/javascript/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/javascript/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/tmp/server.log" beforeDir="false" afterPath="$PROJECT_DIR$/server/tmp/server.log" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,12 +34,16 @@
     <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectId" id="2IgTPF3ohgYHaHJWQ1goxY5Dua5" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
     "DefaultGoTemplateProperty": "Go File",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -52,9 +56,16 @@
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "go.import.settings.migrated": "true",
     "go.sdk.automatically.set": "true",
-    "last_opened_file_path": "/home/lenni/Desktop/Projects/chess4player/client/go/main.go",
+    "last_opened_file_path": "C:/Ruby31-x64/bin/ruby.exe",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "go.autoimport"
+    "ruby.rails.projectView.checked": "true",
+    "ruby.structure.view.model.defaults.configured": "true",
+    "settings.editor.selected.configurable": "org.jetbrains.plugins.ruby.settings.RubyActiveModuleSdkConfigurable",
+    "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -65,7 +76,20 @@
       <recent name="$PROJECT_DIR$/server/websocket" />
     </key>
   </component>
-  <component name="RunManager" selected="Go Build.go build client">
+  <component name="RunManager" selected="Ruby.main">
+    <configuration name="main" type="RubyRunConfigurationType" factoryName="Ruby" temporary="true">
+      <module name="chess4player" />
+      <RUBY_RUN_CONFIG NAME="RUBY_ARGS" VALUE="" />
+      <RUBY_RUN_CONFIG NAME="WORK DIR" VALUE="$MODULE_DIR$" />
+      <RUBY_RUN_CONFIG NAME="SHOULD_USE_SDK" VALUE="false" />
+      <RUBY_RUN_CONFIG NAME="ALTERN_SDK_NAME" VALUE="" />
+      <RUBY_RUN_CONFIG NAME="myPassParentEnvs" VALUE="true" />
+      <EXTENSION ID="BundlerRunConfigurationExtension" BUNDLE_MODE="AUTO" bundleExecEnabled="true" />
+      <EXTENSION ID="org.jetbrains.plugins.ruby.rails.run.RailsRunConfigurationExtension" SCRATCH_USE_RAILS_RUNNER="false" />
+      <RUBY_RUN_CONFIG NAME="SCRIPT_PATH" VALUE="$MODULE_DIR$/client/RubyClient/main.rb" />
+      <RUBY_RUN_CONFIG NAME="SCRIPT_ARGS" VALUE="" />
+      <method v="2" />
+    </configuration>
     <configuration name="cleanupPort" type="ShConfigurationType">
       <option name="SCRIPT_TEXT" value="" />
       <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
@@ -82,12 +106,27 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Go Build.go build server" />
-      <item itemvalue="Go Build.go build client" />
+      <item itemvalue="Ruby.main" />
       <item itemvalue="Shell Script.cleanupPort" />
     </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Ruby.main" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="55e6eeae-7eb7-494f-be6f-695432a9bc40" name="Changes" comment="server: schmockes" />
+      <created>1671656915534</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1671656915534</updated>
+      <workItem from="1671656918088" duration="1746000" />
+    </task>
+    <servers />
+  </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
@@ -103,6 +142,7 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <MESSAGE value="Init Go" />
     <MESSAGE value="Cleanup Go" />
     <MESSAGE value="Almost Cleanup Go&#10;never do this shit again" />
