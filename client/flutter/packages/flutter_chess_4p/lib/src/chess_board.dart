@@ -81,9 +81,14 @@ class _ChessBoardState extends State<ChessBoard> {
       child = GestureDetector(
         onTap: () {
           final field = Field(x, y);
-          if(selectableFields.contains(field)) {
-            setState((){
-              boardMover.nonPromotionMove(selectedField!.x, selectedField!.y, x, y);
+          if (selectableFields.contains(field)) {
+            setState(() {
+              final fromX = selectedField!.x, fromY = selectedField!.y;
+              if (boardMover.moveIsPromotion(fromX, fromY, x, y)) {
+                boardMover.promotion(fromX, fromY, x, y, PieceType.queen);
+              } else {
+                boardMover.nonPromotionMove(fromX, fromY, x, y);
+              }
               selectedField = null;
               selectableFields = {};
             });
