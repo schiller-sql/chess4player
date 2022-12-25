@@ -36,7 +36,7 @@ class _ChessBoardState extends State<ChessBoard> {
 
   Field? selectedField;
 
-  void tapField(Field field) {
+  void tapOwnPiece(Field field) {
     setState(() {
       if (field == selectedField) {
         selectedField = null;
@@ -52,6 +52,47 @@ class _ChessBoardState extends State<ChessBoard> {
       }
     });
   }
+
+  void movePiece(int toX, int toY) {
+    final field = Field(toX, toY);
+    if (selectableFields.contains(field)) {
+      setState(() {
+        final fromX = selectedField!.x, fromY = selectedField!.y;
+        if (boardMover.moveIsPromotion(fromX, fromY, toX, toY)) {
+          promotionCandidate = field;
+        } else {
+          boardMover.nonPromotionMove(fromX, fromY, toX, toY);
+          selectedField = null;
+        }
+        selectableFields = {};
+      });
+    }
+  }
+
+  void cancelPromotion() {
+    setState(() {
+      selectedField = null;
+      promotionCandidate = null;
+    });
+  }
+
+  void executePromotion(PieceType pieceType) {
+    setState(() {
+      boardMover.promotion(
+        selectedField!.x,
+        selectedField!.y,
+        promotionCandidate!.x,
+        promotionCandidate!.y,
+        pieceType,
+      );
+      promotionCandidate = null;
+      selectedField = null;
+    });
+  }
+
+  Field? promotionCandidate;
+
+  bool get doingPromotion => promotionCandidate != null;
 
   Widget chessFieldItemBuilder(int x, int y) {
     Widget? child;
@@ -72,7 +113,7 @@ class _ChessBoardState extends State<ChessBoard> {
       child = GestureDetector(
         onTapDown: (_) {
           final field = Field(x, y);
-          tapField(field);
+          tapOwnPiece(field);
         },
         onTap: () {},
         child: child,
@@ -80,24 +121,96 @@ class _ChessBoardState extends State<ChessBoard> {
     } else {
       child = GestureDetector(
         onTap: () {
-          final field = Field(x, y);
-          if (selectableFields.contains(field)) {
-            setState(() {
-              final fromX = selectedField!.x, fromY = selectedField!.y;
-              if (boardMover.moveIsPromotion(fromX, fromY, x, y)) {
-                boardMover.promotion(fromX, fromY, x, y, PieceType.queen);
-              } else {
-                boardMover.nonPromotionMove(fromX, fromY, x, y);
-              }
-              selectedField = null;
-              selectableFields = {};
-            });
-          }
+          movePiece(x, y);
         },
         child: child,
       );
     }
     return child;
+  }
+
+  Widget _buildPromotionDialogSection({
+    required Widget child,
+    required VoidCallback onPressed,
+  }) {
+    return Expanded(
+      child: TextButton(
+        onPressed: onPressed,
+        style: ButtonStyle(
+          padding: MaterialStateProperty.all(EdgeInsets.zero),
+          shape: MaterialStateProperty.all(
+            const ContinuousRectangleBorder(),
+          ),
+          overlayColor: MaterialStateProperty.all(
+            Colors.transparent,
+          ),
+          backgroundColor: MaterialStateProperty.resolveWith(
+            (states) {
+              if (states.contains(MaterialState.pressed)) {
+                return Colors.yellow;
+              }
+              if (states.contains(MaterialState.focused) ||
+                  states.contains(MaterialState.hovered)) {
+                return Colors.green;
+              }
+              return null;
+            },
+          ),
+          foregroundColor: MaterialStateProperty.all(Colors.black),
+        ),
+        child: child,
+      ),
+    );
+  }
+
+  Widget _buildPromotionDialog() {
+    Field f = promotionCandidate!;
+    return SizedBox.expand(
+      child: GestureDetector(
+        onTap: cancelPromotion,
+        child: ColoredBox(
+          color: Colors.black.withAlpha(100), // TODO: not over chess pieces...
+          child: Align(
+            alignment: FractionalOffset(f.x / 13, (f.y - 4) / (14 - 5)),
+            child: FractionallySizedBox(
+              widthFactor: 1 / 14,
+              heightFactor: 5 / 14,
+              child: ColoredBox(
+                color: Colors.blueAccent,
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildPromotionDialogSection(
+                      child: const Icon(
+                        Icons.close,
+                        size: 32,
+                      ),
+                      onPressed: cancelPromotion,
+                    ),
+                    for (final pieceType in const [
+                      PieceType.knight,
+                      PieceType.bishop,
+                      PieceType.rook,
+                      PieceType.queen
+                    ])
+                      _buildPromotionDialogSection(
+                        child: SizedBox.expand(
+                          child: widget.pieceSet.createPiece(
+                            pieceType,
+                            Direction.up,
+                          ),
+                        ),
+                        onPressed: () => executePromotion(pieceType),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -107,11 +220,20 @@ class _ChessBoardState extends State<ChessBoard> {
       painter: ChessBoardPainter(),
       child: AspectRatio(
         aspectRatio: 1,
-        child: GridView.builder(
-          itemCount: 14 * 14,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 14),
-          itemBuilder: (context, i) => chessFieldItemBuilder(i % 14, i ~/ 14),
+        child: Stack(
+          children: [
+            if (doingPromotion) _buildPromotionDialog(),
+            IgnorePointer(
+              ignoring: doingPromotion,
+              child: GridView.builder(
+                itemCount: 14 * 14,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 14),
+                itemBuilder: (context, i) =>
+                    chessFieldItemBuilder(i % 14, i ~/ 14),
+              ),
+            ),
+          ],
         ),
       ),
     );
