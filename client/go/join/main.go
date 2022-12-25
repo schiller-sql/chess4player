@@ -14,7 +14,7 @@ import (
 var addr = flag.String("addr", "localhost:8080", "http service address")
 
 type Message struct {
-	Type    string                 `json:"type:"`
+	Type    string                 `json:"type"`
 	SubType string                 `json:"subtype"`
 	Content map[string]interface{} `json:"content"`
 }

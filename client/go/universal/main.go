@@ -18,7 +18,7 @@ var addr = flag.String("addr", "localhost:8080", "http service address")
 var board = [14][14]Piece{}
 
 type Message struct {
-	Type    string                 `json:"type:"`
+	Type    string                 `json:"type"`
 	SubType string                 `json:"subtype"`
 	Content map[string]interface{} `json:"content"`
 }
