@@ -44,4 +44,15 @@ enum PieceType {
         return "♟︎";
     }
   }
+
+  String toSimpleString() {
+    switch(this) {
+      case king: return "k";
+      case queen: return "q";
+      case rook: return "r";
+      case knight: return "n";
+      case bishop: return "b";
+      default: return "";
+    }
+  }
 }
