@@ -23,6 +23,18 @@ func handleWs(pool *websocket.Pool, w http.ResponseWriter, r *http.Request) {
 	client.Read()
 }
 
+func openLogFile() (*os.File, error) {
+	err := os.MkdirAll("tmp", os.ModePerm)
+	if err != nil {
+		return nil, err
+	}
+	file, err := os.OpenFile("tmp/server.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		return nil, err
+	}
+	return file, nil
+}
+
 /*
 TODO: different log levels
 lowest to highest:
@@ -36,7 +48,7 @@ panic(I'm bailing and calling panic())
 */
 func main() {
 	log.Println("INFO starting server")
-	file, err := os.OpenFile("tmp/server.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	file, err := openLogFile()
 	if err != nil {
 		log.Println("FATAL ", err)
 		os.Exit(1)
