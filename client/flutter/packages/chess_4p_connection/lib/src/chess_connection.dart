@@ -2,25 +2,43 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:chess_4p/chess_4p.dart';
-import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'chess_connection_listener.dart';
 
-class ChessConnectionService {
+class ChessConnection {
   final List<ChessConnectionListener> _listeners = [];
-  final IOWebSocketChannel channel;
-  late final StreamSubscription<dynamic> sub;
+  final WebSocketChannel _channel;
+  final Uri uri;
+  late final StreamSubscription<dynamic> _sub;
 
-  ChessConnectionService({required this.channel}) {
-    _startListen();
+  final Completer<bool> _connectionCompleter = Completer();
+
+  Future<bool> get connectionClosedWithError => _connectionCompleter.future;
+
+  ChessConnection({required this.uri})
+      : _channel = WebSocketChannel.connect(uri);
+
+  void connect() {
+    _sub = _channel.stream.listen(
+      _handleEvent,
+      onError: _handleError,
+      onDone: _handleDone,
+      cancelOnError: false,
+    );
   }
 
-  void _startListen() {
-    sub = channel.stream.listen(_handleEvent);
+  void _handleError(Object error) {
+    _handleFinish(true);
   }
 
-  void _stopListen() {
-    sub.cancel();
+  void _handleDone() {
+    _handleFinish(false);
+  }
+
+  void _handleFinish(bool withError) {
+    _connectionCompleter.complete(withError);
+    close();
   }
 
   void _handleEvent(dynamic rawEvent) {
@@ -75,16 +93,17 @@ class ChessConnectionService {
     }
   }
 
-  void addListener(ChessConnectionListener listener) {
+  void addChessListener(ChessConnectionListener listener) {
     _listeners.add(listener);
   }
 
-  void removeListener(ChessConnectionListener listener) {
+  void removeChessListener(ChessConnectionListener listener) {
     _listeners.remove(listener);
   }
 
   void close() {
-    _stopListen();
+    _channel.sink.close();
+    _sub.cancel();
     _listeners.clear();
   }
 
@@ -94,7 +113,7 @@ class ChessConnectionService {
         '"subtype":"$subtype",'
         '"content":${content == null ? '{}' : jsonEncode(content)}'
         '}';
-    channel.sink.add(string);
+    _channel.sink.add(string);
   }
 
   void _sendRoom(String subtype, [Map<String, dynamic>? content]) {
@@ -149,4 +168,3 @@ class ChessConnectionService {
     _sendGame("draw-accept");
   }
 }
-

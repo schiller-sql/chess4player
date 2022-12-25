@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:chess_4p_connection/chess_4p_connection.dart';
-import 'package:web_socket_channel/io.dart';
 
 class ChessConnectionLogListener extends ChessConnectionListener {
   static late String lastCreatedRoomCode;
@@ -48,21 +47,20 @@ class ChessConnectionLogListener extends ChessConnectionListener {
 }
 
 void main() async {
-  var channel = IOWebSocketChannel.connect(Uri.parse('ws://localhost:8080'));
-
-  final connectionService = ChessConnectionService(channel: channel);
+  final connectionService =
+      ChessConnection(uri: Uri.parse('ws://localhost:8080'))..connect();
   connectionService.createRoom(playerName: "deine mom");
-  connectionService.addListener(ChessConnectionLogListener(name: "first"));
+  connectionService.addChessListener(ChessConnectionLogListener(name: "first"));
 
   await Future.delayed(Duration(seconds: 2));
 
   for (var i = 0; i < 4; i++) {
-    var channel2 = IOWebSocketChannel.connect(Uri.parse('ws://localhost:8080'));
-
-    final connectionService2 = ChessConnectionService(channel: channel2);
+    final connectionService2 = ChessConnection(
+      uri: Uri.parse('ws://localhost:8080'),
+    )..connect();
     connectionService2.joinRoom(
         code: ChessConnectionLogListener.lastCreatedRoomCode);
-    connectionService2.addListener(
+    connectionService2.addChessListener(
       ChessConnectionLogListener(name: (i + 2).toString()),
     );
   }
