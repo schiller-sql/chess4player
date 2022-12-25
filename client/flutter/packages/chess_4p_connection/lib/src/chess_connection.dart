@@ -128,7 +128,7 @@ class ChessConnection {
     _sendRoom("create", {"name": playerName});
   }
 
-  void joinRoom({String playerName = "", required String code}) {
+  void joinRoom({required String playerName, required String code}) {
     _sendRoom("join", {"name": playerName, "code": code});
   }
 
