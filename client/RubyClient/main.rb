@@ -1,6 +1,4 @@
-require 'eventmachine'
-require 'faye/websocket'
-require 'glimmer-dsl-libui'
+require './GUI.rb'
 
 BEGIN {
     prefix = "gem"
@@ -27,21 +25,4 @@ BEGIN {
     end
 }
 
-config = JSON.load File.open "./config.json"
-
-server_thread = Thread.new {
-    EM.run {
-        socket = Faye::WebSocket::Client.new "ws://#{config['hostname']}:#{config['port']}/"
-        socket.on :open do |event|
-            p [:open]
-        end
-        socket.on :message do |event|
-            p [:message, event.data]
-        end
-        socket.on :close do |event|
-            p [:close, event.code, event.reason]
-            socket = nil
-        end
-    }
-}
-server_thread.join
+GUI.new.main
