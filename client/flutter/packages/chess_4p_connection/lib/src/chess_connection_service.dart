@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:chess_4p/chess_4p.dart';
 import 'package:web_socket_channel/io.dart';
 
+import 'chess_connection_listener.dart';
+
 class ChessConnectionService {
   final List<ChessConnectionListener> _listeners = [];
   final IOWebSocketChannel channel;
@@ -14,15 +16,63 @@ class ChessConnectionService {
   }
 
   void _startListen() {
-    sub = channel.stream.listen(_event);
+    sub = channel.stream.listen(_handleEvent);
   }
 
   void _stopListen() {
     sub.cancel();
   }
 
-  void _event(dynamic event) {
-    print(event);
+  void _handleEvent(dynamic rawEvent) {
+    Map<String, dynamic> event = jsonDecode(rawEvent);
+    final type = event["type"];
+    final subtype = event["subtype"];
+    final content = event["content"] ?? const <String, dynamic>{};
+    switch (type) {
+      case "room":
+        switch (subtype) {
+          case "created":
+            final code = content["code"]!;
+            final name = content["name"]!;
+            for (final listener in _listeners) {
+              listener.createdRoom(code, name);
+            }
+            break;
+          case "joined":
+            final name = content["name"]!;
+            for (final listener in _listeners) {
+              listener.joinedRoom(name);
+            }
+            break;
+          case "join-failed":
+            final reason = content["reason"]!;
+            for (final listener in _listeners) {
+              listener.joinError(reason);
+            }
+            break;
+          case "left":
+            for (final listener in _listeners) {
+              listener.leftRoom(false);
+            }
+            break;
+          case "disbanded":
+            for (final listener in _listeners) {
+              listener.leftRoom(true);
+            }
+            break;
+          case "participants-count-update":
+            final participantsCount = content["participants-count"]!;
+            for (final listener in _listeners) {
+              listener.participantsCountUpdate(participantsCount);
+            }
+            break;
+        }
+        break;
+      case "game":
+        switch (subtype) {
+        }
+        break;
+    }
   }
 
   void addListener(ChessConnectionListener listener) {
@@ -100,12 +150,3 @@ class ChessConnectionService {
   }
 }
 
-abstract class ChessConnectionListener {
-  void joinedRoom(bool isCreator, String name);
-
-  void leftRoom(bool wasForced);
-
-  void participantsCountUpdate(int count);
-
-  void joinError(String error);
-}
