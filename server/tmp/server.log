@@ -194,3 +194,193 @@
 2022/12/23 13:48:22 DEBUG disconnecting client
 2022/12/23 13:48:22 TRACE unregister client in pool
 2022/12/23 13:48:22 ERROR  close tcp [::1]:8080->[::1]:57766: use of closed network connection
+2022/12/25 15:45:47 INFO starting pool
+2022/12/25 15:45:47 INFO handle routing
+2022/12/25 17:29:49 INFO starting pool
+2022/12/25 17:29:49 INFO handle routing
+2022/12/25 17:38:23 INFO socket successfully upgraded
+2022/12/25 17:38:23 DEBUG socket endpoint hit from [::1]:55161
+2022/12/25 17:38:23 TRACE register new client in pool
+2022/12/25 17:38:23 ERROR  invalid character 'H' looking for beginning of value
+2022/12/25 17:38:23 DEBUG disconnecting client
+2022/12/25 17:38:23 TRACE unregister client in pool
+2022/12/25 17:38:23 DEBUG disconnecting client
+2022/12/25 17:38:23 TRACE unregister client in pool
+2022/12/25 17:38:23 ERROR  close tcp [::1]:8080->[::1]:55161: use of closed network connection
+2022/12/25 17:39:47 INFO socket successfully upgraded
+2022/12/25 17:39:47 DEBUG socket endpoint hit from [::1]:55169
+2022/12/25 17:39:47 TRACE register new client in pool
+2022/12/25 17:39:55 ERROR  websocket: close 1006 (abnormal closure): unexpected EOF
+2022/12/25 17:39:55 DEBUG disconnecting client
+2022/12/25 17:39:55 TRACE unregister client in pool
+2022/12/25 17:39:55 DEBUG disconnecting client
+2022/12/25 17:39:55 TRACE unregister client in pool
+2022/12/25 17:39:55 ERROR  close tcp [::1]:8080->[::1]:55169: use of closed network connection
+2022/12/25 17:40:35 INFO socket successfully upgraded
+2022/12/25 17:40:35 DEBUG socket endpoint hit from [::1]:55174
+2022/12/25 17:40:35 TRACE register new client in pool
+2022/12/25 17:41:17 ERROR  websocket: close 1006 (abnormal closure): unexpected EOF
+2022/12/25 17:41:17 DEBUG disconnecting client
+2022/12/25 17:41:17 TRACE unregister client in pool
+2022/12/25 17:41:17 DEBUG disconnecting client
+2022/12/25 17:41:17 ERROR  close tcp [::1]:8080->[::1]:55174: use of closed network connection
+2022/12/25 17:41:17 TRACE unregister client in pool
+2022/12/25 18:32:41 INFO starting pool
+2022/12/25 18:32:41 INFO handle routing
+2022/12/25 18:36:08 INFO socket successfully upgraded
+2022/12/25 18:36:08 DEBUG socket endpoint hit from [::1]:62941
+2022/12/25 18:36:08 TRACE register new client in pool
+2022/12/25 18:37:02 ERROR  websocket: close 1006 (abnormal closure): unexpected EOF
+2022/12/25 18:37:02 DEBUG disconnecting client
+2022/12/25 18:37:02 TRACE unregister client in pool
+2022/12/25 18:37:02 DEBUG disconnecting client
+2022/12/25 18:37:02 TRACE unregister client in pool
+2022/12/25 18:37:02 ERROR  close tcp [::1]:8080->[::1]:62941: use of closed network connection
+2022/12/25 18:37:32 INFO socket successfully upgraded
+2022/12/25 18:37:32 DEBUG socket endpoint hit from [::1]:62951
+2022/12/25 18:37:32 TRACE register new client in pool
+2022/12/25 18:37:53 ERROR  websocket: close 1006 (abnormal closure): unexpected EOF
+2022/12/25 18:37:53 DEBUG disconnecting client
+2022/12/25 18:37:53 TRACE unregister client in pool
+2022/12/25 18:37:53 DEBUG disconnecting client
+2022/12/25 18:37:53 TRACE unregister client in pool
+2022/12/25 18:37:53 ERROR  close tcp [::1]:8080->[::1]:62951: use of closed network connection
+2022/12/25 18:39:35 INFO socket successfully upgraded
+2022/12/25 18:39:35 DEBUG socket endpoint hit from [::1]:60637
+2022/12/25 18:39:35 TRACE register new client in pool
+2022/12/25 18:39:38 ERROR  websocket: close 1006 (abnormal closure): unexpected EOF
+2022/12/25 18:39:38 DEBUG disconnecting client
+2022/12/25 18:39:38 TRACE unregister client in pool
+2022/12/25 18:39:38 DEBUG disconnecting client
+2022/12/25 18:39:38 TRACE unregister client in pool
+2022/12/25 18:39:38 ERROR  close tcp [::1]:8080->[::1]:60637: use of closed network connection
+2022/12/25 18:40:22 INFO socket successfully upgraded
+2022/12/25 18:40:22 DEBUG socket endpoint hit from [::1]:60645
+2022/12/25 18:40:22 TRACE register new client in pool
+2022/12/25 18:40:38 ERROR  websocket: close 1006 (abnormal closure): unexpected EOF
+2022/12/25 18:40:38 DEBUG disconnecting client
+2022/12/25 18:40:38 TRACE unregister client in pool
+2022/12/25 18:40:38 DEBUG disconnecting client
+2022/12/25 18:40:38 TRACE unregister client in pool
+2022/12/25 18:40:38 ERROR  close tcp [::1]:8080->[::1]:60645: use of closed network connection
+2022/12/25 18:41:53 INFO socket successfully upgraded
+2022/12/25 18:41:53 DEBUG socket endpoint hit from [::1]:60653
+2022/12/25 18:41:53 TRACE register new client in pool
+2022/12/25 18:42:24 ERROR  websocket: close 1006 (abnormal closure): unexpected EOF
+2022/12/25 18:42:24 DEBUG disconnecting client
+2022/12/25 18:42:24 TRACE unregister client in pool
+2022/12/25 18:42:24 DEBUG disconnecting client
+2022/12/25 18:42:24 TRACE unregister client in pool
+2022/12/25 18:42:24 ERROR  close tcp [::1]:8080->[::1]:60653: use of closed network connection
+2022/12/25 19:08:08 INFO socket successfully upgraded
+2022/12/25 19:08:08 DEBUG socket endpoint hit from [::1]:54467
+2022/12/25 19:08:08 TRACE register new client in pool
+2022/12/25 19:08:42 ERROR  websocket: close 1006 (abnormal closure): unexpected EOF
+2022/12/25 19:08:42 DEBUG disconnecting client
+2022/12/25 19:08:42 TRACE unregister client in pool
+2022/12/25 19:08:42 DEBUG disconnecting client
+2022/12/25 19:08:42 TRACE unregister client in pool
+2022/12/25 19:08:42 ERROR  close tcp [::1]:8080->[::1]:54467: use of closed network connection
+2022/12/25 19:13:02 INFO socket successfully upgraded
+2022/12/25 19:13:02 DEBUG socket endpoint hit from [::1]:54487
+2022/12/25 19:13:02 TRACE register new client in pool
+2022/12/25 19:13:09 ERROR  invalid character ':' looking for beginning of object key string
+2022/12/25 19:13:09 DEBUG disconnecting client
+2022/12/25 19:13:09 TRACE unregister client in pool
+2022/12/25 19:13:09 DEBUG disconnecting client
+2022/12/25 19:13:09 ERROR  close tcp [::1]:8080->[::1]:54487: use of closed network connection
+2022/12/25 19:13:09 TRACE unregister client in pool
+2022/12/25 19:14:07 INFO socket successfully upgraded
+2022/12/25 19:14:07 DEBUG socket endpoint hit from [::1]:54510
+2022/12/25 19:14:07 TRACE register new client in pool
+2022/12/25 19:15:50 ERROR  websocket: close 1006 (abnormal closure): unexpected EOF
+2022/12/25 19:15:50 DEBUG disconnecting client
+2022/12/25 19:15:50 TRACE unregister client in pool
+2022/12/25 19:15:50 DEBUG disconnecting client
+2022/12/25 19:15:50 TRACE unregister client in pool
+2022/12/25 19:15:50 ERROR  close tcp [::1]:8080->[::1]:54510: use of closed network connection
+2022/12/25 19:17:47 INFO starting pool
+2022/12/25 19:17:47 INFO handle routing
+2022/12/25 19:18:14 INFO socket successfully upgraded
+2022/12/25 19:18:14 DEBUG socket endpoint hit from [::1]:54542
+2022/12/25 19:18:14 TRACE register new client in pool
+2022/12/25 19:18:48 ERROR  websocket: close 1006 (abnormal closure): unexpected EOF
+2022/12/25 19:18:48 DEBUG disconnecting client
+2022/12/25 19:18:48 TRACE unregister client in pool
+2022/12/25 19:18:48 DEBUG disconnecting client
+2022/12/25 19:18:48 TRACE unregister client in pool
+2022/12/25 19:18:48 ERROR  close tcp [::1]:8080->[::1]:54542: use of closed network connection
+2022/12/25 19:19:53 INFO socket successfully upgraded
+2022/12/25 19:19:53 DEBUG socket endpoint hit from [::1]:54555
+2022/12/25 19:19:53 TRACE register new client in pool
+2022/12/25 19:20:27 ERROR  websocket: close 1006 (abnormal closure): unexpected EOF
+2022/12/25 19:20:27 DEBUG disconnecting client
+2022/12/25 19:20:27 TRACE unregister client in pool
+2022/12/25 19:20:27 DEBUG disconnecting client
+2022/12/25 19:20:27 TRACE unregister client in pool
+2022/12/25 19:20:27 ERROR  close tcp [::1]:8080->[::1]:54555: use of closed network connection
+2022/12/25 19:50:40 INFO socket successfully upgraded
+2022/12/25 19:50:40 DEBUG socket endpoint hit from [::1]:54877
+2022/12/25 19:50:40 TRACE register new client in pool
+2022/12/25 19:50:52 ERROR  websocket: close 1006 (abnormal closure): unexpected EOF
+2022/12/25 19:50:52 DEBUG disconnecting client
+2022/12/25 19:50:52 TRACE unregister client in pool
+2022/12/25 19:50:52 DEBUG disconnecting client
+2022/12/25 19:50:52 TRACE unregister client in pool
+2022/12/25 19:50:52 ERROR  close tcp [::1]:8080->[::1]:54877: use of closed network connection
+2022/12/25 20:04:47 INFO starting pool
+2022/12/25 20:04:47 INFO handle routing
+2022/12/25 20:05:14 INFO socket successfully upgraded
+2022/12/25 20:05:14 DEBUG socket endpoint hit from [::1]:54279
+2022/12/25 20:05:14 TRACE register new client in pool
+2022/12/25 20:05:20 ERROR  websocket: close 1006 (abnormal closure): unexpected EOF
+2022/12/25 20:05:20 DEBUG disconnecting client
+2022/12/25 20:05:20 TRACE unregister client in pool
+2022/12/25 20:05:20 DEBUG disconnecting client
+2022/12/25 20:05:20 TRACE unregister client in pool
+2022/12/25 20:05:20 ERROR  close tcp [::1]:8080->[::1]:54279: use of closed network connection
+2022/12/25 20:54:14 INFO socket successfully upgraded
+2022/12/25 20:54:14 DEBUG socket endpoint hit from [::1]:59792
+2022/12/25 20:54:14 TRACE register new client in pool
+2022/12/25 20:54:28 ERROR  websocket: close 1006 (abnormal closure): unexpected EOF
+2022/12/25 20:54:28 DEBUG disconnecting client
+2022/12/25 20:54:28 TRACE unregister client in pool
+2022/12/25 20:54:28 DEBUG disconnecting client
+2022/12/25 20:54:28 ERROR  close tcp [::1]:8080->[::1]:59792: use of closed network connection
+2022/12/25 20:54:28 TRACE unregister client in pool
+2022/12/25 21:11:42 INFO socket successfully upgraded
+2022/12/25 21:11:42 DEBUG socket endpoint hit from [::1]:54673
+2022/12/25 21:11:42 TRACE register new client in pool
+2022/12/25 21:11:45 ERROR  websocket: close 1006 (abnormal closure): unexpected EOF
+2022/12/25 21:11:45 DEBUG disconnecting client
+2022/12/25 21:11:45 TRACE unregister client in pool
+2022/12/25 21:11:45 DEBUG disconnecting client
+2022/12/25 21:11:45 TRACE unregister client in pool
+2022/12/25 21:11:45 ERROR  close tcp [::1]:8080->[::1]:54673: use of closed network connection
+2022/12/25 21:15:52 INFO socket successfully upgraded
+2022/12/25 21:15:52 DEBUG socket endpoint hit from [::1]:58501
+2022/12/25 21:15:52 TRACE register new client in pool
+2022/12/25 21:16:02 ERROR  websocket: close 1006 (abnormal closure): unexpected EOF
+2022/12/25 21:16:02 DEBUG disconnecting client
+2022/12/25 21:16:02 TRACE unregister client in pool
+2022/12/25 21:16:02 DEBUG disconnecting client
+2022/12/25 21:16:02 TRACE unregister client in pool
+2022/12/25 21:16:02 ERROR  close tcp [::1]:8080->[::1]:58501: use of closed network connection
+2022/12/25 21:29:39 INFO socket successfully upgraded
+2022/12/25 21:29:39 DEBUG socket endpoint hit from [::1]:58635
+2022/12/25 21:29:39 TRACE register new client in pool
+2022/12/25 21:30:08 ERROR  websocket: close 1006 (abnormal closure): unexpected EOF
+2022/12/25 21:30:08 DEBUG disconnecting client
+2022/12/25 21:30:08 TRACE unregister client in pool
+2022/12/25 21:30:08 DEBUG disconnecting client
+2022/12/25 21:30:08 ERROR  close tcp [::1]:8080->[::1]:58635: use of closed network connection
+2022/12/25 21:30:08 TRACE unregister client in pool
+2022/12/25 21:34:51 INFO socket successfully upgraded
+2022/12/25 21:34:51 DEBUG socket endpoint hit from [::1]:58703
+2022/12/25 21:34:51 TRACE register new client in pool
+2022/12/25 21:35:19 ERROR  websocket: close 1006 (abnormal closure): unexpected EOF
+2022/12/25 21:35:19 DEBUG disconnecting client
+2022/12/25 21:35:19 TRACE unregister client in pool
+2022/12/25 21:35:19 DEBUG disconnecting client
+2022/12/25 21:35:19 TRACE unregister client in pool
+2022/12/25 21:35:19 ERROR  close tcp [::1]:8080->[::1]:58703: use of closed network connection

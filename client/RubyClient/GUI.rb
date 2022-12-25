@@ -1,16 +1,16 @@
 require 'glimmer-dsl-libui'
 require 'json'
 
-require './Client.rb'
+require './Server_connection.rb'
 
 class GUI
     include Glimmer
 
-    attr_accessor :code
+    attr_accessor :code, :nickname
 
     def initialize
-        @config = JSON.load File.open './config.json'
-        @client = Client.new
+        @config = JSON.load_file './config.json', {symbolize_names: true}
+        @client = Server_connection.new @config[:server]
         @server_thread = nil
     end
 
@@ -24,15 +24,23 @@ class GUI
     end
 
     def define_main_window
-        window = window(@config['name'], 800, 800) {
+        window = window(@config[:name], 800, 800) {
             margined true
 
             vertical_box {
+                form {
+                    stretchy false
+
+                    entry {
+                        label 'Nickname'
+                        text <=> [self, :nickname]
+                    }
+                }
                 button('Create game') {
                     stretchy false
 
                     on_clicked do
-                        
+                        @client.send_message 'room', 'create', {:name => nickname}
                     end
                 }
                 form {
@@ -50,7 +58,7 @@ class GUI
                         if code == nil or code.length <= 0
                             msg_box 'Incorrect code', 'Please make sure you entered a code!'
                         else
-
+                            @client.send_message 'room', 'join', {:code => code, :name => nickname}
                         end
                     end
                 }
@@ -71,7 +79,7 @@ class GUI
     end
 
     def define_game_window
-        window = window(@config['name'], 800, 800) {
+        window = window(@config[:name], 800, 800) {
 
         }
         window
