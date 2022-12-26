@@ -1,4 +1,5 @@
-///
+/// a library to connect with a websockets-server for four player chess in /server,
+/// also contains abstract classes independent of implementation
 library chess_4p_connection;
 
 export 'src/chess_connection/chess_connection_listener.dart';

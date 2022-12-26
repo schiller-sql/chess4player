@@ -6,6 +6,8 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'chess_connection_listener.dart';
 
+/// A connection via websockets to /server,
+/// which can be listened to by implementations of a [ChessConnectionListener]
 class ChessConnection {
   final List<ChessConnectionListener> _listeners = [];
   final WebSocketChannel _channel;
@@ -16,9 +18,20 @@ class ChessConnection {
 
   Future<bool> get connectionClosedWithError => _connectionCompleter.future;
 
+  /// Create a new [ChessConnection] that should connect to the [uri],
+  /// which should be a websockets url,
+  /// on which to find a four player chess server,
+  /// which defines the protocol defined in /README.md or /protocol.txt
   ChessConnection({required this.uri})
       : _channel = WebSocketChannel.connect(uri);
 
+  /// Connect via the [uri] given.
+  ///
+  /// After the initial [connect], a [close] should be called,
+  /// after the connection is no longer needed
+  /// and the [ChessConnection] object should be discarded.
+  ///
+  /// After the initial [connect] another [connect] cannot be called.
   void connect() {
     _sub = _channel.stream.listen(
       _handleEvent,
@@ -93,14 +106,29 @@ class ChessConnection {
     }
   }
 
+  /// Add [listener] to listen to the updates
+  /// described in [ChessConnectionListener],
+  /// if the listener is no longer required,
+  /// it should be removed with [removeChessListener].
+  ///
+  /// If a object is added n times,
+  /// it will have to be removed n times.
   void addChessListener(ChessConnectionListener listener) {
     _listeners.add(listener);
   }
 
+  /// Remove [listener] from listening to the updates
+  /// described in [ChessConnectionListener].
+  ///
+  /// For more information see [addChessListener].
   void removeChessListener(ChessConnectionListener listener) {
     _listeners.remove(listener);
   }
 
+  /// Close the connection to the web-socket safely
+  /// and remove all listeners.
+  ///
+  /// A [ChessConnection] can only be closed once.
   void close() {
     _channel.sink.close();
     _sub.cancel();
@@ -124,22 +152,27 @@ class ChessConnection {
     _send("game", subtype, content);
   }
 
+  /// See protocol: type: room, subtype: create
   void createRoom({required String playerName}) {
     _sendRoom("create", {"name": playerName});
   }
 
+  /// See protocol: type: room, subtype: join
   void joinRoom({required String playerName, required String code}) {
     _sendRoom("join", {"name": playerName, "code": code});
   }
 
+  /// See protocol: type: room, subtype: leave
   void leaveRoom() {
     _sendRoom("leave");
   }
 
+  /// See protocol: type: game, subtype: start
   void startGame({required Duration duration}) {
     _sendGame("start", {"time": duration.inMilliseconds});
   }
 
+  /// See protocol: type: game, subtype: move
   void movePiece({
     required int fromX,
     required int fromY,
@@ -156,14 +189,17 @@ class ChessConnection {
     );
   }
 
+  /// See protocol: type: game, subtype: resign
   void resignGame() {
     _sendGame("resign");
   }
 
+  /// See protocol: type: game, subtype: draw-request
   void drawGameRequest() {
-    _sendGame("draw");
+    _sendGame("draw-request");
   }
 
+  /// See protocol: type: game, subtype: draw-accept
   void drawGameAccept() {
     _sendGame("draw-accept");
   }

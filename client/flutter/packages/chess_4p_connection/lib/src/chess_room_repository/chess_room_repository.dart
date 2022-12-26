@@ -37,7 +37,7 @@ class ChessRoomRepository
     assert(!_isLeaving);
     assert(_isJoining);
     _isJoining = false;
-    _roomSC.addError(RoomJoinException(error));
+    _roomSC.addError(RoomJoinException.fromErrorMessage(error));
   }
 
   @override
