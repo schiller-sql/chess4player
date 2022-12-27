@@ -1,11 +1,11 @@
 {
   "name": "chess4player",
-  "server": {
+  "network": {
     "hostname": "localhost",
     "port": 8080
   },
   "gems": {
-    "priority": ["glimmer-dsl-libui"],
-    "not_priority": ["eventmachine", "faye-websocket"]
+    "priority": ["glimmer-dsl-libui", "os"],
+    "non_priority": ["eventmachine", "faye-websocket"]
   }
 }

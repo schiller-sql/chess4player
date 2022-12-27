@@ -1,28 +1,62 @@
-require './GUI.rb'
+require './GUI/Loading_window.rb'
 
 BEGIN {
-    prefix = "gem"
+    prefix = 'gem'
     begin
-        unless system "#{prefix} list json"
+        begin
+            Gem::Specification.find_by_name 'json'
+        rescue => Gem::LoadError
             system "#{prefix} i json"
         end
-    rescue => exception
+    rescue => exeption
         prefix = 'sudo gem'
         system "#{prefix} i json"
     end
     require 'json'
-    (JSON.load File.open "./config.json")['gems']['priority'].each do |gem|
-        unless system "#{prefix} list #{gem}"
-            system "#{prefix} i #{gem}"
+    begin
+        (JSON.load_file './config.json', {symbolize_names: true})[:gems][:priority].each do |gem|
+            begin
+                Gem::Specification.find_by_name gem
+            rescue => Gem::LoadError
+                system "#{prefix} i #{gem}"
+            end
         end
-        system "#{prefix} update #{gem}"
-    end
-    (JSON.load File.open "./config.json")['gems']['not_priority'].each do |gem|
-        unless system "#{prefix} list #{gem}"
-            system "#{prefix} i #{gem}"
-        end
-        system "#{prefix} update #{gem}"
+    rescue => exeption
+        prefix = 'sudo gem'
+        system "#{prefix} i #{gem}"
     end
 }
 
-GUI.new.main
+$os = nil
+if OS.windows?
+    $os = 'windows'
+elsif OS.posix?
+    $os = 'linux'
+elsif OS.mac?
+    $os = 'macos'
+end
+
+$config = JSON.load_file './config.json', {symbolize_names: true}
+
+gui = Loading_window.new $config, $os
+gem_thread = Thread.new {
+    prefix = 'gem'
+    if $os == 'linux' or $os == 'macos'
+        prefix = 'sudo gem'
+    end
+    $config[:gems][:non_priority].each do |gem|
+        begin
+            Gem::Specification.find_by_name gem
+        rescue => Gem::LoadError
+            system "#{prefix} i #{gem}"
+        end
+    end
+    $config[:gems].each do |list|
+        list.each do |gem|
+            system "#{prefix} update #{gem}"
+        end
+    end
+    gui.start_connection
+}
+
+gui.main

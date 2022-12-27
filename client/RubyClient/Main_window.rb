@@ -1,21 +1,22 @@
 require 'glimmer-dsl-libui'
 require 'json'
 
-require './Server_connection.rb'
+require 'GUI.rb'
+require '../Server_connection.rb'
 
-class GUI
+class Main_window < GUI
     include Glimmer
 
     attr_accessor :code, :nickname
 
-    def initialize
-        @config = JSON.load_file './config.json', {symbolize_names: true}
-        @client = Server_connection.new @config[:server]
+    def initialize config = (JSON.load_file './config.json', {symbolize_names: true}), os = 'windows'
+        @config = config
+        @client = nil
+        @os = os
         @server_thread = nil
     end
 
     def main
-        @server_thread = Thread.new { @client.main }
         showing_window define_main_window
     end
 
@@ -23,8 +24,13 @@ class GUI
         window.show
     end
 
-    def define_main_window
-        window = window(@config[:name], 800, 800) {
+    def define_loading_window x_size = 400, y_size = 400
+        window = window(@config[:name])
+        window
+    end
+
+    def define_main_window x_size = 400, y_size = 400
+        window = window(@config[:name], x_size, y_size) {
             margined true
 
             vertical_box {
@@ -78,17 +84,24 @@ class GUI
         window
     end
 
-    def define_game_window
-        window = window(@config[:name], 800, 800) {
+    def define_game_window x_size = 400, y_size = 400
+        window = window("#{@config[:name]}: Chess game", x_size, y_size) {
 
         }
         window
     end
 
-    def define_settings_window
-        window = window('Settings', 400, 400) {
+    def define_settings_window x_size = 400, y_size = 400
+        window = window("#{@config[:name]}: Settings", x_size, y_size) {
 
         }
         window
+    end
+
+    def start_connection
+        @client = Server_connection.new @config[:server]
+        @server_thread = Thread.new {
+            @client.main
+        }
     end
 end

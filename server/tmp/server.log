@@ -384,3 +384,5 @@
 2022/12/25 21:35:19 DEBUG disconnecting client
 2022/12/25 21:35:19 TRACE unregister client in pool
 2022/12/25 21:35:19 ERROR  close tcp [::1]:8080->[::1]:58703: use of closed network connection
+2022/12/27 17:06:25 INFO starting pool
+2022/12/27 17:06:25 INFO handle routing
