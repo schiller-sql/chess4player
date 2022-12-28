@@ -1,34 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module type="JAVA_MODULE" version="4">
-  <component name="Go" enabled="true" />
+<module version="4">
   <component name="ModuleRunConfigurationManager">
     <shared />
-  </component>
-  <component name="NewModuleRootManager" inherit-compiler-output="true">
-    <exclude-output />
-    <content url="file://$MODULE_DIR$">
-      <excludeFolder url="file://$MODULE_DIR$/client/flutter/packages/chess_4p_connection/build" />
-      <excludeFolder url="file://$MODULE_DIR$/client/flutter/packages/chess_4p_connection/.dart_tool" />
-      <excludeFolder url="file://$MODULE_DIR$/client/flutter/packages/chess_4p_connection/.pub" />
-      <excludeFolder url="file://$MODULE_DIR$/client/flutter/packages/flutter_4p_chess/.dart_tool" />
-      <excludeFolder url="file://$MODULE_DIR$/client/flutter/packages/flutter_4p_chess/build" />
-      <excludeFolder url="file://$MODULE_DIR$/client/flutter/packages/flutter_4p_chess/.pub" />
-      <excludeFolder url="file://$MODULE_DIR$/client/flutter/packages/flutter_chess_4p/build" />
-      <excludeFolder url="file://$MODULE_DIR$/client/flutter/packages/flutter_chess_4p/.pub" />
-      <excludeFolder url="file://$MODULE_DIR$/client/flutter/packages/flutter_chess_4p/.dart_tool" />
-      <excludeFolder url="file://$MODULE_DIR$/client/flutter/packages/chess_4p/.dart_tool" />
-      <excludeFolder url="file://$MODULE_DIR$/client/flutter/packages/chess_4p/build" />
-      <excludeFolder url="file://$MODULE_DIR$/client/flutter/packages/chess_4p/.pub" />
-      <excludeFolder url="file://$MODULE_DIR$/client/flutter/.dart_tool" />
-      <excludeFolder url="file://$MODULE_DIR$/client/flutter/build" />
-      <excludeFolder url="file://$MODULE_DIR$/client/flutter/.pub" />
-      <excludeFolder url="file://$MODULE_DIR$/client/flutter/packages/flutter_chess_4p/example/.pub" />
-      <excludeFolder url="file://$MODULE_DIR$/client/flutter/packages/flutter_chess_4p/example/.dart_tool" />
-      <excludeFolder url="file://$MODULE_DIR$/client/flutter/packages/flutter_chess_4p/example/build" />
-    </content>
-    <orderEntry type="inheritedJdk" />
-    <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Dart SDK" level="project" />
-    <orderEntry type="library" name="Dart Packages" level="project" />
   </component>
 </module>

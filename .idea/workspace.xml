@@ -5,12 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="55e6eeae-7eb7-494f-be6f-695432a9bc40" name="Changes" comment="server: schmockes">
-      <change afterPath="$PROJECT_DIR$/client/RubyClient/config.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/RubyClient/main.rb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/chess4player.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/chess4player.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/go_build_go_client.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/go_build_server.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/javascript/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/javascript/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/tmp/server.log" beforeDir="false" afterPath="$PROJECT_DIR$/server/tmp/server.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/RubyClient/GUI/GUI.rb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/RubyClient/GUI/Loading_window.rb" beforeDir="false" afterPath="$PROJECT_DIR$/client/RubyClient/GUI/Loading_window.rb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/RubyClient/Main_window.rb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/RubyClient/Server_connection.rb" beforeDir="false" afterPath="$PROJECT_DIR$/client/RubyClient/Network/Server_connection.rb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/RubyClient/Server_connection2.rb" beforeDir="false" afterPath="$PROJECT_DIR$/client/RubyClient/Network/Server_connection2.rb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/RubyClient/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/RubyClient/config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/RubyClient/main.rb" beforeDir="false" afterPath="$PROJECT_DIR$/client/RubyClient/main.rb" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,7 +63,7 @@
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "go.import.settings.migrated": "true",
     "go.sdk.automatically.set": "true",
-    "last_opened_file_path": "C:/Ruby31-x64/bin/ruby.exe",
+    "last_opened_file_path": "C:/chess4player",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -64,16 +71,17 @@
     "nodejs_package_manager_path": "npm",
     "ruby.rails.projectView.checked": "true",
     "ruby.structure.view.model.defaults.configured": "true",
-    "settings.editor.selected.configurable": "org.jetbrains.plugins.ruby.settings.RubyActiveModuleSdkConfigurable",
+    "settings.editor.selected.configurable": "preferences.keymap",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\chess4player" />
+      <recent name="C:\chess4player\client\RubyClient\Network" />
       <recent name="$PROJECT_DIR$/client" />
       <recent name="$PROJECT_DIR$/schmokclient" />
       <recent name="$PROJECT_DIR$/testclient/src" />
-      <recent name="$PROJECT_DIR$/server/websocket" />
     </key>
   </component>
   <component name="RunManager" selected="Ruby.main">
@@ -81,10 +89,11 @@
       <module name="chess4player" />
       <RUBY_RUN_CONFIG NAME="RUBY_ARGS" VALUE="" />
       <RUBY_RUN_CONFIG NAME="WORK DIR" VALUE="$MODULE_DIR$" />
-      <RUBY_RUN_CONFIG NAME="SHOULD_USE_SDK" VALUE="false" />
-      <RUBY_RUN_CONFIG NAME="ALTERN_SDK_NAME" VALUE="" />
+      <RUBY_RUN_CONFIG NAME="SHOULD_USE_SDK" VALUE="true" />
+      <RUBY_RUN_CONFIG NAME="ALTERN_SDK_NAME" VALUE="ruby-3.1.2-p20" />
       <RUBY_RUN_CONFIG NAME="myPassParentEnvs" VALUE="true" />
       <EXTENSION ID="BundlerRunConfigurationExtension" BUNDLE_MODE="AUTO" bundleExecEnabled="true" />
+      <EXTENSION ID="RubyCoverageRunConfigurationExtension" runner="rcov" />
       <EXTENSION ID="org.jetbrains.plugins.ruby.rails.run.RailsRunConfigurationExtension" SCRATCH_USE_RAILS_RUNNER="false" />
       <RUBY_RUN_CONFIG NAME="SCRIPT_PATH" VALUE="$MODULE_DIR$/client/RubyClient/main.rb" />
       <RUBY_RUN_CONFIG NAME="SCRIPT_ARGS" VALUE="" />
@@ -116,6 +125,7 @@
     </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SpringUtil" SPRING_PRE_LOADER_OPTION="true" RAKE_SPRING_PRE_LOADER_OPTION="true" RAILS_SPRING_PRE_LOADER_OPTION="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="55e6eeae-7eb7-494f-be6f-695432a9bc40" name="Changes" comment="server: schmockes" />
@@ -124,6 +134,9 @@
       <option name="presentableId" value="Default" />
       <updated>1671656915534</updated>
       <workItem from="1671656918088" duration="1746000" />
+      <workItem from="1672231340099" duration="1127000" />
+      <workItem from="1672232480001" duration="180000" />
+      <workItem from="1672232677490" duration="368000" />
     </task>
     <servers />
   </component>
@@ -159,5 +172,8 @@
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/chess4player@main.rcov" NAME="main Coverage Results" MODIFIED="1672231732119" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="rcov" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" MODULE_NAME="chess4player" />
   </component>
 </project>
