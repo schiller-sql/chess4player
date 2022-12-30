@@ -12,3 +12,10 @@ export 'src/chess_room_repository/errors/room_join_exception.dart';
 
 export 'src/chess_room_repository/chess_room_repository.dart';
 export 'src/chess_room_repository/chess_room_repository_contract.dart';
+
+export 'src/chess_connection_repository/domain/connection_error_type.dart';
+export 'src/chess_connection_repository/domain/connection_status.dart';
+export 'src/chess_connection_repository/domain/connection_status_type.dart';
+
+export 'src/chess_connection_repository/chess_connection_repository.dart';
+export 'src/chess_connection_repository/chess_connection_repository_contract.dart';
