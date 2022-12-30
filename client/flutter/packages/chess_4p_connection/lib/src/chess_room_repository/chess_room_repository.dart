@@ -10,20 +10,22 @@ import 'errors/room_join_exception.dart';
 
 class ChessRoomRepository
     implements IChessRoomRepository, ChessConnectionListener {
-  bool _isJoining = false;
+  @override
+  bool isJoiningRoom = false;
+
   bool _isLeaving = false;
   late String _lastCodeToJoin;
 
   final ChessConnection connection;
 
-  ChessRoomRepository(this.connection);
+  ChessRoomRepository({required this.connection});
 
   @override
   void createdRoom(String code, String name) {
     _participantsCountChange(1);
     assert(!_isLeaving);
-    assert(_isJoining);
-    _isJoining = false;
+    assert(isJoiningRoom);
+    isJoiningRoom = false;
     _roomUpdate(
       RoomUpdate(
         chessRoom: ChessRoom(code: code, playerName: name, isAdmin: true),
@@ -35,16 +37,16 @@ class ChessRoomRepository
   @override
   void joinError(String error) {
     assert(!_isLeaving);
-    assert(_isJoining);
-    _isJoining = false;
+    assert(isJoiningRoom);
+    isJoiningRoom = false;
     _roomSC.addError(RoomJoinException.fromErrorMessage(error));
   }
 
   @override
   void joinedRoom(String name) {
     assert(!_isLeaving);
-    assert(_isJoining);
-    _isJoining = false;
+    assert(isJoiningRoom);
+    isJoiningRoom = false;
     _roomUpdate(
       RoomUpdate(
         chessRoom: ChessRoom(
@@ -59,7 +61,7 @@ class ChessRoomRepository
 
   @override
   void leftRoom(bool wasForced) {
-    assert(!_isJoining);
+    assert(!isJoiningRoom);
     assert(_isLeaving);
     assert(currentRoom == null);
 
@@ -111,7 +113,7 @@ class ChessRoomRepository
   @override
   void createRoom({String? playerName}) {
     assert(currentRoom == null);
-    assert(!_isJoining);
+    assert(!isJoiningRoom);
     assert(!_isLeaving);
     connection.createRoom(playerName: playerName ?? "");
   }
@@ -119,7 +121,7 @@ class ChessRoomRepository
   @override
   void joinRoom({required String code, String? playerName}) {
     assert(currentRoom == null);
-    assert(!_isJoining);
+    assert(!isJoiningRoom);
     assert(!_isLeaving);
     _lastCodeToJoin = code;
     connection.joinRoom(playerName: playerName ?? "", code: code);

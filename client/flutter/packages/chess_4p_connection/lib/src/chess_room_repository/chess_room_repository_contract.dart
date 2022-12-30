@@ -3,6 +3,9 @@ import 'domain/room_update.dart';
 
 /// A repository to connect into chess rooms
 abstract class IChessRoomRepository {
+  /// If the request has been sent to join or create a room.
+  bool get isJoiningRoom;
+
   /// Room updates in a broadcast stream
   Stream<RoomUpdate> get roomUpdateStream;
 
