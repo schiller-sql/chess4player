@@ -226,6 +226,7 @@ class _ChessBoardState extends State<ChessBoard> {
             IgnorePointer(
               ignoring: doingPromotion,
               child: GridView.builder(
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: 14 * 14,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 14),
