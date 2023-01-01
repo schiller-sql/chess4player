@@ -282,7 +282,7 @@ class _HomePageState extends State<HomePage> {
                               autoUnfocus: false,
                               textStyle: const TextStyle(
                                 fontSize: 40,
-                                color: NordColors.$1,
+                                color: NordColors.$9,
                                 fontWeight: FontWeight.w800,
                               ),
                               cursorColor: Colors.transparent,
