@@ -15,6 +15,8 @@ abstract class IChessRoomRepository {
   /// contain that the client is the admin of a room
   Stream<int> get chessRoomParticipantsCount;
 
+  void resetCurrentRoom();
+
   /// The last update of [chessRoomParticipantsCount]
   int get currentRoomParticipantsCount;
 

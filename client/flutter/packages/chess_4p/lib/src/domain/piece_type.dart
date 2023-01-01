@@ -1,11 +1,11 @@
 /// A piece type in chess.
 enum PieceType {
-  king,
-  queen,
-  rook,
-  bishop,
+  pawn,
   knight,
-  pawn;
+  bishop,
+  rook,
+  queen,
+  king;
 
   @override
   String toString() {
@@ -46,13 +46,19 @@ enum PieceType {
   }
 
   String toSimpleString() {
-    switch(this) {
-      case king: return "k";
-      case queen: return "q";
-      case rook: return "r";
-      case knight: return "n";
-      case bishop: return "b";
-      default: return "";
+    switch (this) {
+      case king:
+        return "k";
+      case queen:
+        return "q";
+      case rook:
+        return "r";
+      case knight:
+        return "n";
+      case bishop:
+        return "b";
+      default:
+        return "";
     }
   }
 }

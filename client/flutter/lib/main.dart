@@ -1,27 +1,26 @@
-import 'dart:math';
-
-import 'package:chess/chess_board_painter.dart';
-import 'package:chess/theme/theme.dart';
+import 'package:chess/chess_4p_app.dart';
+import 'package:chess_4p_connection/chess_4p_connection.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'chess_board.dart';
-import 'home_page.dart';
+import 'config.dart' as config;
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final configObjects = await Future.wait(
+    [
+      SharedPreferences.getInstance(),
+      config.getConnection(),
+    ],
+  );
+  final preferences = configObjects[0] as SharedPreferences;
+  GetIt.I.registerSingleton<SharedPreferences>(preferences);
+
+  final chessConnection = configObjects[1] as ChessConnection;
+  GetIt.I.registerSingleton<ChessConnection>(chessConnection);
+
+  runApp(const Chess4pApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'chess',
-      theme: fPlotTheme,
-      home: const HomePage(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
-}

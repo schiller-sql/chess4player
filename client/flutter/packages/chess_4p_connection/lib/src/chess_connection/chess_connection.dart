@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:chess_4p/chess_4p.dart';
+import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'chess_connection_listener.dart';
@@ -32,7 +33,10 @@ class ChessConnection {
   /// After the initial [connect] another [connect] cannot be called.
   Future<void> connect() {
     assert(_sub == null);
-    _channel = WebSocketChannel.connect(uri);
+    _channel = IOWebSocketChannel.connect(
+      uri,
+      pingInterval: Duration(milliseconds: 500),
+    ); // TODO: not for web
     final connectionCompleter = Completer();
     _sub = _channel!.stream.listen(
       _handleEvent,
@@ -45,7 +49,11 @@ class ChessConnection {
         _channel = null;
       },
       onDone: () {
-        connectionCompleter.complete();
+        if(_channel!.closeCode == 1000) {
+          connectionCompleter.complete();
+        } else {
+          connectionCompleter.completeError(Exception("Error"));
+        }
         _channel!.sink.close();
         _sub!.cancel();
         _sub!.cancel();

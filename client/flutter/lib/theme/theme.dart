@@ -16,11 +16,14 @@ ThemeData get fPlotTheme => ThemeData.from(
         onError: NordColors.$5,
         brightness: Brightness.dark,
       ),
-      textTheme: const TextTheme(
+      textTheme: TextTheme(
         titleSmall: TextStyle(
           fontSize: 14,
           color: NordColors.$3,
           fontWeight: FontWeight.w500,
+        ),
+        titleMedium: TextStyle(
+          color: NordColors.$11,
         ),
       ).apply(
         bodyColor: NordColors.$5,
@@ -28,6 +31,27 @@ ThemeData get fPlotTheme => ThemeData.from(
       ),
       useMaterial3: true,
     ).copyWith(
+      iconTheme: IconThemeData(
+        color: NordColors.$9,
+      ),
+      primaryIconTheme: IconThemeData(
+        color: NordColors.$9,
+      ),
+      accentTextTheme: TextTheme(
+        subtitle1: TextStyle(
+          color: NordColors.$9,
+        ),
+      ),
+      textTheme: TextTheme(
+        subtitle1: TextStyle(
+          color: NordColors.$10,
+        ),
+      ),
+      primaryTextTheme: TextTheme(
+        subtitle1: TextStyle(
+          color: NordColors.$10,
+        ),
+      ),
       appBarTheme: const AppBarTheme(
         toolbarHeight: 42,
       ),
@@ -55,6 +79,7 @@ ThemeData get fPlotTheme => ThemeData.from(
         cursorColor: NordColors.$10,
         selectionColor: NordColors.$10,
       ),
+      disabledColor: NordColors.$10,
       splashColor: NordColors.$3,
       splashFactory: InkSplash.splashFactory,
       inputDecorationTheme: const InputDecorationTheme(
@@ -66,6 +91,7 @@ ThemeData get fPlotTheme => ThemeData.from(
           borderRadius: BorderRadius.all(Radius.zero),
           borderSide: BorderSide(width: 2, color: NordColors.$10),
         ),
+        iconColor: NordColors.$10,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.zero),
           borderSide: BorderSide.none,
@@ -73,6 +99,7 @@ ThemeData get fPlotTheme => ThemeData.from(
       ),
       textButtonTheme: TextButtonThemeData(
         style: ButtonStyle(
+          shape: MaterialStateProperty.all(const ContinuousRectangleBorder()),
           splashFactory: InkSplash.splashFactory,
           overlayColor: MaterialStateProperty.resolveWith((states) {
             if (states.contains(MaterialState.hovered) ||
@@ -85,11 +112,21 @@ ThemeData get fPlotTheme => ThemeData.from(
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.resolveWith((states) {
+            if (states.contains(MaterialState.disabled)) {
+              return NordColors.$1;
+            }
+            return NordColors.$8;
+          }),
           shape: MaterialStateProperty.all(const ContinuousRectangleBorder()),
-          foregroundColor: MaterialStateProperty.all(NordColors.$0),
-          backgroundColor: MaterialStateProperty.all(NordColors.$10),
+          foregroundColor: MaterialStateProperty.resolveWith((states) {
+            if (states.contains(MaterialState.disabled)) {
+              return NordColors.$0;
+            }
+            return NordColors.$1;
+          }),
           side: MaterialStateProperty.all(BorderSide.none),
-          padding: MaterialStateProperty.all(const EdgeInsets.all(20)),
+          padding: MaterialStateProperty.all(const EdgeInsets.all(12)),
         ),
       ),
     );

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:chess_4p_connection/chess_4p_connection.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class ChessConnectionLogListener extends ChessConnectionListener {
   static late String lastCreatedRoomCode;
@@ -46,7 +47,7 @@ class ChessConnectionLogListener extends ChessConnectionListener {
   }
 }
 
-void main() async {
+void main2() async {
   final connectionService =
       ChessConnection(uri: Uri.parse('ws://localhost:8080'))..connect();
   connectionService.createRoom(playerName: "deine mom");
@@ -58,10 +59,23 @@ void main() async {
     final connectionService2 = ChessConnection(
       uri: Uri.parse('ws://localhost:8080'),
     )..connect();
-    connectionService2.joinRoom(
-        code: ChessConnectionLogListener.lastCreatedRoomCode);
-    connectionService2.addChessListener(
-      ChessConnectionLogListener(name: (i + 2).toString()),
-    );
+    // connectionService2.joinRoom(
+    //     code: ChessConnectionLogListener.lastCreatedRoomCode);
+    // connectionService2.addChessListener(
+    //   ChessConnectionLogListener(name: (i + 2).toString()),
+    // );
   }
+}
+
+void main() async {
+  WebSocketChannel.connect(Uri.parse("ws://localhost:9999")).stream.listen(
+    (event) {
+      print(event);
+    },
+    onError: (error) {
+      print("deinemom");
+      print(error);
+      print("deinemom");
+    },
+  );
 }

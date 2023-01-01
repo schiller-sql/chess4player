@@ -18,10 +18,12 @@ class ChessRoomRepository
 
   final ChessConnection connection;
 
-  ChessRoomRepository({required this.connection});
+  ChessRoomRepository({required this.connection}) {
+    connection.addChessListener(this);
+  }
 
   @override
-  void createdRoom(String code, String name) {
+  void createdRoom(String code, String name) async {
     _participantsCountChange(1);
     assert(!_isLeaving);
     assert(isJoiningRoom);
@@ -63,13 +65,14 @@ class ChessRoomRepository
   void leftRoom(bool wasForced) {
     assert(!isJoiningRoom);
     assert(_isLeaving);
-    assert(currentRoom == null);
+    assert(currentRoom != null);
 
     _isLeaving = false;
     _roomUpdate(
       RoomUpdate(
         chessRoom: currentRoom!,
-        updateType: wasForced ? RoomUpdateType.leave : RoomUpdateType.forceLeave,
+        updateType:
+            wasForced ? RoomUpdateType.leave : RoomUpdateType.forceLeave,
       ),
     );
   }
@@ -84,7 +87,12 @@ class ChessRoomRepository
 
   void _roomUpdate(RoomUpdate update) {
     _roomSC.add(update);
-    currentRoom = update.chessRoom;
+    if (update.updateType == RoomUpdateType.forceLeave ||
+        update.updateType == RoomUpdateType.leave) {
+      currentRoom = null;
+    } else {
+      currentRoom = update.chessRoom;
+    }
   }
 
   void _participantsCountChange(int newCount) {
@@ -98,7 +106,7 @@ class ChessRoomRepository
   Stream<RoomUpdate> get roomUpdateStream => _roomSC.stream;
 
   final StreamController<int> _chessRoomParticipantsCountSC =
-  StreamController.broadcast();
+      StreamController.broadcast();
 
   @override
   Stream<int> get chessRoomParticipantsCount =>
@@ -115,7 +123,18 @@ class ChessRoomRepository
     assert(currentRoom == null);
     assert(!isJoiningRoom);
     assert(!_isLeaving);
+    isJoiningRoom = true;
     connection.createRoom(playerName: playerName ?? "");
+    _roomUpdate(
+      RoomUpdate(
+        chessRoom: ChessRoom(
+          code: '',
+          playerName: playerName ?? "",
+          isAdmin: true,
+        ),
+        updateType: RoomUpdateType.joining,
+      ),
+    );
   }
 
   @override
@@ -123,8 +142,19 @@ class ChessRoomRepository
     assert(currentRoom == null);
     assert(!isJoiningRoom);
     assert(!_isLeaving);
+    isJoiningRoom = true;
     _lastCodeToJoin = code;
     connection.joinRoom(playerName: playerName ?? "", code: code);
+    _roomUpdate(
+      RoomUpdate(
+        chessRoom: ChessRoom(
+          code: code,
+          playerName: playerName ?? "",
+          isAdmin: false,
+        ),
+        updateType: RoomUpdateType.joining,
+      ),
+    );
   }
 
   @override
@@ -132,5 +162,24 @@ class ChessRoomRepository
     assert(currentRoom != null);
     _isLeaving = true;
     connection.leaveRoom();
+  }
+
+  void close() {
+    connection.removeChessListener(this);
+  }
+
+  @override
+  void resetCurrentRoom() {
+    _isLeaving = false;
+    isJoiningRoom = false;
+    _lastCodeToJoin = "";
+    if (currentRoom != null) {
+      _roomUpdate(
+        RoomUpdate(
+          chessRoom: currentRoom!,
+          updateType: RoomUpdateType.leave,
+        ),
+      );
+    }
   }
 }

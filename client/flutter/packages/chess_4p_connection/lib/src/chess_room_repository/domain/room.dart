@@ -9,9 +9,14 @@ class ChessRoom {
   /// If the client is the creator and admin of the chess room
   final bool isAdmin;
 
-  ChessRoom({
+  const ChessRoom({
     required this.code,
     required this.playerName,
     required this.isAdmin,
   });
+
+  @override
+  String toString() {
+    return 'ChessRoom{code: $code, playerName: $playerName, isAdmin: $isAdmin}';
+  }
 }

@@ -8,7 +8,7 @@ import 'package:chess_4p_connection/src/chess_connection_repository/domain/conne
 import '../chess_connection/chess_connection.dart';
 
 class ChessConnectionRepository implements IChessConnectionRepository {
-  static const _waitTillLoadingFinishedDefault = Duration(milliseconds: 500);
+  static const _waitTillLoadingFinishedDefault = Duration(milliseconds: 1000);
 
   final ChessConnection connection;
   final Duration waitTillLoadingFinished;
@@ -29,7 +29,7 @@ class ChessConnectionRepository implements IChessConnectionRepository {
     final connectionFinish = connection.connect();
     var wasError = false;
     connectionFinish.then((_) {
-      _changeConnectionStatus(ConnectionStatus.connected());
+      _changeConnectionStatus(ConnectionStatus.notConnected());
     }).catchError((error) {
       wasError = true;
       late final ConnectionErrorType errorType;
