@@ -1,7 +1,5 @@
-require './GUI/Game_window.rb'
-require './GUI/Loading_window.rb'
-require './GUI/Main_window.rb'
-require './GUI/Settings_window.rb'
+require_relative './GUI/Loading_window.rb'
+require_relative './GUI/Main_window.rb'
 
 BEGIN {
     prefix = 'gem'
@@ -16,16 +14,18 @@ BEGIN {
         system "#{prefix} i json"
     end
     require 'json'
-    (JSON.load_file './config.json', {symbolize_names: true})[:gems][:priority].each do |gem_name|
-        begin
+    (JSON.load_file 'config.json', {symbolize_names: true})[:gems][:priority].each do |gem_name|
+        unless gem_name == 'json'
             begin
-                Gem::Specification.find_by_name gem_name
-            rescue => Gem::MissingSpecError
+                begin
+                    Gem::Specification.find_by_name gem_name
+                rescue => Gem::MissingSpecError
+                    system "#{prefix} i #{gem_name}"
+                end
+            rescue => exeption
+                prefix = 'sudo gem'
                 system "#{prefix} i #{gem_name}"
             end
-        rescue => exeption
-            prefix = 'sudo gem'
-            system "#{prefix} i #{gem_name}"
         end
     end
 }
@@ -39,9 +39,16 @@ elsif OS.mac?
     $os = 'macos'
 end
 
-$config = JSON.load_file './config.json', {symbolize_names: true}
+$config = JSON.load_file 'config.json', {symbolize_names: true}
 
-$gui = Loading_window.new
+$gui = {}
+$gui[:loading_window] = Loading_window.new
+$gui[:main_window] = Main_window.new
+
+#gui_thread = Thread.new {$gui[:loading_window].main}
+
+$gui[:loading_window].main
+
 gem_thread = Thread.new {
     prefix = 'gem'
     if $os == 'linux' or $os == 'macos'
@@ -53,13 +60,16 @@ gem_thread = Thread.new {
         rescue => Gem::MissingSpecError
             system "#{prefix} i #{gem_name}"
         end
+        $gui[:loading_window].update_status 'checking'
     end
     $config[:gems].each do |list|
         list.each do |gem_name|
             system "#{prefix} update #{gem_name}"
+            $gui[:loading_window].update_status 'updating'
         end
     end
-    #$gui.start_connection
+    $gui[:main_window].start_connection
 }
 
-$gui.main
+gem_thread.join
+#gui_thread.join

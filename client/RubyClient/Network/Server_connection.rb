@@ -1,5 +1,6 @@
 require 'eventmachine'
 require 'faye/websocket'
+require 'json'
 
 class Server_connection
     def initialize connection
@@ -21,7 +22,7 @@ class Server_connection
             end
             @socket.on :message do |event|
                 p [:message, event.data]
-                puts message
+                JSON.parse message
             end
             @socket.on :close do |event|
                 p [:close, event.code, event.reason]

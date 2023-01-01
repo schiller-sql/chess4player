@@ -1,21 +1,24 @@
 {
-  "application_name": "chess4player",
-  "network": {
-    "hostname": "localhost",
-    "port": 8080
-  },
-  "gems": {
-    "priority": ["glimmer-dsl-libui", "os"],
-    "non_priority": ["eventmachine", "faye-websocket"]
-  },
-  "GUI": {
-    "standard_size": {
-      "x_size": 400,
-      "y_size": 400
+    "application_name": "chess4player",
+    "chess_logic": {
+        "board_size": 14
     },
-    "game_window": {},
-    "loading_window": {},
-    "main_window": {},
-    "settings_window": {}
-  }
+    "gems": {
+        "priority": ["glimmer-dsl-libui", "json", "os"],
+        "non_priority": ["eventmachine", "faye-websocket"]
+    },
+    "GUI": {
+        "game_window": {},
+        "loading_window": {},
+        "main_window": {},
+        "settings_window": {},
+        "standard_size": {
+            "x_size": 400,
+            "y_size": 400
+        }
+    },
+    "network": {
+        "hostname": "localhost",
+        "port": 8080
+    }
 }

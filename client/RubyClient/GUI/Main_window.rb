@@ -1,22 +1,30 @@
 require 'glimmer-dsl-libui'
 require 'json'
 
-require './graphical_user_interface.rb'
-require '../Network/Server_connection.rb'
+require_relative './GUI.rb'
+require_relative './Settings_window.rb'
+require_relative './Network/Server_connection.rb'
 
 class Main_window < GUI
     include Glimmer
 
     attr_accessor :code, :nickname
 
-    def initialize
+    def initialize settings_window = nil
         super
         @client = nil
         @server_thread = nil
+        if @size == nil
+            if @config[:GUI]["#{self.class.name}"] == nil
+                @size = @config[:GUI][:standard_size]
+            end
+        end
+        @settings_window = settings_window
+        @window = define_window
     end
 
     def define_window x_size = 400, y_size = 400
-        window = window(@config[:application_name], x_size, y_size) {
+        @window = window(@config[:application_name], x_size, y_size) {
             margined true
 
             vertical_box {
@@ -58,7 +66,7 @@ class Main_window < GUI
                     stretchy false
 
                     on_clicked do
-                        
+                        @settings_window.show_window
                     end
                 }
             }
@@ -67,7 +75,6 @@ class Main_window < GUI
                 @server_thread.exit
             end
         }
-        window
     end
 
     def start_connection
