@@ -23,7 +23,6 @@ class ConnectionCubit extends Cubit<ConnectionStatus> {
   void retry() {
     connectionRepository.connect();
   }
-  // TODO: reset room repository on connection fail
 
   void _connectionStatusUpdate(ConnectionStatus status) {
     if(status.type == ConnectionStatusType.error) {

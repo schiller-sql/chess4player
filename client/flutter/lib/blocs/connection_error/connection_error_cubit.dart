@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:chess_4p_connection/chess_4p_connection.dart';
-import 'package:meta/meta.dart';
+import 'package:flutter/material.dart';
 
 part 'connection_error_state.dart';
 

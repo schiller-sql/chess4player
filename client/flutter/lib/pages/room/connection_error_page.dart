@@ -25,29 +25,26 @@ class ConnectionErrorAlert extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTextStyle(
-      style: TextStyle(color: NordColors.$11),
-      child: AlertDialog(
-        title: const Text(
-          "Connection error",
-          style: TextStyle(color: NordColors.$11),
-        ),
-        content: const Text(
-          "A connection error has occurred, "
-          "please check your internet connection",
-        ),
-        icon: const Icon(Icons.warning, size: 64, color: NordColors.$11),
-        actions: [
-          OutlinedButton(
-            onPressed: () =>
-                context.read<ConnectionErrorCubit>().clickErrorAway(),
-            child: const Text("ok"),
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(NordColors.$11),
-            ),
-          ),
-        ],
+    return AlertDialog(
+      title: const Text(
+        "Connection error",
+        style: TextStyle(color: NordColors.$11),
       ),
+      content: const Text(
+        "A connection error has occurred, "
+            "please check your internet connection",
+      ),
+      icon: const Icon(Icons.warning, size: 64, color: NordColors.$11),
+      actions: [
+        OutlinedButton(
+          onPressed: () =>
+              context.read<ConnectionErrorCubit>().clickErrorAway(),
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all(NordColors.$11),
+          ),
+          child: const Text("ok"),
+        ),
+      ],
     );
   }
 }

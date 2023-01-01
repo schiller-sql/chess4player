@@ -1,8 +1,6 @@
 import 'package:chess/blocs/connection/connection_cubit.dart';
 import 'package:chess/blocs/player_name/player_name_cubit.dart';
-import 'package:chess/theme/chess_theme.dart';
 import 'package:chess/theme/pin_theme.dart';
-import 'package:chess/widgets/animation/chess_loading_animation.dart';
 import 'package:chess_4p_connection/chess_4p_connection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -46,10 +44,6 @@ class _HomePageState extends State<HomePage> {
         return const SizedBox.square(
           dimension: 24,
           child: CupertinoActivityIndicator(color: NordColors.$0),
-        );
-        return ChessLoadingAnimation(
-          pieces: pieceSet,
-          size: 14,
         );
       case ConnectionStatusType.error:
         if (status.errorType == ConnectionErrorType.couldNotConnect) {
@@ -101,7 +95,7 @@ class _HomePageState extends State<HomePage> {
               AnimatedContainer(
                 padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
                 color: _colorForConnectionStatus(status),
-                duration: Duration(milliseconds: 500),
+                duration: const Duration(milliseconds: 500),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -141,22 +135,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           );
-          return OutlinedButton.icon(
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.resolveWith((states) {
-                if (states.contains(MaterialState.disabled)) return null;
-                return NordColors.$10;
-              }),
-            ),
-            onPressed: () {},
-            icon: _iconForConnectionStatus(status),
-            label: Text("connected"),
-          );
-          var text = status.type.toString().split(".").last;
-          if (status.type == ConnectionStatusType.error) {
-            text += ": ${status.errorType}";
-          }
-          return Text(text);
         },
       ),
     );

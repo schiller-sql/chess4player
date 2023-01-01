@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_nord_theme/flutter_nord_theme.dart';
 
 ThemeData get fPlotTheme => ThemeData.from(
@@ -16,7 +15,7 @@ ThemeData get fPlotTheme => ThemeData.from(
         onError: NordColors.$5,
         brightness: Brightness.dark,
       ),
-      textTheme: TextTheme(
+      textTheme: const TextTheme(
         titleSmall: TextStyle(
           fontSize: 14,
           color: NordColors.$3,
@@ -31,23 +30,15 @@ ThemeData get fPlotTheme => ThemeData.from(
       ),
       useMaterial3: true,
     ).copyWith(
-      iconTheme: IconThemeData(
+      primaryIconTheme: const IconThemeData(
         color: NordColors.$9,
       ),
-      primaryIconTheme: IconThemeData(
-        color: NordColors.$9,
-      ),
-      accentTextTheme: TextTheme(
-        subtitle1: TextStyle(
-          color: NordColors.$9,
-        ),
-      ),
-      textTheme: TextTheme(
+      textTheme: const TextTheme(
         subtitle1: TextStyle(
           color: NordColors.$10,
         ),
       ),
-      primaryTextTheme: TextTheme(
+      primaryTextTheme: const TextTheme(
         subtitle1: TextStyle(
           color: NordColors.$10,
         ),

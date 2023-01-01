@@ -4,7 +4,6 @@ import 'package:chess/theme/chess_theme.dart';
 import 'package:chess/widgets/animation/chess_loading_animation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_chess_4p/flutter_4p_chess.dart';
 
 class RoomWaitingPage extends StatelessWidget {
   const RoomWaitingPage({Key? key}) : super(key: key);

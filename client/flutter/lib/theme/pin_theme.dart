@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_nord_theme/flutter_nord_theme.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
