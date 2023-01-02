@@ -68,7 +68,7 @@ ThemeData get fPlotTheme => ThemeData.from(
       ),
       textSelectionTheme: const TextSelectionThemeData(
         cursorColor: NordColors.$10,
-        selectionColor: NordColors.$10,
+        selectionColor: NordColors.$9,
       ),
       disabledColor: NordColors.$10,
       splashColor: NordColors.$3,
