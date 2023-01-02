@@ -8,10 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_nord_theme/flutter_nord_theme.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-import 'package:chess_vectors_flutter/chess_vectors_flutter.dart';
 
 import '../../blocs/create_room/create_room_cubit.dart';
 import '../../blocs/join_room/join_room_cubit.dart';
+import '../../widgets/logo.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -163,31 +163,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildLogo() {
-    return Wrap(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 24),
-          child: SizedBox.square(
-            dimension: 120,
-            child: WhitePawn(
-              fillColor: NordColors.$3,
-              strokeColor: NordColors.$3,
-            ),
-          ),
-        ),
-        const Text(
-          "CHESS44",
-          style: TextStyle(
-            color: NordColors.$3,
-            fontSize: 120,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-      ],
-    );
-  }
-
   static const _createRoomText = Text(
     "Create a new chess room for others to join and be its admin",
     style: TextStyle(
@@ -307,29 +282,31 @@ class _HomePageState extends State<HomePage> {
           children: [
             _buildNameTextField(),
             _buildConnectionStatusShow(),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                _buildLogo(),
-                const SizedBox(height: 32),
-                _createRoomText,
-                const SizedBox(height: 8),
-                _buildCreateRoomButton(),
-                const SizedBox(height: 24),
-                const ColoredBox(
-                  color: NordColors.$3,
-                  child: SizedBox(
-                    width: 500,
-                    height: 4,
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Logo(size: 120),
+                  const SizedBox(height: 32),
+                  _createRoomText,
+                  const SizedBox(height: 8),
+                  _buildCreateRoomButton(),
+                  const SizedBox(height: 24),
+                  const ColoredBox(
+                    color: NordColors.$3,
+                    child: SizedBox(
+                      width: 500,
+                      height: 4,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 24),
-                _joinRoomText,
-                const SizedBox(height: 8),
-                _buildJoinRoomCodeField(),
-                _buildJoinRoomButton(),
-              ],
+                  const SizedBox(height: 24),
+                  _joinRoomText,
+                  const SizedBox(height: 8),
+                  _buildJoinRoomCodeField(),
+                  _buildJoinRoomButton(),
+                ],
+              ),
             ),
           ],
         ),
