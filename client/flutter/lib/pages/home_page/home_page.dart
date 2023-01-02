@@ -1,4 +1,3 @@
-import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:chess/blocs/connection/connection_cubit.dart';
 import 'package:chess/blocs/player_name/player_name_cubit.dart';
 import 'package:chess/theme/pin_theme.dart';
@@ -87,53 +86,213 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildConnectionStatusShow() {
-    return BlocBuilder<ConnectionCubit, ConnectionStatus>(
-      builder: (context, status) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            AnimatedContainer(
-              padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
-              color: _colorForConnectionStatus(status),
-              duration: const Duration(milliseconds: 500),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _iconForConnectionStatus(status),
-                  const SizedBox(width: 4),
-                  Text(
-                    _textForConnectionStatus(status),
-                    style: TextStyle(
-                      color: status.type == ConnectionStatusType.error
-                          ? NordColors.$4
-                          : NordColors.$0,
-                      fontWeight: FontWeight.w600,
+    return Align(
+      alignment: Alignment.topRight,
+      child: BlocBuilder<ConnectionCubit, ConnectionStatus>(
+        builder: (context, status) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              AnimatedContainer(
+                padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+                color: _colorForConnectionStatus(status),
+                duration: const Duration(milliseconds: 500),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _iconForConnectionStatus(status),
+                    const SizedBox(width: 4),
+                    Text(
+                      _textForConnectionStatus(status),
+                      style: TextStyle(
+                        color: status.type == ConnectionStatusType.error
+                            ? NordColors.$4
+                            : NordColors.$0,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
+                  ],
+                ),
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+              AnimatedOpacity(
+                opacity: status.type == ConnectionStatusType.error ? 1 : 0,
+                duration: const Duration(milliseconds: 500),
+                child: TextButton.icon(
+                  icon: const Icon(
+                    Icons.refresh,
+                    color: NordColors.$11,
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(
-              height: 8,
-            ),
-            AnimatedOpacity(
-              opacity: status.type == ConnectionStatusType.error ? 1 : 0,
-              duration: const Duration(milliseconds: 500),
-              child: TextButton.icon(
-                icon: const Icon(
-                  Icons.refresh,
-                  color: NordColors.$11,
+                  label: const Text(
+                    "try again",
+                    style: TextStyle(color: NordColors.$11),
+                  ),
+                  onPressed: () {
+                    context.read<ConnectionCubit>().retry();
+                  },
                 ),
-                label: const Text(
-                  "try again",
-                  style: TextStyle(color: NordColors.$11),
-                ),
-                onPressed: () {
-                  context.read<ConnectionCubit>().retry();
-                },
               ),
-            ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildNameTextField() {
+    return Align(
+      alignment: Alignment.topLeft,
+      child: SizedBox(
+        width: 200,
+        child: TextField(
+          controller: _nameController,
+          onChanged: (val) {
+            context.read<PlayerNameCubit>().changeName(val);
+          },
+          inputFormatters: [
+            LengthLimitingTextInputFormatter(16),
           ],
+          decoration: const InputDecoration(
+            hintText: "Name",
+            suffixIcon: Icon(Icons.account_circle),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLogo() {
+    return Wrap(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24),
+          child: SizedBox.square(
+            dimension: 120,
+            child: WhitePawn(
+              fillColor: NordColors.$3,
+              strokeColor: NordColors.$3,
+            ),
+          ),
+        ),
+        const Text(
+          "CHESS44",
+          style: TextStyle(
+            color: NordColors.$3,
+            fontSize: 120,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+      ],
+    );
+  }
+
+  static const _createRoomText = Text(
+    "Create a new chess room for others to join and be its admin",
+    style: TextStyle(
+      color: NordColors.$8,
+      fontWeight: FontWeight.w600,
+    ),
+  );
+
+  Widget _buildCreateRoomButton() {
+    return BlocBuilder<CreateRoomCubit, CreateRoomState>(
+      builder: (context, state) {
+        late final bool canCreateRoom;
+        if (state is CannotCreateRoom) {
+          canCreateRoom = false;
+        } else if (state is CanCreateRoom) {
+          canCreateRoom = true;
+        } else {
+          throw StateError("initial state should not be given");
+        }
+        return OutlinedButton(
+          onPressed: canCreateRoom
+              ? () {
+                  final playerName = context.read<PlayerNameCubit>().state;
+                  context
+                      .read<CreateRoomCubit>()
+                      .createRoom(playerName: playerName);
+                }
+              : null,
+          child: const Text(
+            "Create room",
+            style: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  static const _joinRoomText = Text(
+    "Join a chess room by inputting its code in the field below",
+    style: TextStyle(
+      color: NordColors.$9,
+      fontWeight: FontWeight.w600,
+    ),
+  );
+
+  Widget _buildJoinRoomCodeField() {
+    return SizedBox(
+      width: 340,
+      child: Theme(
+        data: ThemeData(),
+        child: BlocBuilder<JoinRoomCubit, JoinRoomState>(
+          builder: (context, state) {
+            return PinCodeTextField(
+              autoUnfocus: false,
+              textStyle: const TextStyle(
+                fontSize: 36,
+                color: NordColors.$9,
+                fontWeight: FontWeight.w800,
+              ),
+              cursorColor: Colors.transparent,
+              enableActiveFill: true,
+              pinTheme: pinTheme,
+              enabled: state.canConnect,
+              onChanged: (value) {
+                context.read<JoinRoomCubit>().updateCode(value);
+              },
+              length: 6,
+              appContext: context,
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildJoinRoomButton() {
+    return BlocBuilder<JoinRoomCubit, JoinRoomState>(
+      builder: (context, state) {
+        return OutlinedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.resolveWith(
+              (states) {
+                if (!states.contains(MaterialState.disabled)) {
+                  return NordColors.$9;
+                }
+                return null;
+              },
+            ),
+          ),
+          onPressed: state.validCode && state.canConnect
+              ? () {
+                  final playerName = context.read<PlayerNameCubit>().state;
+                  context.read<JoinRoomCubit>().joinRoom(playerName);
+                }
+              : null,
+          child: const Text(
+            "Join with code",
+            style: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
         );
       },
     );
@@ -141,195 +300,38 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return MoveWindow(
-      child: Scaffold(
-        body: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Stack(
-            children: [
-              Align(
-                alignment: Alignment.topLeft,
-                child: SizedBox(
-                  width: 200,
-                  child: TextField(
-                    controller: _nameController,
-                    onChanged: (val) {
-                      context.read<PlayerNameCubit>().changeName(val);
-                    },
-                    inputFormatters: [
-                      LengthLimitingTextInputFormatter(16),
-                    ],
-                    decoration: const InputDecoration(
-                      hintText: "Name",
-                      suffixIcon: Icon(Icons.account_circle),
-                    ),
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Stack(
+          children: [
+            _buildNameTextField(),
+            _buildConnectionStatusShow(),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildLogo(),
+                const SizedBox(height: 32),
+                _createRoomText,
+                const SizedBox(height: 8),
+                _buildCreateRoomButton(),
+                const SizedBox(height: 24),
+                const ColoredBox(
+                  color: NordColors.$3,
+                  child: SizedBox(
+                    width: 500,
+                    height: 4,
                   ),
                 ),
-              ),
-              Align(
-                alignment: Alignment.topRight,
-                child: _buildConnectionStatusShow(),
-              ),
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Wrap(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 24),
-                          child: SizedBox.square(
-                            dimension: 120,
-                            child: WhitePawn(
-                              fillColor: NordColors.$3,
-                              strokeColor: NordColors.$3,
-                            ),
-                          ),
-                        ),
-                        const Text(
-                          "CHESS44",
-                          style: TextStyle(
-                            color: NordColors.$3,
-                            fontSize: 120,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 32),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Text(
-                              "Create a new chess room for others to join and be its admin",
-                              style: TextStyle(
-                                color: NordColors.$8,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            BlocBuilder<CreateRoomCubit, CreateRoomState>(
-                              builder: (context, state) {
-                                late final bool canCreateRoom;
-                                if (state is CannotCreateRoom) {
-                                  canCreateRoom = false;
-                                } else if (state is CanCreateRoom) {
-                                  canCreateRoom = true;
-                                } else {
-                                  throw StateError(
-                                      "initial state should not be given");
-                                }
-                                return OutlinedButton(
-                                  onPressed: canCreateRoom
-                                      ? () {
-                                          final playerName =
-                                              context.read<PlayerNameCubit>().state;
-                                          context
-                                              .read<CreateRoomCubit>()
-                                              .createRoom(playerName: playerName);
-                                        }
-                                      : null,
-                                  child: const Text(
-                                    "Create room",
-                                    style: TextStyle(
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-                        const ColoredBox(
-                          color: NordColors.$3,
-                          child: SizedBox(
-                            width: 500,
-                            height: 4,
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        const Text(
-                          "Join a chess room by inputting its code in the field below",
-                          style: TextStyle(
-                            color: NordColors.$9,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          width: 340,
-                          child: Theme(
-                            data: ThemeData(),
-                            child: BlocBuilder<JoinRoomCubit, JoinRoomState>(
-                              builder: (context, state) {
-                                return PinCodeTextField(
-                                  autoUnfocus: false,
-                                  textStyle: const TextStyle(
-                                    fontSize: 36,
-                                    color: NordColors.$9,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                  cursorColor: Colors.transparent,
-                                  enableActiveFill: true,
-                                  pinTheme: pinTheme,
-                                  enabled: state.canConnect,
-                                  onChanged: (value) {
-                                    context.read<JoinRoomCubit>().updateCode(value);
-                                  },
-                                  length: 6,
-                                  appContext: context,
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 0),
-                        BlocBuilder<JoinRoomCubit, JoinRoomState>(
-                          builder: (context, state) {
-                            return OutlinedButton(
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.resolveWith(
-                                  (states) {
-                                    if (!states.contains(MaterialState.disabled)) {
-                                      return NordColors.$9;
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                              onPressed: state.validCode && state.canConnect
-                                  ? () {
-                                      final playerName =
-                                          context.read<PlayerNameCubit>().state;
-                                      context
-                                          .read<JoinRoomCubit>()
-                                          .joinRoom(playerName);
-                                    }
-                                  : null,
-                              child: const Text(
-                                "Join with code",
-                                style: TextStyle(
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+                const SizedBox(height: 24),
+                _joinRoomText,
+                const SizedBox(height: 8),
+                _buildJoinRoomCodeField(),
+                _buildJoinRoomButton(),
+              ],
+            ),
+          ],
         ),
       ),
     );
