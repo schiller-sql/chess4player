@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:chess/blocs/connection/connection_cubit.dart';
 import 'package:chess/blocs/player_name/player_name_cubit.dart';
 import 'package:chess/theme/pin_theme.dart';
@@ -276,40 +279,49 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Stack(
-          children: [
-            _buildNameTextField(),
-            _buildConnectionStatusShow(),
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
+      body: Column(
+        children: [
+          WindowTitleBarBox(child: MoveWindow()),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(32).copyWith(
+                top: max(32 - appWindow.titleBarHeight, 0),
+              ),
+              child: Stack(
                 children: [
-                  const Logo(size: 120),
-                  const SizedBox(height: 32),
-                  _createRoomText,
-                  const SizedBox(height: 8),
-                  _buildCreateRoomButton(),
-                  const SizedBox(height: 24),
-                  const ColoredBox(
-                    color: NordColors.$3,
-                    child: SizedBox(
-                      width: 500,
-                      height: 4,
+                  _buildNameTextField(),
+                  _buildConnectionStatusShow(),
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Logo(size: 120),
+                        const SizedBox(height: 32),
+                        _createRoomText,
+                        const SizedBox(height: 8),
+                        _buildCreateRoomButton(),
+                        const SizedBox(height: 24),
+                        const ColoredBox(
+                          color: NordColors.$3,
+                          child: SizedBox(
+                            width: 500,
+                            height: 4,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        _joinRoomText,
+                        const SizedBox(height: 8),
+                        _buildJoinRoomCodeField(),
+                        _buildJoinRoomButton(),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  _joinRoomText,
-                  const SizedBox(height: 8),
-                  _buildJoinRoomCodeField(),
-                  _buildJoinRoomButton(),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
