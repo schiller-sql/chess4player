@@ -214,6 +214,15 @@ class _HomePageState extends State<HomePage> {
     ),
   );
 
+  static final _roomCodeFieldFormatters = [
+    TextInputFormatter.withFunction(
+          (oldValue, newValue) => newValue.copyWith(
+        text: newValue.text.toUpperCase(),
+      ),
+    ),
+    FilteringTextInputFormatter.allow(RegExp("[0-9A-Z]")),
+  ];
+
   Widget _buildJoinRoomCodeField() {
     return SizedBox(
       width: 340,
@@ -222,6 +231,7 @@ class _HomePageState extends State<HomePage> {
         child: BlocBuilder<JoinRoomCubit, JoinRoomState>(
           builder: (context, state) {
             return PinCodeTextField(
+              inputFormatters: _roomCodeFieldFormatters,
               autoUnfocus: false,
               textStyle: const TextStyle(
                 fontSize: 36,
