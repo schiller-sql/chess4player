@@ -7,6 +7,7 @@ import (
 	"server/domain"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 	"unicode"
 )
@@ -106,7 +107,7 @@ func validateName(name string, room *Room) string {
 func (this *Pool) joinRoom(event domain.ClientEvent) {
 	var content = event.Message.Content
 	var client = event.Client
-	var code = (content["code"]).(string)
+	var code = strings.ToUpper((content["code"]).(string))
 	var name = (content["name"]).(string)
 	var room, exist = this.Rooms[code]
 
