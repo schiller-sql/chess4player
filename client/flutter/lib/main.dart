@@ -3,11 +3,21 @@ import 'package:chess_4p_connection/chess_4p_connection.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 
 import 'config.dart' as config;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  doWhenWindowReady(() {
+    // 823x592
+    const initialSize = Size(850, 600);
+    appWindow.minSize = initialSize;
+    appWindow.size = initialSize;
+    appWindow.alignment = Alignment.center;
+    appWindow.show();
+  });
 
   final configObjects = await Future.wait(
     [
