@@ -16,7 +16,3 @@ class InRoom extends RoomState {
 class NotInRoom extends RoomState {
   const NotInRoom();
 }
-
-class WasForcedOutOfRoom extends RoomState {
-  const WasForcedOutOfRoom();
-}

@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:chess_4p_connection/src/chess_room_repository/errors/room_disbanded_exception.dart';
+
 import '../chess_connection/chess_connection.dart';
 import '../chess_connection/chess_connection_listener.dart';
 import 'chess_room_repository_contract.dart';
@@ -65,17 +67,21 @@ class ChessRoomRepository
   @override
   void leftRoom(bool wasForced) {
     assert(!isJoiningRoom);
-    assert(_isLeaving);
+    if (!wasForced) {
+      assert(_isLeaving);
+    }
     assert(currentRoom != null);
 
     _isLeaving = false;
     _roomUpdate(
       RoomUpdate(
         chessRoom: currentRoom!,
-        updateType:
-            wasForced ? RoomUpdateType.leave : RoomUpdateType.forceLeave,
+        updateType: RoomUpdateType.leave,
       ),
     );
+    if (wasForced) {
+      _roomSC.addError(RoomDisbandedException());
+    }
   }
 
   @override
@@ -88,8 +94,7 @@ class ChessRoomRepository
 
   void _roomUpdate(RoomUpdate update) {
     _roomSC.add(update);
-    if (update.updateType == RoomUpdateType.forceLeave ||
-        update.updateType == RoomUpdateType.leave) {
+    if (update.updateType == RoomUpdateType.leave) {
       currentRoom = null;
     } else {
       currentRoom = update.chessRoom;

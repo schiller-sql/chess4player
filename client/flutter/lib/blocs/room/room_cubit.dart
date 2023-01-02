@@ -29,9 +29,6 @@ class RoomCubit extends Cubit<RoomState> {
       case RoomUpdateType.leave:
         emit(const NotInRoom());
         break;
-      case RoomUpdateType.forceLeave:
-        emit(const WasForcedOutOfRoom());
-        break;
       case RoomUpdateType.join:
       case RoomUpdateType.joining:
         emit(
