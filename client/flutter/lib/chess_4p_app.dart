@@ -1,4 +1,6 @@
 import 'package:chess/blocs/join_room/join_room_cubit.dart';
+import 'package:chess/ui/error_handlers/connection_error_handler.dart';
+import 'package:chess/ui/error_handlers/room_join_error_handler.dart';
 import 'package:chess_4p_connection/chess_4p_connection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,7 +12,8 @@ import 'blocs/connection_error/connection_error_cubit.dart';
 import 'blocs/create_room/create_room_cubit.dart';
 import 'blocs/player_name/player_name_cubit.dart';
 import 'blocs/room/room_cubit.dart';
-import 'pages/room/room_router.dart';
+import 'blocs/room_join_error/room_join_error_cubit.dart';
+import 'ui/room/room_router.dart';
 import 'theme/theme.dart';
 
 class Chess4pApp extends StatelessWidget {
@@ -71,8 +74,17 @@ class Chess4pApp extends StatelessWidget {
                 connectionRepository: context.read<ChessConnectionRepository>(),
               )..startListeningToConnection(),
             ),
+            BlocProvider(
+              create: (context) => RoomJoinErrorCubit(
+                roomRepository: context.read<ChessRoomRepository>(),
+              )..startListeningToRoom(),
+            ),
           ],
-          child: const RoomRouter(),
+          child: const RoomJoinErrorHandler(
+            child: ConnectionErrorHandler(
+              child: RoomRouter(),
+            ),
+          ),
         ),
       ),
       debugShowCheckedModeBanner: false,

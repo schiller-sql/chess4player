@@ -14,7 +14,10 @@ class RoomCubit extends Cubit<RoomState> {
 
   void startListeningToRoom() {
     emit(const NotInRoom());
-    _sub = roomRepository.roomUpdateStream.listen(_roomUpdate);
+    _sub = roomRepository.roomUpdateStream.listen(
+      _roomUpdate,
+      onError: _roomError,
+    );
   }
 
   void leave() {
@@ -35,6 +38,12 @@ class RoomCubit extends Cubit<RoomState> {
           const InRoom(),
         );
         break;
+    }
+  }
+
+  void _roomError(Object error) {
+    if (error is RoomJoinException) {
+      emit(const NotInRoom());
     }
   }
 

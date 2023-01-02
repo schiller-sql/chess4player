@@ -15,7 +15,6 @@ class ConnectionErrorCubit extends Cubit<ConnectionErrorState> {
   }) : super(const InitialConnectionError());
 
   void startListeningToConnection() {
-    emit(const NoConnectionError());
     _connectionUpdate(connectionRepository.currentConnectionStatus);
     _conSub = connectionRepository.connectionStatus.listen(_connectionUpdate);
   }
@@ -25,10 +24,6 @@ class ConnectionErrorCubit extends Cubit<ConnectionErrorState> {
         status.errorType == ConnectionErrorType.connectionInterrupt) {
       emit(ConnectionError(message: status.errorType.name));
     }
-  }
-
-  void clickErrorAway() {
-    emit(const NoConnectionError());
   }
 
   @override

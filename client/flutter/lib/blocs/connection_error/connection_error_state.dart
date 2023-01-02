@@ -9,10 +9,6 @@ class InitialConnectionError extends ConnectionErrorState {
   const InitialConnectionError();
 }
 
-class NoConnectionError extends ConnectionErrorState {
-  const NoConnectionError();
-}
-
 class ConnectionError extends ConnectionErrorState {
   final String message;
 

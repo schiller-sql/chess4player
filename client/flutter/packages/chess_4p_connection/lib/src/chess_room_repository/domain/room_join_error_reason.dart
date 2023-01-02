@@ -1,17 +1,19 @@
 /// A reason to fail joining a chess room
 enum RoomJoinErrorReason {
   /// The game is already full
-  full("full"),
+  full("full", "The room is already full."),
 
   /// The game has already started
-  started("started"),
+  started("started", "The admin of the room has already started a game."),
 
   /// The code is invalid
-  notFound("not found");
+  notFound("not found", "A room with the given code was not found.");
 
   final String _stringRep;
 
-  const RoomJoinErrorReason(this._stringRep);
+  final String message;
+
+  const RoomJoinErrorReason(this._stringRep, this.message);
 
   static RoomJoinErrorReason fromString(String s) {
     for (final reason in values) {

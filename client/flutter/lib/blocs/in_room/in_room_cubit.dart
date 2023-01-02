@@ -22,7 +22,7 @@ class InRoomCubit extends Cubit<InRoomState> {
         ),
       );
     }
-    _sub = roomRepository.roomUpdateStream.listen(_roomUpdate);
+    _sub = roomRepository.roomUpdateStream.listen(_roomUpdate, onError: (_) {});
   }
 
   void _roomUpdate(RoomUpdate update) {
