@@ -11,11 +11,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   doWhenWindowReady(() {
-    // 823x592
     const initialSize = Size(850, 700);
     appWindow.minSize = initialSize;
     appWindow.size = initialSize;
-    appWindow.alignment = Alignment.center;
     appWindow.show();
   });
 

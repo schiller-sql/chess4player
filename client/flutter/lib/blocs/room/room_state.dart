@@ -10,7 +10,9 @@ class RoomInitial extends RoomState {
 }
 
 class InRoom extends RoomState {
-  const InRoom();
+  final bool isAdmin;
+
+  const InRoom({required this.isAdmin});
 }
 
 class NotInRoom extends RoomState {

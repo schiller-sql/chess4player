@@ -30,6 +30,9 @@ ThemeData get fPlotTheme => ThemeData.from(
       ),
       useMaterial3: true,
     ).copyWith(
+  snackBarTheme: const SnackBarThemeData(
+    backgroundColor: NordColors.$10,
+  ),
       primaryIconTheme: const IconThemeData(
         color: NordColors.$9,
       ),
@@ -45,6 +48,9 @@ ThemeData get fPlotTheme => ThemeData.from(
       ),
       appBarTheme: const AppBarTheme(
         toolbarHeight: 42,
+        foregroundColor: NordColors.$10,
+        iconTheme: IconThemeData(color: NordColors.$10),
+        actionsIconTheme: IconThemeData(color: NordColors.$10),
       ),
       checkboxTheme: CheckboxThemeData(
         checkColor: MaterialStateProperty.all(NordColors.$0),

@@ -24,4 +24,13 @@ enum Direction {
         return down;
     }
   }
+
+  static Direction fromInt(int i) {
+    assert(i >= 0);
+    var direction = up;
+    for (var j = 0; j < i; j++) {
+      direction = direction.clockwiseRotate;
+    }
+    return direction;
+  }
 }

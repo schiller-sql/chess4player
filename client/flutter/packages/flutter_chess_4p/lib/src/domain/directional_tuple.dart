@@ -7,8 +7,24 @@ class DirectionalTuple<E> {
 
   const DirectionalTuple.all(E e) : this(e, e, e, e);
 
-  const DirectionalTuple.allWithOverride(E all, {E? up, E? right, E? down, E? left})
+  const DirectionalTuple.allWithOverride(E all,
+      {E? up, E? right, E? down, E? left})
       : this(up ?? all, right ?? all, down ?? all, left ?? all);
+
+  E getFromInt(int i) {
+    assert(i >= 0);
+    i = i % 4;
+    switch(i) {
+      case 0:
+        return up;
+      case 1:
+        return right;
+      case 2:
+        return down;
+      default:
+        return left;
+    }
+  }
 
   E get(Direction direction) {
     switch (direction) {

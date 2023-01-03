@@ -217,7 +217,11 @@ class _ChessBoardState extends State<ChessBoard> {
   Widget build(BuildContext context) {
     return CustomPaint(
       foregroundPainter: AccessiblePositionsPainter(selectableFields),
-      painter: ChessBoardPainter(),
+      painter: const ChessBoardPainter(
+        backgroundTileColor2: Colors.black,
+        backgroundTileColor1: Colors.white,
+        backgroundColor: Colors.grey,
+      ),
       child: AspectRatio(
         aspectRatio: 1,
         child: Stack(

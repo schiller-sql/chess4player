@@ -216,7 +216,7 @@ class _HomePageState extends State<HomePage> {
 
   static final _roomCodeFieldFormatters = [
     TextInputFormatter.withFunction(
-          (oldValue, newValue) => newValue.copyWith(
+      (oldValue, newValue) => newValue.copyWith(
         text: newValue.text.toUpperCase(),
       ),
     ),
@@ -231,8 +231,11 @@ class _HomePageState extends State<HomePage> {
         child: BlocBuilder<JoinRoomCubit, JoinRoomState>(
           builder: (context, state) {
             return PinCodeTextField(
-              inputFormatters: _roomCodeFieldFormatters,
+              autoFocus: true,
+              beforeTextPaste: (_) => false,
+              enablePinAutofill: false,
               autoUnfocus: false,
+              inputFormatters: _roomCodeFieldFormatters,
               textStyle: const TextStyle(
                 fontSize: 36,
                 color: NordColors.$9,
