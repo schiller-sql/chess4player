@@ -2,7 +2,7 @@ package websocket
 
 import (
 	"log"
-	"server/chess"
+	"server/board"
 	"server/domain"
 	"sync"
 )
@@ -15,7 +15,7 @@ type Room struct {
 	Host             *domain.Client
 	Pool             *Pool
 	InGame           *InGame
-	Game             *chess.Game
+	Game             *board.Board
 }
 
 type InGame struct {
@@ -44,7 +44,7 @@ func NewRoom(host *domain.Client, pool *Pool) *Room {
 		Host:             host,
 		Pool:             pool,
 		InGame:           &InGame{value: false, Mutex: sync.Mutex{}},
-		Game:             &chess.Game{Players: make(map[*domain.Client]*chess.PlayerAttributes)},
+		Game:             &board.Board{Players: make(map[*domain.Client]*board.PlayerAttributes)},
 	}
 }
 
@@ -117,7 +117,7 @@ func (this *Room) handleEvent(event domain.ClientEvent) {
 			var content = event.Message.Content
 			this.InGame.value = true
 			for participant, name := range this.Participants.Clients {
-				this.Game.Players[participant] = &chess.PlayerAttributes{Time: int((content["time"]).(float64)), Name: name}
+				this.Game.Players[participant] = &board.PlayerAttributes{Time: int((content["time"]).(float64)), Name: name}
 			}
 			this.Game.Start()
 			break
@@ -135,7 +135,7 @@ func (this *Room) handleEvent(event domain.ClientEvent) {
 		case "draw-request":
 			this.Game.DrawRequest(event.Client)
 			break
-		case "draw accept":
+		case "draw-accept":
 			this.Game.DrawAccept(event.Client)
 			break
 		default:
