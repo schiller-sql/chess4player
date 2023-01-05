@@ -19,6 +19,46 @@ func TestBoard(t *testing.T) {
 	}
 }
 
+func TestShortCastle(t *testing.T) {
+	b := board.Board{}
+
+	b.Set(board.Point{X: 5, Y: 5}, board.NewPiece(board.Up, board.King))
+
+	b.Set(board.Point{X: 5, Y: 8}, board.NewPiece(board.Up, board.Rook))
+	print(b.String())
+
+	b.Move(board.Point{X: 5, Y: 5}, board.Point{X: 5, Y: 7}, nil)
+	print(b.String())
+
+	if b.Get(board.Point{X: 5, Y: 7}).Type != board.King {
+		t.Error()
+	}
+
+	if b.Get(board.Point{X: 5, Y: 6}).Type != board.Rook {
+		t.Error()
+	}
+}
+
+func TestLongCastle(t *testing.T) {
+	b := board.Board{}
+
+	b.Set(board.Point{X: 5, Y: 5}, board.NewPiece(board.Up, board.King))
+
+	b.Set(board.Point{X: 1, Y: 5}, board.NewPiece(board.Up, board.Rook))
+	print(b.String())
+
+	b.Move(board.Point{X: 5, Y: 5}, board.Point{X: 3, Y: 5}, nil)
+	print(b.String())
+
+	if b.Get(board.Point{X: 3, Y: 5}).Type != board.King {
+		t.Error()
+	}
+
+	if b.Get(board.Point{X: 4, Y: 5}).Type != board.Rook {
+		t.Error()
+	}
+}
+
 func TestCheckMateThreeRooks(t *testing.T) {
 	b := board.Board{}
 	b.Set(board.Point{Y: 4}, &board.Piece{Direction: board.Up, Type: board.Rook})

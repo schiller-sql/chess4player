@@ -89,6 +89,10 @@ type Point struct {
 	X, Y int
 }
 
+func (v Vector) neg() Vector {
+	return Vector{Dx: -v.Dx, Dy: -v.Dy}
+}
+
 func (p Point) applyVector(v Vector) Point {
 	p.X += v.Dx
 	p.Y += v.Dy

@@ -1,5 +1,7 @@
 package board
 
+// TODO: insufficient-material check
+
 func (b *Board) GenerateBoard(generate [4]bool) {
 	for direction := 0; direction < 4; direction++ {
 		if !generate[direction] {
@@ -48,7 +50,7 @@ func (b *Board) IsInBoard(p Point) bool {
 	return (p.X >= 3 && p.X <= 10) || (p.Y >= 3 && p.Y <= 10)
 }
 
-func (b *Board) ValidMove(from, to Point, promotion *Piece, direction Direction) bool {
+func (b *Board) ValidMove(from, to Point, promotion *Piece, playerDirection Direction) bool {
 	return true
 }
 
@@ -457,4 +459,32 @@ func (b *Board) AnalyzeCheck(direction Direction) (checkState CheckState, attack
 		}
 	}
 	return
+}
+
+func (b *Board) Move(from, to Point, promotion *Piece) {
+	movingPiece := b.data[from.Y][from.X]
+	b.data[from.Y][from.X] = nil
+	if promotion != nil {
+		movingPiece = promotion
+	}
+	b.data[to.Y][to.X] = movingPiece
+	// castle
+	if movingPiece.Type == King {
+		disX := to.X - from.X
+		disY := to.Y - from.Y
+		if abs(disX) != 2 && abs(disY) != 2 {
+			return
+		}
+		vec := Vector{toOneOrZero(disX), toOneOrZero(disY)}
+		rookPos := to.applyVector(vec)
+		rookPiece := b.Get(rookPos)
+		if rookPiece == nil {
+			rookPos = rookPos.applyVector(vec)
+			rookPiece = b.Get(rookPos)
+		}
+		newTowerPosition := to.applyVector(vec.neg())
+		b.Set(rookPos, nil)
+		b.Set(newTowerPosition, rookPiece)
+	}
+	// TODO: en passent
 }
