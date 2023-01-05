@@ -48,11 +48,12 @@ func (b *Board) IsInBoard(p Point) bool {
 	return (p.X >= 3 && p.X <= 10) || (p.Y >= 3 && p.Y <= 10)
 }
 
-func (b *Board) ValidMove(move [4]int, promotion string) bool {
+func (b *Board) ValidMove(from, to Point, promotion *Piece, direction Direction) bool {
 	return true
 }
 
-func (b *Board) checkKingEscapePositions(kingPos Point, direction Direction) bool {
+/// if true, king cannot move
+func (b *Board) checkIfKingCannotMove(kingPos Point, direction Direction) bool {
 	for addY := -1; addY <= 1; addY++ {
 	escapePositions:
 		for addX := -1; addX <= 1; addX++ {
@@ -84,6 +85,17 @@ func (b *Board) checkKingEscapePositions(kingPos Point, direction Direction) boo
 		}
 	}
 	return true
+}
+
+func (b *Board) checkIfPointInVector(vec Vector, vecP, p Point) bool {
+	line := vecP
+	for b.IsInBoard(line) {
+		if line == p {
+			return true
+		}
+		line = line.applyVector(vec)
+	}
+	return false
 }
 
 func (b *Board) GetCheckingVectors(direction Direction, kingPos Point) (locking, direct map[Point]Vector) {
@@ -134,26 +146,145 @@ func (b *Board) GetCheckingVectors(direction Direction, kingPos Point) (locking,
 	return
 }
 
-func (b *Board) CanMove() {
-
+func (b *Board) posOkToAttack(pos Point, attackingDirection Direction) bool {
+	return b.IsInBoard(pos) && (b.Get(pos) == nil || b.Get(pos).Direction != attackingDirection)
 }
 
-/// TODO: REMI
+func (b *Board) straightPieceCanMove(piece *Piece, piecePos Point, lockingVectors map[Point]Vector, straight, diagonal bool) bool {
+	var (
+		inVector  bool
+		foundVec  Vector
+		foundVecP Point
+	)
+	for vecP, vec := range lockingVectors {
+		if b.checkIfPointInVector(vec, vecP, piecePos) {
+			inVector = true
+			foundVec = vec
+			foundVecP = vecP
+			break
+		}
+	}
+	for dy := -1; dy <= 1; dy++ {
+		for dx := -1; dx <= 1; dx++ {
+			if dy == 0 && dx == 0 {
+				continue
+			}
+			addVec := Vector{dx, dy}
+			if addVec.isDiagonal() && !diagonal {
+				continue
+			}
+			if !addVec.isDiagonal() && !straight {
+				continue
+			}
+			possiblePoint := piecePos.applyVector(addVec)
+			if b.posOkToAttack(possiblePoint, piece.Direction) {
+				if inVector {
+					return b.checkIfPointInVector(foundVec, foundVecP, possiblePoint)
+				} else {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
+func (b *Board) pieceCanMove(piece *Piece, piecePos Point, lockingVectors map[Point]Vector) bool {
+	switch piece.Type {
+	case King:
+		panic("king should be checked, as its checking should be done by the checkmate and remi algorithm")
+	case Knight:
+		for vecP, vec := range lockingVectors {
+			if b.checkIfPointInVector(vec, vecP, piecePos) {
+				return false
+			}
+		}
+		for _switch := 0; _switch < 2; _switch++ {
+			for longRange := -2; longRange <= 2; longRange += 4 {
+				for shortRange := -1; shortRange <= 1; shortRange += 2 {
+					dx := longRange
+					dy := shortRange
+					if _switch == 1 {
+						dx, dy = dy, dx
+					}
+					possiblePos := piecePos.applyVector(Vector{Dx: dx, Dy: dy})
+					if b.posOkToAttack(possiblePos, piece.Direction) {
+						return true
+					}
+				}
+			}
+		}
+		return false
+	case Pawn:
+		forward := piecePos.applyVector(piece.Direction.getVector())
+		for vecP, vec := range lockingVectors {
+			if b.checkIfPointInVector(vec, vecP, piecePos) {
+				if canReach, _ := b.CanReach(piecePos, vecP, piece, true, Point{}); canReach {
+					return true
+				}
+				if !b.IsInBoard(forward) {
+					return false
+				}
+				if b.Get(forward) != nil {
+					return false
+				}
+				return b.checkIfPointInVector(vec, vecP, forward)
+			}
+		}
+		for i := -1; i <= 1; i++ {
+			possiblePos := forward
+			if piece.Direction.isVertical() {
+				possiblePos.X += i
+			} else {
+				possiblePos.Y += i
+			}
+			if b.IsInBoard(possiblePos) && (b.Get(possiblePos) == nil) == (i == 0) {
+				field := b.Get(possiblePos)
+				if i == 0 {
+					if field == nil {
+						return true
+					}
+				} else {
+					if field != nil && field.Direction != piece.Direction {
+						return true
+					}
+				}
+			}
+		}
+		return false
+	case Queen:
+		return b.straightPieceCanMove(piece, piecePos, lockingVectors, true, true)
+	case Bishop:
+		return b.straightPieceCanMove(piece, piecePos, lockingVectors, false, true)
+	case Rook:
+		return b.straightPieceCanMove(piece, piecePos, lockingVectors, true, false)
+	}
+	panic("cannot be any other piece")
+}
+
 func (b *Board) CheckEndForDirection(direction Direction) (checkmate, remi bool) {
 	checkState, attacker, kingPos, attackingVec := b.AnalyzeCheck(direction)
 	if checkState == NotCheck {
-		if !b.checkKingEscapePositions(kingPos, direction) {
+		if b.checkIfKingCannotMove(kingPos, direction) {
+			locking, _ := b.GetCheckingVectors(direction, kingPos)
 			// check for remi, because king cannot move, but is not in check
 			for y := 0; y < 14; y++ {
 				for x := 0; x < 14; x++ {
-					// TODO
+					piece := b.data[y][x]
+					if piece != nil && piece.Direction == direction && piece.Type != King {
+						if b.pieceCanMove(piece, Point{x, y}, locking) {
+							return false, false
+						}
+					}
 				}
 			}
+			return false, true
 		}
 		return false, false
 	}
 	if checkState == Check {
 		// Check for save before king
+		isAttacker := true
 		p := attacker
 	checkSave:
 		for p != kingPos {
@@ -162,7 +293,7 @@ func (b *Board) CheckEndForDirection(direction Direction) (checkmate, remi bool)
 					savingPiece := b.data[y][x]
 					savingPos := Point{x, y}
 					if savingPiece != nil && savingPiece.Direction == direction && savingPos != kingPos {
-						canReach, _ := b.CanReach(savingPos, p, savingPiece, false, Point{})
+						canReach, _ := b.CanReach(savingPos, p, savingPiece, isAttacker, Point{})
 						if canReach {
 							return false, false
 						}
@@ -173,9 +304,10 @@ func (b *Board) CheckEndForDirection(direction Direction) (checkmate, remi bool)
 				break checkSave
 			}
 			p = p.applyVector(*attackingVec)
+			isAttacker = false
 		}
 	}
-	return b.checkKingEscapePositions(kingPos, direction), false
+	return b.checkIfKingCannotMove(kingPos, direction), false
 }
 
 func abs(a int) int {

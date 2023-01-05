@@ -38,7 +38,7 @@ const (
 	King
 )
 
-func pieceTypeFromChar(char string) PieceType {
+func PieceTypeFromChar(char string) PieceType {
 	switch char {
 	case "k":
 		return Knight
@@ -97,6 +97,10 @@ func (p Point) applyVector(v Vector) Point {
 
 type Vector struct {
 	Dx, Dy int
+}
+
+func (v Vector) isDiagonal() bool {
+	return v.Dx != 0 && v.Dy != 0
 }
 
 type Board struct {
