@@ -40,7 +40,7 @@ const (
 
 func PieceTypeFromChar(char string) PieceType {
 	switch char {
-	case "k":
+	case "n":
 		return Knight
 	case "r":
 		return Rook
