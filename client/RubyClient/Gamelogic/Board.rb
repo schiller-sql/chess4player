@@ -78,4 +78,39 @@ class Board
             end
         end
     end
+
+    def place_pieces_with_line_up line_up = nil 
+        line_up.each do |line|
+            line.each_with_index do |field, column|
+                piece = nil
+                team = 0
+                unless field == nil or field == '--'
+                    field.each_char do |char|
+                        case char.class.name
+                        when ''
+                            case char.to_s
+                            when 'b'
+                                piece = 'bishop'
+                            when 'k'
+                                piece = 'king'
+                            when 'n'
+                                piece = 'knight'
+                            when 'p'
+                                piece = 'pawn'
+                            when 'q'
+                                piece = 'queen'
+                            when 'r'
+                                piece = 'rook'
+                            end
+                        when ''
+                            team = char.to_i
+                        else
+                            break
+                        end
+                    end
+                    @board[line][column].set_piece piece, team
+                end
+            end
+        end
+    end
 end

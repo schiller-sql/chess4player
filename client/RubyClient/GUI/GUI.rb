@@ -12,7 +12,6 @@ class GUI
 
     def main
         define_window
-        show_window
     end
 
     def show_window window = @window
@@ -20,12 +19,12 @@ class GUI
     end
 
     def close_window window = @window
-        window.destroy
+        window.hide
     end
 
     def define_window x_size = @size[:x_size], y_size = @size[:y_size]
         @window = window(@config[:application_name], x_size, y_size) {
-
+            margined true
         }
     end
 end

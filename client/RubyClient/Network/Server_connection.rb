@@ -3,10 +3,11 @@ require 'faye/websocket'
 require 'json'
 
 class Server_connection
-    def initialize connection
+    def initialize
+        @config = JSON.load_file 'config.json', {symbolize_names: true}
         @eventmachine = nil
-        @hostname = connection.fetch(:hostname)
-        @port = connection.fetch(:port)
+        @hostname = @config[:network][:hostname]
+        @port = @config[:network][:port]
         @socket = nil
     end
 

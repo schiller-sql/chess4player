@@ -17,11 +17,10 @@ class Loading_window < GUI
             ['Checking gems', 100 / @config[:gems][:priority].length],
             ['Updating gems', 0]
         ]
-        @window = define_window
     end
 
     def define_window x_size = 400, y_size = 400
-        @window = window("#{@config[:application_name]}: Loading...", x_size, y_size) {
+        @window = window("#{@config[:application_name]}: Loading...", x_size, y_size, true) {
             margined true
 
             vertical_box {

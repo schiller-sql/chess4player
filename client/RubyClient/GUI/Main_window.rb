@@ -2,25 +2,28 @@ require 'glimmer-dsl-libui'
 require 'json'
 
 require_relative './GUI.rb'
+require_relative './Game_window.rb'
 require_relative './Settings_window.rb'
-require_relative './Network/Server_connection.rb'
+require_relative '../Network/Server_connection.rb'
 
 class Main_window < GUI
     include Glimmer
 
     attr_accessor :code, :nickname
 
-    def initialize settings_window = nil
+    def initialize
         super
-        @client = nil
-        @server_thread = nil
         if @size == nil
             if @config[:GUI]["#{self.class.name}"] == nil
                 @size = @config[:GUI][:standard_size]
             end
         end
-        @settings_window = settings_window
-        @window = define_window
+        @windows = {}
+        @windows[:game_window] = Game_window.new
+        @windows[:settings_window] = Settings_window.new
+        @windows.each do |key, element|
+            element.main
+        end
     end
 
     def define_window x_size = 400, y_size = 400
@@ -56,7 +59,7 @@ class Main_window < GUI
 
                     on_clicked do
                         if code == nil or code.length <= 0
-                            msg_box 'Incorrect code', 'Please make sure you entered a code!'
+                            msg_box 'Incorrect code', 'Please make sure you entered a valid code!'
                         else
                             @client.send_message 'room', 'join', {:code => code, :name => nickname}
                         end
@@ -66,21 +69,10 @@ class Main_window < GUI
                     stretchy false
 
                     on_clicked do
-                        @settings_window.show_window
+                        @windows[:settings_window].show_window
                     end
                 }
             }
-
-            on_closing do
-                @server_thread.exit
-            end
-        }
-    end
-
-    def start_connection
-        @client = Server_connection.new @config[:network]
-        @server_thread = Thread.new {
-            @client.main
         }
     end
 end

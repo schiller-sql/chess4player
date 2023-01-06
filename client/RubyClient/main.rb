@@ -1,5 +1,6 @@
 require_relative './GUI/Loading_window.rb'
 require_relative './GUI/Main_window.rb'
+require_relative './Network/Server_connection.rb'
 
 BEGIN {
     prefix = 'gem'
@@ -30,26 +31,7 @@ BEGIN {
     end
 }
 
-$os = nil
-if OS.windows?
-    $os = 'windows'
-elsif OS.posix?
-    $os = 'linux'
-elsif OS.mac?
-    $os = 'macos'
-end
-
-$config = JSON.load_file 'config.json', {symbolize_names: true}
-
-$gui = {}
-$gui[:loading_window] = Loading_window.new
-$gui[:main_window] = Main_window.new
-
-#gui_thread = Thread.new {$gui[:loading_window].main}
-
-$gui[:loading_window].main
-
-gem_thread = Thread.new {
+def checking_gems
     prefix = 'gem'
     if $os == 'linux' or $os == 'macos'
         prefix = 'sudo gem'
@@ -57,7 +39,7 @@ gem_thread = Thread.new {
     $config[:gems][:non_priority].each do |gem_name|
         begin
             Gem::Specification.find_by_name gem_name
-        rescue => Gem::MissingSpecError
+        rescue => exception
             system "#{prefix} i #{gem_name}"
         end
         $gui[:loading_window].update_status 'checking'
@@ -68,8 +50,28 @@ gem_thread = Thread.new {
             $gui[:loading_window].update_status 'updating'
         end
     end
-    $gui[:main_window].start_connection
-}
+end
 
-gem_thread.join
-#gui_thread.join
+$config = JSON.load_file 'config.json', {symbolize_names: true}
+$gui = {}
+$gui[:game_window] = Game_window.new
+$gui[:loading_window] = Loading_window.new
+$gui[:main_window] = Main_window.new
+$gui.each do |key, element|
+    element.main
+end
+$os = nil
+if OS.windows?
+    $os = 'windows'
+elsif OS.posix?
+    $os = 'linux'
+elsif OS.mac?
+    $os = 'macos'
+end
+$socket = Server_connection.new
+$threads = {}
+
+gem_process = spawn checking_gems
+$gui[:loading_window].show_window
+socket_process = spawn $socket.main
+$gui[:main_window].show_window
