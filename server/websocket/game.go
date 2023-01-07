@@ -100,7 +100,7 @@ func (g *Game) game(clients map[*domain.Client]string, timePerPlayer uint) {
 		"timePerPlayer": timePerPlayer,
 		"participants":  state.playerOrder,
 	}
-	for client, _ := range clients {
+	for client := range clients {
 		client.Write("game", "start", startEvent)
 	}
 	state.firstTurn()
@@ -180,7 +180,7 @@ func (g *Game) game(clients map[*domain.Client]string, timePerPlayer uint) {
 				m := map[string]interface{}{
 					"requester": clients[message.Client],
 				}
-				for client, _ := range clients {
+				for client := range clients {
 					client.Write("game", "draw-requested", m)
 				}
 				// TODO: suspekt
@@ -333,13 +333,13 @@ func (s *gameState) sendResign(name string) {
 	message := map[string]interface{}{
 		"participant": name,
 	}
-	for client, _ := range s.clients {
+	for client := range s.clients {
 		client.Write("game", "player-resigned", message)
 	}
 }
 
 func (s *gameState) sendGameUpdate(update gameUpdate) {
-	for client, _ := range s.clients {
+	for client := range s.clients {
 		client.Write("game", "game-update", update)
 	}
 }
