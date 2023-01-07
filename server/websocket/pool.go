@@ -81,7 +81,7 @@ func (this *Pool) createRoom(event domain.ClientEvent) {
 	room.Participants.Lock()
 	defer room.Participants.Unlock()
 
-	var name = validateName(messageContent["name"].(string), room)
+	var name = validateName(messageContent["name"].(string), room) // TODO: should not be casted to string
 	go room.Start()
 	this.Rooms[code] = room
 	room.Register <- &Participant{client, name}
@@ -91,7 +91,7 @@ func (this *Pool) createRoom(event domain.ClientEvent) {
 }
 
 func validateName(name string, room *Room) string {
-	match := regexp.MustCompile(`[^a-zA-Z_0-9]`) //TODO: should name look like this? idk...
+	match := regexp.MustCompile(`\W`) //TODO: should name look like this? idk...
 	name = match.ReplaceAllString(name, "")
 	if name == "" {
 		return generateName(room)
@@ -107,7 +107,7 @@ func validateName(name string, room *Room) string {
 func (this *Pool) joinRoom(event domain.ClientEvent) {
 	var content = event.Message.Content
 	var client = event.Client
-	var code = strings.ToUpper((content["code"]).(string))
+	var code = strings.ToUpper((content["code"]).(string)) // TODO: more string casting...
 	var name = (content["name"]).(string)
 	var room, exist = this.Rooms[code]
 
