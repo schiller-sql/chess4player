@@ -371,6 +371,17 @@ Content:
 
 # `game`
 
+### `started```
+
+The game has started and the time is running for the first player.
+
+Content
+
+| Key            | Type                                      | Description                                                                                                     |
+|----------------|-------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| `time`         | integer                                   | The current number of participants in the game.                                                                 |
+| `participants` | Array of string? (always has length of 4) | The player names in order, from lower, left, top, and right position, if no player is at a position it is null. |
+
 ### `draw-requested`
 
 If somebody has requested a draw [(see: draw-request)](#draw-request).
