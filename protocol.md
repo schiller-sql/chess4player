@@ -375,7 +375,11 @@ Content:
 
 If somebody has requested a draw [(see: draw-request)](#draw-request).
 
-Content: -
+Content:
+
+| Key         | Type   | Description                           |
+|-------------|--------|---------------------------------------|
+| `requester` | string | The person that has requested a draw. |
 
 ### `player-resigned`
 
