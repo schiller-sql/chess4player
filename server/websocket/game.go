@@ -24,7 +24,7 @@ func (g *Game) LeavesRoom(client *domain.Client) {
 	g.leavesGame <- client
 }
 
-func (g *Game) Message(event domain.ClientEvent) {
+func (g *Game) Event(event domain.ClientEvent) {
 	g.message <- event
 }
 
