@@ -16,6 +16,12 @@ type Message struct {
 	Content map[string]interface{} `json:"content"`
 }
 
+type returnMessage struct {
+	Type    string      `json:"type"`
+	SubType string      `json:"subtype"`
+	Content interface{} `json:"content"`
+}
+
 type ClientEvent struct {
 	Message Message
 	Client  *Client
@@ -23,6 +29,7 @@ type ClientEvent struct {
 
 func (this *Client) Read() {
 	defer func() {
+		// TODO: fehlt was?
 		this.Disconnect()
 	}()
 
@@ -38,8 +45,10 @@ func (this *Client) Read() {
 	}
 }
 
-func (this *Client) Write(returnType string, returnSubType string, returnContent map[string]interface{}) {
-	err := this.Conn.WriteJSON(Message{
+// TODO: allowed for multiple writes parallel?
+// TDOO: does mutex have to be used on client????
+func (this *Client) Write(returnType string, returnSubType string, returnContent interface{}) {
+	err := this.Conn.WriteJSON(returnMessage{
 		Type:    returnType,
 		SubType: returnSubType,
 		Content: returnContent,

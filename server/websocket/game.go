@@ -1,0 +1,345 @@
+package websocket
+
+import (
+	"math/rand"
+	"server/board"
+	"server/domain"
+	"sync"
+	"time"
+)
+
+type Game struct {
+	forceGameEnd chan bool
+	leavesGame   chan *domain.Client
+	message      chan domain.ClientEvent
+	hasEnded     bool
+	m            sync.Mutex
+}
+
+func (g *Game) ForceGameEnd() {
+	g.forceGameEnd <- true
+}
+
+func (g *Game) LeavesRoom(client *domain.Client) {
+	g.leavesGame <- client
+}
+
+func (g *Game) Message(event domain.ClientEvent) {
+	g.message <- event
+}
+
+func (g *Game) HasEnded() bool {
+	g.m.Lock()
+	defer g.m.Unlock()
+	return g.hasEnded
+}
+
+func StartGame(clients map[*domain.Client]string, time uint) *Game {
+	g := Game{
+		forceGameEnd: make(chan bool),
+		leavesGame:   make(chan *domain.Client),
+		message:      make(chan domain.ClientEvent),
+	}
+	// because clients may change
+	clientsCopy := make(map[*domain.Client]string)
+	for client, name := range clients {
+		clientsCopy[client] = name
+	}
+	go g.game(clientsCopy, time)
+	return &g
+}
+
+type gameState struct {
+	board             *board.Board
+	clients           map[*domain.Client]string
+	playerOrder       [4]*player
+	acceptedDraw      [4]bool
+	playerTime        [4]uint
+	whoseTurn         int
+	lastTurnTimestamp time.Time
+	turnTimer         *time.Timer
+	gameHasEnded      bool
+}
+
+type player struct {
+	name   string
+	client *domain.Client
+}
+
+func (g *Game) game(clients map[*domain.Client]string, timePerPlayer uint) {
+	state := gameState{clients: clients}
+
+	for i := 0; i < 4; i++ {
+		state.playerTime[i] = timePerPlayer
+	}
+
+	var players []*player
+	for client, name := range clients {
+		players = append(players, &player{client: client, name: name})
+	}
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(players), func(i, j int) { players[i], players[j] = players[j], players[i] })
+
+	if len(players) == 2 {
+		state.playerOrder[0] = players[0]
+		state.playerOrder[2] = players[1]
+	} else {
+		copy(state.playerOrder[:], players) // TODO: suspekt
+	}
+
+	var generate [4]bool
+	for i := 0; i < 4; i++ {
+		if state.playerOrder[i] != nil {
+			generate[i] = true
+		}
+	}
+	b := &board.Board{}
+	b.GenerateBoard(generate)
+
+	startEvent := map[string]interface{}{
+		"timePerPlayer": timePerPlayer,
+		"participants":  state.playerOrder,
+	}
+	for client, _ := range clients {
+		client.Write("game", "start", startEvent)
+	}
+	state.firstTurn()
+	for !state.gameHasEnded {
+		select {
+		case <-state.turnTimer.C:
+			// timePerPlayer end for player whose turn it is
+			{
+				state.playerHasLost(state.whoseTurn, true)
+			}
+		case leftGame := <-g.leavesGame:
+			{
+				playerNumber := -1
+				for i := 0; i < 4; i++ {
+					if state.playerOrder[i] != nil && state.playerOrder[i].client == leftGame {
+						playerNumber = i
+					}
+				}
+				if playerNumber == -1 {
+					break
+				}
+				state.playerHasLost(playerNumber, false)
+			}
+		case message := <-g.message:
+			playerNumber := -1
+			for i := 0; i < 4; i++ {
+				if state.playerOrder[i] != nil && state.playerOrder[i].client == message.Client {
+					playerNumber = i
+				}
+			}
+			if playerNumber == -1 {
+				break
+			}
+			switch message.Message.SubType {
+			case "move":
+				{
+					rawMoveData, ok := message.Message.Content["m"]
+					if !ok {
+						break
+					}
+					unCastedMoveData, _ := rawMoveData.([]interface{})
+					var moveData [4]int
+					for i, v := range unCastedMoveData {
+						moveData[i] = int(v.(float64))
+					}
+					var promotion *string
+					rawPromotion, promotionKeyFound := message.Message.Content["castedRawPromotion"]
+					castedRawPromotion, promotionCouldBeCast := rawPromotion.(string)
+					if castedRawPromotion == "" || !promotionKeyFound || !promotionCouldBeCast {
+						promotion = nil
+					} else {
+						promotion = &castedRawPromotion
+					}
+					m := move{promotion: promotion, move: moveData}
+					playerDirection := board.Direction(playerNumber)
+					from := board.Point{X: moveData[0], Y: moveData[1]}
+					to := board.Point{X: moveData[2], Y: moveData[3]}
+					var promotionPiece *board.Piece
+					if promotion != nil {
+						promotionPiece = &board.Piece{
+							Type:      board.PieceTypeFromChar(*promotion),
+							Direction: playerDirection,
+						}
+					}
+					validMove := state.board.ValidMove(from, to, promotionPiece, playerDirection)
+					if !validMove {
+						// TODO
+					}
+					state.board.Move(from, to, promotionPiece)
+					state.turnHasEnded([]string{}, []move{m})
+				}
+			case "resign":
+				{
+					state.playerHasLost(playerNumber, false)
+				}
+			case "draw-request":
+				m := map[string]interface{}{
+					"requester": clients[message.Client],
+				}
+				for client, _ := range clients {
+					client.Write("game", "draw-requested", m)
+				}
+				// TODO: suspekt
+			case "draw-accept":
+				allAccepted := true
+				for i := 0; i < 4; i++ {
+					if state.playerOrder[i] != nil {
+						if state.playerOrder[i].client == message.Client {
+							state.acceptedDraw[i] = true
+						} else if !state.acceptedDraw[i] {
+							allAccepted = false
+						}
+					}
+				}
+				if allAccepted {
+					gameEndReason := "draw"
+					state.sendGameUpdate(gameUpdate{
+						RemainingTime: state.remainingTime(),
+						GameEnd:       &gameEndReason,
+					})
+					state.gameHasEnded = true
+				}
+			}
+		case <-g.forceGameEnd:
+			state.gameHasEnded = true
+		}
+	}
+	state.turnTimer.Stop()
+	g.m.Lock()
+	g.hasEnded = true
+	g.m.Unlock()
+}
+
+func (s *gameState) remainingTime() uint {
+	now := time.Now()
+	passedTime := uint(now.Sub(s.lastTurnTimestamp).Milliseconds())
+	return s.playerTime[s.whoseTurn] - passedTime
+}
+
+func (s *gameState) remainingPlayersCount() int {
+	count := 0
+	for i := 0; i < 4; i++ {
+		if s.playerOrder[i] != nil {
+			count++
+		}
+	}
+	return count
+}
+
+type move struct {
+	move      [4]int
+	promotion *string
+}
+
+type gameUpdate struct {
+	RemainingTime    uint     `json:"remaining-time"`
+	Moves            []move   `json:"moves"`
+	GameEnd          *string  `json:"game-end"`
+	LostParticipants []string `json:"lost-participants"`
+}
+
+func (s *gameState) firstTurn() {
+	s.whoseTurn = 3
+	s.nextTurn()
+}
+
+func (s *gameState) nextTurn() {
+	turn := s.whoseTurn + 1
+	for s.playerOrder[turn] == nil {
+		if turn == 4 {
+			turn = 0
+		}
+		turn++
+	}
+	s.whoseTurn = turn
+	playerTime := s.playerTime[turn]
+	if s.turnTimer != nil {
+		s.turnTimer.Stop()
+	}
+	s.turnTimer = time.NewTimer(time.Duration(playerTime) * time.Millisecond)
+	s.lastTurnTimestamp = time.Now()
+}
+
+func (s *gameState) playerHasLost(player int, onTime bool) {
+	name := s.playerOrder[player].name
+	s.playerOrder[player] = nil
+	if s.remainingPlayersCount() == 1 {
+		var remainingTime uint = 0
+		if !onTime {
+			remainingTime = s.remainingTime()
+		}
+		s.gameHasEnded = true
+		var gameEnd string
+		if onTime {
+			gameEnd = "lost to time"
+		} else {
+			gameEnd = "resign"
+		}
+		s.sendGameUpdate(gameUpdate{
+			RemainingTime:    remainingTime,
+			GameEnd:          &gameEnd,
+			LostParticipants: []string{name},
+		})
+	} else if player != s.whoseTurn {
+		s.sendResign(name)
+	} else {
+		s.turnHasEnded([]string{name}, []move{})
+		// game continues
+	}
+}
+
+func (s *gameState) turnHasEnded(lostParticipants []string, moves []move) {
+	remainingTime := s.remainingTime()
+	for {
+		s.nextTurn()
+		checkmate, remi := s.board.CheckEndForDirection(board.Direction(s.whoseTurn))
+		if checkmate || remi {
+			lostName := s.playerOrder[s.whoseTurn].name
+			lostParticipants = append(lostParticipants, lostName)
+			s.playerOrder[s.whoseTurn] = nil
+			if s.remainingPlayersCount() == 1 {
+				var gameEnd string
+				if checkmate {
+					gameEnd = "checkmate"
+				} else {
+					gameEnd = "remi"
+				}
+				s.sendGameUpdate(gameUpdate{
+					RemainingTime:    remainingTime,
+					GameEnd:          &gameEnd,
+					LostParticipants: lostParticipants,
+					Moves:            moves,
+				})
+				return
+			} else {
+				lostParticipants = append(lostParticipants, lostName)
+			}
+		} else {
+			break
+		}
+	}
+	s.sendGameUpdate(gameUpdate{
+		RemainingTime:    remainingTime,
+		Moves:            moves,
+		LostParticipants: lostParticipants,
+	})
+}
+
+func (s *gameState) sendResign(name string) {
+	message := map[string]interface{}{
+		"participant": name,
+	}
+	for client, _ := range s.clients {
+		client.Write("game", "player-resigned", message)
+	}
+}
+
+func (s *gameState) sendGameUpdate(update gameUpdate) {
+	for client, _ := range s.clients {
+		client.Write("game", "game-update", update)
+	}
+}
