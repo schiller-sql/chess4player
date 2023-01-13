@@ -95,10 +95,18 @@ func (g *Game) game(clients map[*domain.Client]string, timePerPlayer uint) {
 	}
 	b := &board.Board{}
 	b.GenerateBoard(generate)
+	state.board = b
+
+	var participantsOrderSerialized [4]*string
+	for i := 0; i < 4; i++ {
+		if state.playerOrder[i] != nil {
+			participantsOrderSerialized[i] = &state.playerOrder[i].name
+		}
+	}
 
 	startEvent := map[string]interface{}{
-		"timePerPlayer": timePerPlayer,
-		"participants":  state.playerOrder,
+		"time":         timePerPlayer,
+		"participants": participantsOrderSerialized,
 	}
 	for client := range clients {
 		client.Write("game", "start", startEvent)
@@ -249,10 +257,10 @@ func (s *gameState) firstTurn() {
 
 func (s *gameState) nextTurn() {
 	turn := s.whoseTurn + 1
+	if turn == 4 {
+		turn = 0
+	}
 	for s.playerOrder[turn] == nil {
-		if turn == 4 {
-			turn = 0
-		}
 		turn++
 	}
 	s.whoseTurn = turn
@@ -293,6 +301,7 @@ func (s *gameState) playerHasLost(player int, onTime bool) {
 }
 
 func (s *gameState) turnHasEnded(lostParticipants []string, moves []move) {
+	// TODO: wenn jemand raus fliegt müssen dessen figuren ausgegraut werden
 	remainingTime := s.remainingTime()
 	for {
 		s.nextTurn()
