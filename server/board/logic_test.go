@@ -19,6 +19,19 @@ func TestBoard(t *testing.T) {
 	}
 }
 
+func TestBoardGenOnlyTwo(t *testing.T) {
+	b := board.Board{}
+	f := [4]bool{true, false, true, false}
+	b.GenerateBoard(f)
+	print(b.String())
+	if b.IsInBoard(board.Point{Y: 14}) {
+		t.Errorf("0|14 is not in board")
+	}
+	if !b.IsInBoard(board.Point{X: 8, Y: 8}) {
+		t.Error()
+	}
+}
+
 func TestShortCastle(t *testing.T) {
 	b := board.Board{}
 
