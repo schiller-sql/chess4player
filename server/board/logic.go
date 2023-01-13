@@ -215,7 +215,7 @@ func (b *Board) straightPieceCanMove(piece *Piece, piecePos Point, lockingVector
 func (b *Board) pieceCanMove(piece *Piece, piecePos Point, lockingVectors map[Point]Vector) bool {
 	switch piece.Type {
 	case King:
-		panic("king should be checked, as its checking should be done by the checkmate and remi algorithm")
+		panic("king should be already checked, as its checking should be done by the checkmate and remi algorithm")
 	case Knight:
 		for vecP, vec := range lockingVectors {
 			if b.checkIfPointInVector(vec, vecP, piecePos) {
@@ -480,6 +480,17 @@ func (b *Board) AnalyzeCheck(direction Direction) (checkState CheckState, attack
 		}
 	}
 	return
+}
+
+func (b *Board) PlayerDead(direction Direction) {
+	for y := 0; y < 14; y++ {
+		for x := 0; x < 14; x++ {
+			piece := b.data[y][x]
+			if piece != nil && piece.Direction == direction {
+				piece.Dead = true
+			}
+		}
+	}
 }
 
 func (b *Board) Move(from, to Point, promotion *Piece) {
