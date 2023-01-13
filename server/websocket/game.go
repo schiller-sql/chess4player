@@ -273,6 +273,7 @@ func (s *gameState) nextTurn() {
 }
 
 func (s *gameState) playerHasLost(player int, onTime bool) {
+	s.board.PlayerDead(board.Direction(player))
 	name := s.playerOrder[player].name
 	s.playerOrder[player] = nil
 	if s.remainingPlayersCount() == 1 {
@@ -307,6 +308,7 @@ func (s *gameState) turnHasEnded(lostParticipants []string, moves []move) {
 		s.nextTurn()
 		checkmate, remi := s.board.CheckEndForDirection(board.Direction(s.whoseTurn))
 		if checkmate || remi {
+			s.board.PlayerDead(board.Direction(s.whoseTurn))
 			lostName := s.playerOrder[s.whoseTurn].name
 			lostParticipants = append(lostParticipants, lostName)
 			s.playerOrder[s.whoseTurn] = nil
