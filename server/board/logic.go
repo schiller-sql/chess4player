@@ -2,42 +2,63 @@ package board
 
 // TODO: insufficient-material check
 
+// TODO: ineffizient: zum generieren werden unglaublich viele array reads und writes gemacht (14 x 14 x 4)
+// TODO: optimalerweise sollte es nur 64 writes geben und keine reads
+// TODO: außerdem werden extrem viele arrays verworfen
 func (b *Board) GenerateBoard(generate [4]bool) {
-	for direction := 0; direction < 4; direction++ {
-		if !generate[direction] {
-			continue
+	for i := 0; i < 4; i++ {
+		var direction Direction
+		switch i {
+		case 0:
+			{
+				direction = Down
+			}
+		case 1:
+			{
+				direction = Right
+			}
+		case 2:
+			{
+				direction = Up
+			}
+		case 3:
+			{
+				direction = Left
+			}
 		}
-		b.data[0] = [14]*Piece{
-			nil, nil, nil,
-			{Type: Rook, Direction: Direction(direction)},
-			{Type: Knight, Direction: Direction(direction)},
-			{Type: Bishop, Direction: Direction(direction)},
-			{Type: King, Direction: Direction(direction)},
-			{Type: Queen, Direction: Direction(direction)},
-			{Type: Bishop, Direction: Direction(direction)},
-			{Type: Knight, Direction: Direction(direction)},
-			{Type: Rook, Direction: Direction(direction)},
-			nil, nil, nil,
+		if generate[direction] {
+			b.data[0] = [14]*Piece{
+				nil, nil, nil,
+				{Type: Rook, Direction: direction},
+				{Type: Knight, Direction: direction},
+				{Type: Bishop, Direction: direction},
+				{Type: King, Direction: direction},
+				{Type: Queen, Direction: direction},
+				{Type: Bishop, Direction: direction},
+				{Type: Knight, Direction: direction},
+				{Type: Rook, Direction: direction},
+				nil, nil, nil,
+			}
+			b.data[1] = [14]*Piece{
+				nil, nil, nil,
+				{Type: Pawn, Direction: direction},
+				{Type: Pawn, Direction: direction},
+				{Type: Pawn, Direction: direction},
+				{Type: Pawn, Direction: direction},
+				{Type: Pawn, Direction: direction},
+				{Type: Pawn, Direction: direction},
+				{Type: Pawn, Direction: direction},
+				{Type: Pawn, Direction: direction},
+				nil, nil, nil,
+			}
 		}
-		b.data[1] = [14]*Piece{
-			nil, nil, nil,
-			{Type: Pawn, Direction: Direction(direction)},
-			{Type: Pawn, Direction: Direction(direction)},
-			{Type: Pawn, Direction: Direction(direction)},
-			{Type: Pawn, Direction: Direction(direction)},
-			{Type: Pawn, Direction: Direction(direction)},
-			{Type: Pawn, Direction: Direction(direction)},
-			{Type: Pawn, Direction: Direction(direction)},
-			{Type: Pawn, Direction: Direction(direction)},
-			nil, nil, nil,
-		}
-		for i := 0; i < 6; i++ {
-			for j := i; j < 13-i; j++ {
-				temp := b.data[i][j]
-				b.data[i][j] = b.data[13-j][i]
-				b.data[13-j][i] = b.data[13-i][13-j]
-				b.data[13-i][14-1-j] = b.data[j][13-i]
-				b.data[j][13-i] = temp
+		for j := 0; j < 6; j++ {
+			for k := j; k < 13-j; k++ {
+				temp := b.data[j][k]
+				b.data[j][k] = b.data[13-k][j]
+				b.data[13-k][j] = b.data[13-j][13-k]
+				b.data[13-j][14-1-k] = b.data[k][13-j]
+				b.data[k][13-j] = temp
 			}
 		}
 	}
