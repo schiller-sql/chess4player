@@ -7,14 +7,14 @@ import (
 )
 
 type Room struct {
-	Register         chan *Participant
-	Participants     *Participants
-	InputEvent       chan domain.ClientEvent
-	UnregisterClient chan *domain.Client
-	Host             *domain.Client
-	Pool             *Pool
-	InGame           *InGame
-	game             *Game
+	Register               chan *Participant
+	Participants           *Participants
+	InputEvent             chan domain.ClientEvent
+	UnregisterClient       chan *domain.Client
+	Host                   *domain.Client
+	Pool                   *Pool
+	GameHasEverBeenCreated *InGame
+	game                   *Game
 }
 
 type InGame struct {
@@ -36,14 +36,23 @@ type Participant struct {
 
 func NewRoom(host *domain.Client, pool *Pool) *Room {
 	return &Room{
-		Register:         make(chan *Participant),
-		Participants:     &Participants{Clients: make(map[*domain.Client]string)},
-		InputEvent:       make(chan domain.ClientEvent),
-		UnregisterClient: make(chan *domain.Client),
-		Host:             host,
-		Pool:             pool,
-		InGame:           &InGame{value: false, Mutex: sync.Mutex{}},
+		Register:               make(chan *Participant),
+		Participants:           &Participants{Clients: make(map[*domain.Client]string)},
+		InputEvent:             make(chan domain.ClientEvent),
+		UnregisterClient:       make(chan *domain.Client),
+		Host:                   host,
+		Pool:                   pool,
+		GameHasEverBeenCreated: &InGame{value: false, Mutex: sync.Mutex{}},
 	}
+}
+
+func (r *Room) IsInGame() bool {
+	r.GameHasEverBeenCreated.Lock()
+	defer r.GameHasEverBeenCreated.Unlock()
+	if r.GameHasEverBeenCreated.value == false {
+		return false
+	}
+	return !r.game.HasEnded()
 }
 
 func (r *Room) Start() { //TODO: cant register more than four people
@@ -83,27 +92,28 @@ func (r *Room) Start() { //TODO: cant register more than four people
 				switch event.Message.SubType {
 				case "start":
 					log.Println("TRACE room started game")
-					r.InGame.Lock()
-					inGame := r.InGame.value
-					r.InGame.Unlock()
-					if !inGame || event.Client != r.Host {
+					r.GameHasEverBeenCreated.Lock()
+					inGame := r.GameHasEverBeenCreated.value
+					r.GameHasEverBeenCreated.Unlock()
+					if (inGame && !r.game.HasEnded()) || event.Client != r.Host {
 						event.Client.Disconnect()
 						break
 					}
+					// TODO: what to do if only 1 partiicpant?????
 					var content = event.Message.Content
-					r.InGame.value = true
+					r.GameHasEverBeenCreated.value = true
 					time := uint((content["time"]).(float64)) // TODO cast
 					r.Participants.Lock()
-					r.InGame.Lock()
-					r.InGame.value = true
+					r.GameHasEverBeenCreated.Lock()
+					r.GameHasEverBeenCreated.value = true
 					r.game = StartGame(r.Participants.Clients, time)
 					r.Participants.Unlock()
-					r.InGame.Unlock()
+					r.GameHasEverBeenCreated.Unlock()
 					break
 				default:
-					r.InGame.Lock()
-					inGame := r.InGame.value
-					r.InGame.Unlock()
+					r.GameHasEverBeenCreated.Lock()
+					inGame := r.GameHasEverBeenCreated.value
+					r.GameHasEverBeenCreated.Unlock()
 					if !inGame {
 						break
 					}
@@ -133,12 +143,12 @@ func (r *Room) leaveRoom(client *domain.Client) (endsGame bool) {
 	client.Write("room", "left", map[string]interface{}{})
 	if client == r.Host {
 		r.hostLeft()
-		if r.InGame.value {
+		if r.GameHasEverBeenCreated.value {
 			r.game.ForceGameEnd()
 		}
 		return true
 	}
-	if r.InGame.value {
+	if r.GameHasEverBeenCreated.value {
 		r.game.LeavesRoom(client)
 	}
 	r.participantCountUpdate()

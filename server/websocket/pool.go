@@ -32,25 +32,25 @@ func NewPool() *Pool {
 	}
 }
 
-func (this *Pool) Start() {
+func (p *Pool) Start() {
 	for {
 		select {
-		case client := <-this.Register:
+		case client := <-p.Register:
 			log.Println("TRACE register new client in pool")
-			this.Clients[client] = true
+			p.Clients[client] = true
 			break
-		case client := <-this.UnregisterClient:
+		case client := <-p.UnregisterClient:
 			log.Println("TRACE unregister client in pool")
-			delete(this.Clients, client)
+			delete(p.Clients, client)
 			break
-		case event := <-this.InputEvent:
+		case event := <-p.InputEvent:
 			if event.Message.Type == "room" {
 				switch event.Message.SubType {
 				case "create":
-					this.createRoom(event)
+					p.createRoom(event)
 					break
 				case "join":
-					this.joinRoom(event)
+					p.joinRoom(event)
 					break
 				default:
 					log.Println("WARNING unexpected statement\n   => disconnecting client")
@@ -63,19 +63,19 @@ func (this *Pool) Start() {
 	}
 }
 
-func (this *Pool) Unregister(client *domain.Client) {
-	this.UnregisterClient <- client
+func (p *Pool) Unregister(client *domain.Client) {
+	p.UnregisterClient <- client
 }
 
-func (this *Pool) Input(event domain.ClientEvent) {
-	this.InputEvent <- event
+func (p *Pool) Input(event domain.ClientEvent) {
+	p.InputEvent <- event
 }
 
-func (this *Pool) createRoom(event domain.ClientEvent) {
+func (p *Pool) createRoom(event domain.ClientEvent) {
 	var messageContent = event.Message.Content
 	var client = event.Client
-	var code = this.generateCode()
-	var room = NewRoom(client, this)
+	var code = p.generateCode()
+	var room = NewRoom(client, p)
 	log.Println("TRACE new room '" + code + "'created")
 
 	room.Participants.Lock()
@@ -83,10 +83,10 @@ func (this *Pool) createRoom(event domain.ClientEvent) {
 
 	var name = validateName(messageContent["name"].(string), room) // TODO: should not be casted to string
 	go room.Start()
-	this.Rooms[code] = room
+	p.Rooms[code] = room
 	room.Register <- &Participant{client, name}
 	client.Handler = room
-	delete(this.Clients, client)
+	delete(p.Clients, client)
 	client.Write("room", "created", map[string]interface{}{"code": code, "name": name})
 }
 
@@ -104,29 +104,27 @@ func validateName(name string, room *Room) string {
 	return name
 }
 
-func (this *Pool) joinRoom(event domain.ClientEvent) {
+func (p *Pool) joinRoom(event domain.ClientEvent) {
 	var content = event.Message.Content
 	var client = event.Client
 	var code = strings.ToUpper((content["code"]).(string)) // TODO: more string casting...
 	var name = (content["name"]).(string)
-	var room, exist = this.Rooms[code]
+	var room, exist = p.Rooms[code]
 
 	if !exist { //TODO: is not true on false code
 		log.Println("TRACE join in room '" + code + "' rejected\n   => reason: room was not found")
 		client.Write("room", "join-failed", map[string]interface{}{"reason": "not found"})
 		return
 	}
-	room.InGame.Lock()
-	defer room.InGame.Unlock()
 	room.Participants.Lock()
 	defer room.Participants.Unlock()
 	name = validateName(name, room)
-	if len(room.Participants.Clients) > 3 {
+	if len(room.Participants.Clients) == 4 {
 		log.Println("TRACE join in room '" + code + "' rejected\n   => reason: room is full")
 		client.Write("room", "join-failed", map[string]interface{}{"reason": "full"})
 		return
 	}
-	if room.InGame.value {
+	if room.IsInGame() {
 		log.Println("TRACE join in room '" + code + "' rejected\n   => reason: room has already started")
 		client.Write("room", "join-failed", map[string]interface{}{"reason": "started"})
 		return
@@ -134,21 +132,21 @@ func (this *Pool) joinRoom(event domain.ClientEvent) {
 	client.Handler = room
 	var participant = Participant{client, name}
 	room.Register <- &participant
-	delete(this.Clients, client)
+	delete(p.Clients, client)
 	client.Write("room", "joined", map[string]interface{}{"name": name})
 }
 
 const letterBytes = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-func (this *Pool) generateCode() string {
+func (p *Pool) generateCode() string {
 	rand.Seed(time.Now().UnixNano())
 	b := make([]byte, 6)
 	for i := range b {
 		b[i] = letterBytes[rand.Intn(len(letterBytes))]
 	}
-	for code := range this.Rooms {
+	for code := range p.Rooms {
 		if code == string(b) {
-			return this.generateCode()
+			return p.generateCode()
 		}
 	}
 	return string(b)
