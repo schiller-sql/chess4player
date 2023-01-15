@@ -125,6 +125,7 @@ class BoardAnalyzer {
         if (board.isEmpty(x, y)) continue;
         final piece = board.getPiece(x, y);
         if (piece.direction == analyzingDirection) continue;
+        if (piece.isDead) continue;
         switch (piece.type) {
           case PieceType.pawn:
             if (_pawnCanAttack(
@@ -522,6 +523,7 @@ class BoardAnalyzer {
         if (board.isOut(x, y) || board.isEmpty(x, y)) continue fields;
         final piece = board.getPiece(x, y);
         if (piece.direction == analyzingDirection) continue fields;
+        if (piece.isDead) continue fields;
         if (_canAttackIgnoringOwnKing(x, y, piece, attackingX, attackingY)) {
           return true;
         }
@@ -595,6 +597,7 @@ class BoardAnalyzer {
         if (board.isEmpty(x, y)) continue fields;
         final piece = board.getPiece(x, y);
         if (piece.direction == analyzingDirection) continue fields;
+        if (piece.isDead) continue fields;
         if (piece.type == PieceType.king || piece.type == PieceType.pawn) {
           if (_smallestDistance(kingX, kingY, x, y) > 2) continue fields;
         }

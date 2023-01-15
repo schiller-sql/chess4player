@@ -1,5 +1,6 @@
 import 'package:chess_4p/src/board_handlers/board_serializer.dart';
 import 'package:chess_4p/src/domain/default_board.dart';
+import 'package:chess_4p/src/domain/direction.dart';
 
 import 'piece.dart';
 
@@ -23,6 +24,17 @@ class Board {
   Board.standard() : _boardData = genDefaultBoard();
 
   Board._raw(this._boardData);
+
+  void setInactive(Direction direction) {
+    for(var y = 0; y < 14; y++) {
+      for(var x = 0; x < 14; x++) {
+        final piece = _boardData[y][x];
+        if (piece != null && piece.direction == direction) {
+          piece.isDead = true;
+        }
+      }
+    }
+  }
 
   /// If a coordinate is in the board.
   bool isOut(int x, int y) {
