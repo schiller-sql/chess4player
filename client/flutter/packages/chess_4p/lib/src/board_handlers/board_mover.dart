@@ -1,7 +1,9 @@
 import 'package:chess_4p/src/domain/board.dart';
 import 'package:chess_4p/src/board_handlers/board_analyzer.dart';
 
+import '../domain/board_update.dart';
 import '../domain/field.dart';
+import '../domain/move.dart';
 import '../domain/piece.dart';
 import '../domain/piece_type.dart';
 
@@ -26,8 +28,137 @@ class BoardMover {
   /// Standard constructor to give the [board] on which to move.
   BoardMover({required this.board});
 
-  /// If a move is a pawn promotion.
-  bool moveIsPromotion(int fromX, int fromY, int toX, int toY) {
+  /// Apply a [BoardUpdate] to the board.
+  void applyBoardUpdate(BoardUpdate update) {
+    for(final move in update.moves) {
+      applyMove(move);
+    }
+    for(final player in update.eliminatedPlayers) {
+      board.setInactive(player);
+    }
+  }
+
+  /// Reverse a [BoardUpdate] to the board.
+  ///
+  /// Should only be done,
+  /// if this [BoardUpdate] was the last thing applied to the board.
+  void reverseApplyBoardUpdate(BoardUpdate update) {
+    for(final player in update.eliminatedPlayers) {
+      board.setActive(player);
+    }
+    for(var i = update.moves.length - 1; i >= 0; i++) {
+      final move = update.moves[i];
+      reverseApplyMove(move);
+    }
+  }
+
+  /// Apply a [Move] to the board.
+  void applyMove(Move move) {
+    var fromPiece = board.getPiece(move.fromX, move.fromY);
+    if(move.promotion != null) {
+      fromPiece = Piece(direction: fromPiece.direction, type: move.promotion!);
+    }
+    fromPiece.hasBeenMoved = true;
+    board.removePiece(move.fromX, move.fromY);
+    board.overwritePiece(fromPiece, move.toX, move.toY);
+  }
+
+  /// Reverse a [Move] to the board.
+  ///
+  /// Should only be done,
+  /// if this [Move] was the last thing applied to the board.
+  void reverseApplyMove(Move move) {
+    var fromPiece = board.getPiece(move.toX, move.toY);
+    if(move.promotion != null) {
+      fromPiece = Piece(direction: fromPiece.direction, type: PieceType.pawn);
+    }
+    fromPiece.hasBeenMoved = !move.firstMove;
+    board.writePiece(fromPiece, move.fromX, move.fromY);
+    if(move.hitPiece != null) {
+      board.writePiece(move.hitPiece!, move.toX, move.toY);
+    } else {
+      board.removePiece(move.toX, move.toY);
+    }
+  }
+
+  /// Shorthand for directly applying [analyseMoves].
+  void analyzeAndApplyMoves(
+    int fromX,
+    int fromY,
+    int toX,
+    int toY, [
+    PieceType? promotion,
+  ]) {
+    final moves = analyseMoves(fromX, fromY, toX, toY, promotion);
+    for (final move in moves) {
+      applyMove(move);
+    }
+  }
+
+  /// Analyse a chess move into different [Move] objects.
+  ///
+  /// The only case where more than one [Move] is given back,
+  /// is when a castle is analysed.
+  List<Move> analyseMoves(
+    int fromX,
+    int fromY,
+    int toX,
+    int toY, [
+    PieceType? promotion,
+  ]) {
+    final fromPiece = board.getPiece(fromX, fromY);
+    final firstMove = !fromPiece.hasBeenMoved;
+    Piece? hitPiece;
+    if (!board.isEmpty(toX, toY)) {
+      hitPiece = board.getPiece(toX, toY).copy();
+    }
+    final moves = [
+      Move(
+        fromX: fromX,
+        fromY: fromY,
+        toX: toX,
+        toY: toY,
+        firstMove: firstMove,
+        promotion: promotion,
+        hitPiece: hitPiece,
+      ),
+    ];
+    if (fromPiece.type == PieceType.king) {
+      final rotationsFromUp = fromPiece.direction.clockwiseRotationsFromUp;
+      final toXRotated = Field.clockwiseRotateXBy(toX, toY, -rotationsFromUp);
+      final fromXRotated =
+          Field.clockwiseRotateXBy(fromX, fromY, -rotationsFromUp);
+      if ((toXRotated - fromXRotated).abs() == 2) {
+        late final int rookFromX, rookFromY;
+        late final int rookToX, rookToY;
+        if (toXRotated == 5) {
+          // left
+          rookFromX = Field.clockwiseRotateXBy(3, 13, rotationsFromUp);
+          rookFromY = Field.clockwiseRotateYBy(3, 13, rotationsFromUp);
+          rookToX = Field.clockwiseRotateXBy(6, 13, rotationsFromUp);
+          rookToY = Field.clockwiseRotateYBy(6, 13, rotationsFromUp);
+        } else {
+          // right
+          rookFromX = Field.clockwiseRotateXBy(10, 13, rotationsFromUp);
+          rookFromY = Field.clockwiseRotateYBy(10, 13, rotationsFromUp);
+          rookToX = Field.clockwiseRotateXBy(8, 13, rotationsFromUp);
+          rookToY = Field.clockwiseRotateYBy(8, 13, rotationsFromUp);
+        }
+        final rookMove = Move(
+          fromX: rookFromX,
+          fromY: rookFromY,
+          toX: rookToX,
+          toY: rookToY,
+          firstMove: true,
+        );
+        moves.add(rookMove);
+      }
+    }
+    return moves;
+  }
+
+  /// Gives back true if a move is a pawn promotion.
+  bool analyzeMoveIsPromotion(int fromX, int fromY, int toX, int toY) {
     final piece = board.getPiece(fromX, fromY);
     if (piece.type == PieceType.pawn) {
       final toYRotated = Field.clockwiseRotateYBy(
@@ -35,75 +166,5 @@ class BoardMover {
       return toYRotated == 6;
     }
     return false;
-  }
-
-  /// Perform a non promotion move.
-  ///
-  /// It is asserted that this move is not a promotion.
-  void nonPromotionMove(int fromX, int fromY, int toX, toY) {
-    assert(!moveIsPromotion(fromX, fromY, toX, toY));
-
-    final piece = board.getPiece(fromX, fromY);
-    piece.hasBeenMoved = true;
-    board.move(fromX, fromY, toX, toY);
-    if (piece.type == PieceType.king) {
-      final toXRotated = Field.clockwiseRotateXBy(
-          toX, toY, -piece.direction.clockwiseRotationsFromUp);
-      final toYRotated = Field.clockwiseRotateYBy(
-          toX, toY, -piece.direction.clockwiseRotationsFromUp);
-      if (toYRotated == 13) {
-        if (toXRotated == 5) {
-          // left
-          final rookFromX = Field.clockwiseRotateXBy(
-              3, 13, piece.direction.clockwiseRotationsFromUp);
-          final rookFromY = Field.clockwiseRotateYBy(
-              3, 13, piece.direction.clockwiseRotationsFromUp);
-          final rookToX = Field.clockwiseRotateXBy(
-              6, 13, piece.direction.clockwiseRotationsFromUp);
-          final rookToY = Field.clockwiseRotateYBy(
-              6, 13, piece.direction.clockwiseRotationsFromUp);
-          board.move(rookFromX, rookFromY, rookToX, rookToY);
-        } else if (toXRotated == 9) {
-          // right
-          final rookFromX = Field.clockwiseRotateXBy(
-              10, 13, piece.direction.clockwiseRotationsFromUp);
-          final rookFromY = Field.clockwiseRotateYBy(
-              10, 13, piece.direction.clockwiseRotationsFromUp);
-          final rookToX = Field.clockwiseRotateXBy(
-              8, 13, piece.direction.clockwiseRotationsFromUp);
-          final rookToY = Field.clockwiseRotateYBy(
-              8, 13, piece.direction.clockwiseRotationsFromUp);
-          board.move(rookFromX, rookFromY, rookToX, rookToY);
-        }
-      }
-    }
-  }
-
-  /// Perform a promotion move, promote to the [change].
-  ///
-  /// It is asserted that this move is a promotion
-  /// and that [change] is a valid promotion [PieceType] (not a king/pawn).
-  void promotion(
-    int fromX,
-    int fromY,
-    int toX,
-    int toY,
-    PieceType change,
-  ) {
-    assert(change != PieceType.king);
-    assert(change != PieceType.pawn);
-
-    final piece = board.getPiece(fromX, fromY);
-    piece.hasBeenMoved = true;
-
-    board.move(fromX, fromY, toX, toY);
-    assert(piece.type == PieceType.pawn);
-
-    final toYRotated = Field.clockwiseRotateYBy(
-        toX, toY, -piece.direction.clockwiseRotationsFromUp);
-    assert(toYRotated == 6);
-
-    board.overwritePiece(
-        Piece(direction: piece.direction, type: change), toX, toY);
   }
 }

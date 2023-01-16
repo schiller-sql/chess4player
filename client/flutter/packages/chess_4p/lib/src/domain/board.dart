@@ -25,12 +25,22 @@ class Board {
 
   Board._raw(this._boardData);
 
+  /// Set all pieces with [direction] to dead
   void setInactive(Direction direction) {
+    _setDirectionDead(dead: true, direction: direction);
+  }
+
+  /// Set all pieces with [direction] to alive
+  void setActive(Direction direction) {
+    _setDirectionDead(dead: false, direction: direction);
+  }
+
+  void _setDirectionDead({required bool dead, required Direction direction}) {
     for(var y = 0; y < 14; y++) {
       for(var x = 0; x < 14; x++) {
         final piece = _boardData[y][x];
         if (piece != null && piece.direction == direction) {
-          piece.isDead = true;
+          piece.isDead = dead;
         }
       }
     }

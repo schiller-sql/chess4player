@@ -58,10 +58,10 @@ class _ChessBoardState extends State<ChessBoard> {
     if (selectableFields.contains(field)) {
       setState(() {
         final fromX = selectedField!.x, fromY = selectedField!.y;
-        if (boardMover.moveIsPromotion(fromX, fromY, toX, toY)) {
+        if (boardMover.analyzeMoveIsPromotion(fromX, fromY, toX, toY)) {
           promotionCandidate = field;
         } else {
-          boardMover.nonPromotionMove(fromX, fromY, toX, toY);
+          boardMover.analyzeAndApplyMoves(fromX, fromY, toX, toY);
           selectedField = null;
         }
         selectableFields = {};
@@ -78,7 +78,7 @@ class _ChessBoardState extends State<ChessBoard> {
 
   void executePromotion(PieceType pieceType) {
     setState(() {
-      boardMover.promotion(
+      boardMover.analyzeAndApplyMoves(
         selectedField!.x,
         selectedField!.y,
         promotionCandidate!.x,
