@@ -1,12 +1,13 @@
 import 'package:chess_4p/src/board_handlers/board_serializer.dart';
 import 'package:chess_4p/src/domain/default_board.dart';
 import 'package:chess_4p/src/domain/direction.dart';
+import 'package:chess_4p/src/domain/readable_board.dart';
 
 import 'piece.dart';
 
 /// An editable 14x14 with a 3x3 missing on each corner chess board,
 /// for four players.
-class Board {
+class Board implements ReadableBoard {
   final List<List<Piece?>> _boardData;
 
   int _changeIndex = 0;
