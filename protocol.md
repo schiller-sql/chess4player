@@ -394,7 +394,7 @@ Content:
 
 ### `player-resigned`
 
-If a player has resigned while not in turn.
+If a player (including the client) has resigned while not in turn.
 Also given if a player leaves the room while not in turn.
 
 Content:
