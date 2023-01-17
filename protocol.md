@@ -414,7 +414,7 @@ Content:
 | `remaining-time`    | string         | The remaining time of the participant whose turn it is, in milliseconds.                                                                                                     |
 | `moves`             | Array of moves | All moves that have happen, can be zero, if the player did not have a chance to make a move before the game ended. Can be multiple for future proofing in case of pre-moves. |
 | `game-end`          | string?        | If the game has not ended: `null`. If the game has ended a string containing the reason why the game was ended.                                                              |
-| `lost-participants` | string         | All participants that have lost, important to whose turn it is now.                                                                                                          |
+| `lost-participants` | Object with string keys and values        | All participants that have lost as keys, important to whose turn it is now. As the value is why the player has lost, can be either `remi`, `checkmate`, `resign`, or `time` |
 
 Move:
 
