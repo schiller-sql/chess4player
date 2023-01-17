@@ -178,7 +178,7 @@ func (g *Game) game(clients map[*domain.Client]string, timePerPlayer uint) {
 						// TODO
 					}
 					state.board.Move(from, to, promotionPiece)
-					state.turnHasEnded([]string{}, []move{m})
+					state.turnHasEnded(map[string]string{}, []move{m})
 				}
 			case "resign":
 				{
@@ -244,10 +244,10 @@ type move struct {
 }
 
 type gameUpdate struct {
-	RemainingTime    uint     `json:"remaining-time"`
-	Moves            []move   `json:"moves"`
-	GameEnd          *string  `json:"game-end"`
-	LostParticipants []string `json:"lost-participants"`
+	RemainingTime    uint              `json:"remaining-time"`
+	Moves            []move            `json:"moves"`
+	GameEnd          *string           `json:"game-end"`
+	LostParticipants map[string]string `json:"lost-participants"`
 }
 
 func (s *gameState) firstTurn() {
@@ -276,6 +276,13 @@ func (s *gameState) playerHasLost(player int, onTime bool) {
 	s.board.PlayerDead(board.Direction(player))
 	name := s.playerOrder[player].name
 	s.playerOrder[player] = nil
+	var playerDeathReason string
+	if onTime {
+		playerDeathReason = "time"
+	} else {
+		playerDeathReason = "resign"
+	}
+	lostParticipants := map[string]string{name: playerDeathReason}
 	if s.remainingPlayersCount() == 1 {
 		var remainingTime uint = 0
 		if !onTime {
@@ -291,18 +298,17 @@ func (s *gameState) playerHasLost(player int, onTime bool) {
 		s.sendGameUpdate(gameUpdate{
 			RemainingTime:    remainingTime,
 			GameEnd:          &gameEnd,
-			LostParticipants: []string{name},
+			LostParticipants: lostParticipants,
 		})
 	} else if player != s.whoseTurn {
 		s.sendResign(name)
 	} else {
-		s.turnHasEnded([]string{name}, []move{})
+		s.turnHasEnded(lostParticipants, []move{})
 		// game continues
 	}
 }
 
-func (s *gameState) turnHasEnded(lostParticipants []string, moves []move) {
-	// TODO: wenn jemand raus fliegt müssen dessen figuren ausgegraut werden
+func (s *gameState) turnHasEnded(lostParticipants map[string]string, moves []move) {
 	remainingTime := s.remainingTime()
 	for {
 		s.nextTurn()
@@ -310,24 +316,23 @@ func (s *gameState) turnHasEnded(lostParticipants []string, moves []move) {
 		if checkmate || remi {
 			s.board.PlayerDead(board.Direction(s.whoseTurn))
 			lostName := s.playerOrder[s.whoseTurn].name
-			lostParticipants = append(lostParticipants, lostName)
+			var playerDeathReason string
+			if checkmate {
+				playerDeathReason = "checkmate"
+			} else {
+				playerDeathReason = "remi"
+			}
+			lostParticipants[lostName] = playerDeathReason
 			s.playerOrder[s.whoseTurn] = nil
 			if s.remainingPlayersCount() == 1 {
-				var gameEnd string
-				if checkmate {
-					gameEnd = "checkmate"
-				} else {
-					gameEnd = "remi"
-				}
+
 				s.sendGameUpdate(gameUpdate{
 					RemainingTime:    remainingTime,
-					GameEnd:          &gameEnd,
+					GameEnd:          &playerDeathReason,
 					LostParticipants: lostParticipants,
 					Moves:            moves,
 				})
 				return
-			} else {
-				lostParticipants = append(lostParticipants, lostName)
 			}
 		} else {
 			break
