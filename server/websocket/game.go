@@ -109,7 +109,7 @@ func (g *Game) game(clients map[*domain.Client]string, timePerPlayer uint) {
 		"participants": participantsOrderSerialized,
 	}
 	for client := range clients {
-		client.Write("game", "start", startEvent)
+		client.Write("game", "started", startEvent)
 	}
 	state.firstTurn()
 	for !state.gameHasEnded {
