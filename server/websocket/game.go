@@ -299,6 +299,7 @@ func (s *gameState) playerHasLost(player int, onTime bool) {
 			RemainingTime:    remainingTime,
 			GameEnd:          &gameEnd,
 			LostParticipants: lostParticipants,
+			Moves:            []move{},
 		})
 	} else if player != s.whoseTurn {
 		s.sendResign(name)
