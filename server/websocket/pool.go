@@ -35,6 +35,15 @@ func NewPool() *Pool {
 func (p *Pool) Start() {
 	for {
 		select {
+		case room := <-p.UnregisterRoom:
+			var code string
+			for _code, _room := range p.Rooms {
+				if _room == room {
+					code = _code
+				}
+			}
+			delete(p.Rooms, code)
+			break
 		case client := <-p.Register:
 			log.Println("TRACE register new client in pool")
 			p.Clients[client] = true

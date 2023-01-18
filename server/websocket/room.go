@@ -63,7 +63,7 @@ func (r *Room) Start() { //TODO: cant register more than four people
 			r.Participants.Lock()
 			r.Participants.Clients[participant.Client] = participant.Name
 			if participant.Client != r.Host {
-				r.participantCountUpdate()
+				r.sendHostParticipantCountUpdate()
 			}
 			r.Participants.Unlock()
 			break
@@ -92,19 +92,22 @@ func (r *Room) Start() { //TODO: cant register more than four people
 				switch event.Message.SubType {
 				case "start":
 					log.Println("TRACE room started game")
-					r.GameHasEverBeenCreated.Lock()
-					inGame := r.GameHasEverBeenCreated.value
-					r.GameHasEverBeenCreated.Unlock()
-					if (inGame && !r.game.HasEnded()) || event.Client != r.Host {
+					if r.IsInGame() {
+						break
+					}
+					if event.Client != r.Host {
 						event.Client.Disconnect()
 						break
 					}
-					// TODO: what to do if only 1 partiicpant?????
+					// TODO: what to do if only 1 partiicpant?????, now: ignore
 					var content = event.Message.Content
+					r.GameHasEverBeenCreated.Lock()
 					r.GameHasEverBeenCreated.value = true
 					time := uint((content["time"]).(float64)) // TODO cast
 					r.Participants.Lock()
-					r.GameHasEverBeenCreated.Lock()
+					if len(r.Participants.Clients) == 1 {
+						break
+					}
 					r.GameHasEverBeenCreated.value = true
 					r.game = StartGame(r.Participants.Clients, time)
 					r.Participants.Unlock()
@@ -139,7 +142,6 @@ func (r *Room) Input(event domain.ClientEvent) {
 func (r *Room) leaveRoom(client *domain.Client) (endsGame bool) {
 	r.Participants.Lock()
 	defer r.Participants.Unlock()
-	delete(r.Participants.Clients, client)
 	client.Write("room", "left", map[string]interface{}{})
 	if client == r.Host {
 		r.hostLeft()
@@ -148,14 +150,17 @@ func (r *Room) leaveRoom(client *domain.Client) (endsGame bool) {
 		}
 		return true
 	}
-	if r.GameHasEverBeenCreated.value {
+	if r.IsInGame() {
 		r.game.LeavesRoom(client)
 	}
-	r.participantCountUpdate()
+	delete(r.Participants.Clients, client)
+	r.sendHostParticipantCountUpdate()
+	client.Handler = r.Pool
+	r.Pool.Register <- client
 	return false
 }
 
-func (r *Room) participantCountUpdate() {
+func (r *Room) sendHostParticipantCountUpdate() {
 	r.Host.Write(
 		"room",
 		"participants-count-update",

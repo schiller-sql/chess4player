@@ -326,7 +326,7 @@ func (s *gameState) turnHasEnded(lostParticipants map[string]string, moves []mov
 			lostParticipants[lostName] = playerDeathReason
 			s.playerOrder[s.whoseTurn] = nil
 			if s.remainingPlayersCount() == 1 {
-
+				s.gameHasEnded = true
 				s.sendGameUpdate(gameUpdate{
 					RemainingTime:    remainingTime,
 					GameEnd:          &playerDeathReason,
