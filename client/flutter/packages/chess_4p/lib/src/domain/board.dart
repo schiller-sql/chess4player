@@ -3,6 +3,7 @@ import 'package:chess_4p/src/domain/default_board.dart';
 import 'package:chess_4p/src/domain/direction.dart';
 import 'package:chess_4p/src/domain/readable_board.dart';
 
+import 'field.dart';
 import 'piece.dart';
 
 /// An editable 14x14 with a 3x3 missing on each corner chess board,
@@ -23,6 +24,23 @@ class Board implements ReadableBoard {
 
   /// Standard board for four players, with directions.
   Board.standard() : _boardData = genDefaultBoard();
+
+  factory Board.standardWithOmission(List<bool> keepRotations) {
+    assert (keepRotations.length == 4);
+
+    final board = Board.standard();
+    for(var rotation = 0; rotation < 4; rotation++) {
+      if(keepRotations[rotation]) continue;
+      for(var x = 3; x <= 10; x++) {
+        for(var y = 12; y <= 13; y++) {
+          final rotatedX = Field.clockwiseRotateXBy(x, y, rotation);
+          final rotatedY = Field.clockwiseRotateYBy(x, y, rotation);
+          board.removePiece(rotatedX, rotatedY);
+        }
+      }
+    }
+    return board;
+  }
 
   Board._raw(this._boardData);
 
@@ -57,11 +75,13 @@ class Board implements ReadableBoard {
   }
 
   /// If on a coordinate on the board, there is no piece.
+  @override
   bool isEmpty(int x, int y) {
     return _boardData[y][x] == null;
   }
 
   /// Get the piece of a coordinate, check if there is a piece with [isEmpty].
+  @override
   Piece getPiece(int x, int y) {
     return _boardData[y][x]!;
   }

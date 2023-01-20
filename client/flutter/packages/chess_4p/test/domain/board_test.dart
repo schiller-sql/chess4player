@@ -22,4 +22,8 @@ void main() {
   test("standard board layout", () {
     expect(Board.standard().toString(), defaultBoard);
   });
+
+  test("standard board layout", () {
+    print(Board.standardWithOmission([true, false, true, true]));
+  });
 }
