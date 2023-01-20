@@ -1,4 +1,5 @@
 import 'chess_connection.dart';
+import 'domain/raw_move.dart';
 
 /// Listen to a [ChessConnection]
 abstract class ChessConnectionListener {
@@ -19,4 +20,18 @@ abstract class ChessConnectionListener {
 
   /// See protocol: type: room, subtype: join-failed
   void joinError(String error) {}
+
+  /// See protocol: type: game, subtype: started
+  void gameStarted(Duration time, List<String?> playerOrder) {}
+
+  /// See protocol: type: game, subtype: game-update
+  void gameUpdate(
+    String? gameEnd,
+    Map<String, String> lostPlayers,
+    List<RawMove> moves,
+    Duration remainingTime,
+  ) {}
+
+  /// See protocol: type: game, subtype: player-resigned
+  void playerResign(String playerName) {}
 }

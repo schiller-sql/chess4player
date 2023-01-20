@@ -6,6 +6,7 @@ import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'chess_connection_listener.dart';
+import 'domain/raw_move.dart';
 
 /// A connection via websockets to /server,
 /// which can be listened to by implementations of a [ChessConnectionListener]
@@ -35,7 +36,7 @@ class ChessConnection {
     assert(_sub == null);
     _channel = IOWebSocketChannel.connect(
       uri,
-      pingInterval: Duration(milliseconds: 500),
+      // pingInterval: Duration(milliseconds: 500),
     ); // TODO: not for web
     final connectionCompleter = Completer();
     _sub = _channel!.stream.listen(
@@ -49,7 +50,7 @@ class ChessConnection {
         _channel = null;
       },
       onDone: () {
-        if(_channel!.closeCode == 1000) {
+        if (_channel!.closeCode == 1000) {
           connectionCompleter.complete();
         } else {
           connectionCompleter.completeError(Exception("Error"));
@@ -112,6 +113,41 @@ class ChessConnection {
         break;
       case "game":
         switch (subtype) {
+          case "game-update":
+            final gameEnd = content["game-end"];
+            final lostPlayersJson = content["lost-participants"] as Map;
+            final lostPlayers = lostPlayersJson.cast<String, String>();
+            final jsonMoves = content["moves"] as List;
+            final moves = jsonMoves
+                .map((rawMove) => RawMove.fromJson(rawMove))
+                .toList(growable: false);
+            final remainingTimeMilliseconds = content["remaining-time"];
+            final remainingTime =
+                Duration(milliseconds: remainingTimeMilliseconds);
+            for (final listener in _listeners) {
+              listener.gameUpdate(
+                gameEnd,
+                lostPlayers,
+                moves,
+                remainingTime,
+              );
+            }
+            break;
+          case "player-resign":
+            final playerName = content["participant"];
+            for (final listener in _listeners) {
+              listener.playerResign(playerName);
+            }
+            break;
+          case "started":
+            final timeMilliseconds = content["time"];
+            final time = Duration(milliseconds: timeMilliseconds);
+            final playerOrderJson = content["participants"];
+            final playerOrder = (playerOrderJson as List).cast<String?>();
+            for (final listener in _listeners) {
+              listener.gameStarted(time, playerOrder);
+            }
+            break;
         }
         break;
     }

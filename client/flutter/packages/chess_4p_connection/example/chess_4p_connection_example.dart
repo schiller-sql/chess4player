@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:chess_4p_connection/chess_4p_connection.dart';
+import 'package:chess_4p_connection/src/chess_connection/domain/raw_move.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class ChessConnectionLogListener extends ChessConnectionListener {
@@ -45,11 +46,32 @@ class ChessConnectionLogListener extends ChessConnectionListener {
     print("participantsCountUpdate: $count");
     print("\n\n");
   }
+
+  @override
+  void gameStarted(Duration time, List<String?> playerOrder) {
+    print("$name:\n");
+    print("game started");
+    print(time);
+    print(playerOrder);
+    print("\n\n");
+  }
+
+  @override
+  void gameUpdate(
+      String? gameEnd,
+      Map<String, String> lostPlayers,
+      List<RawMove> moves,
+      Duration remainingTime,
+      ) {
+    print("gameUpdate");
+    print("\n\n");
+  }
 }
 
-void main2() async {
+void main() async {
   final connectionService =
       ChessConnection(uri: Uri.parse('ws://localhost:8080'))..connect();
+  await Future.delayed(Duration(seconds: 2));
   connectionService.createRoom(playerName: "deine mom");
   connectionService.addChessListener(ChessConnectionLogListener(name: "first"));
 
@@ -59,15 +81,17 @@ void main2() async {
     final connectionService2 = ChessConnection(
       uri: Uri.parse('ws://localhost:8080'),
     )..connect();
-    // connectionService2.joinRoom(
-    //     code: ChessConnectionLogListener.lastCreatedRoomCode);
+    connectionService2.joinRoom(
+        code: ChessConnectionLogListener.lastCreatedRoomCode, playerName: 'asa');
     // connectionService2.addChessListener(
     //   ChessConnectionLogListener(name: (i + 2).toString()),
     // );
   }
+  await Future.delayed(Duration(seconds: 2));
+  connectionService.startGame(duration: Duration(milliseconds: 200));
 }
 
-void main() async {
+void main2() async {
   WebSocketChannel.connect(Uri.parse("ws://localhost:9999")).stream.listen(
     (event) {
       print(event);

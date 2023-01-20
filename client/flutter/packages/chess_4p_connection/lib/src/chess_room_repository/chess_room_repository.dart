@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:chess_4p_connection/src/chess_connection/domain/raw_move.dart';
 import 'package:chess_4p_connection/src/chess_room_repository/errors/room_disbanded_exception.dart';
 
 import '../chess_connection/chess_connection.dart';
@@ -187,5 +188,17 @@ class ChessRoomRepository
         ),
       );
     }
+  }
+
+  @override
+  void gameStarted(Duration time, List<String?> playerOrder) {
+  }
+
+  @override
+  void gameUpdate(String? gameEnd, Map<String, String> lostPlayers, List<RawMove> moves, Duration remainingTime) {
+  }
+
+  @override
+  void playerResign(String playerName) {
   }
 }
