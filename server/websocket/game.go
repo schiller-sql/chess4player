@@ -145,7 +145,7 @@ func (g *Game) game(clients map[*domain.Client]string, timePerPlayer uint) {
 			switch message.Message.SubType {
 			case "move":
 				{
-					rawMoveData, ok := message.Message.Content["m"]
+					rawMoveData, ok := message.Message.Content["move"]
 					if !ok {
 						break
 					}
@@ -162,7 +162,7 @@ func (g *Game) game(clients map[*domain.Client]string, timePerPlayer uint) {
 					} else {
 						promotion = &castedRawPromotion
 					}
-					m := move{promotion: promotion, move: moveData}
+					m := move{Promotion: promotion, Move: moveData}
 					playerDirection := board.Direction(playerNumber)
 					from := board.Point{X: moveData[0], Y: moveData[1]}
 					to := board.Point{X: moveData[2], Y: moveData[3]}
@@ -239,8 +239,8 @@ func (s *gameState) remainingPlayersCount() int {
 }
 
 type move struct {
-	move      [4]int
-	promotion *string
+	Move      [4]int  `json:"move"`
+	Promotion *string `json:"promotion"`
 }
 
 type gameUpdate struct {
