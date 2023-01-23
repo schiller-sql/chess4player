@@ -178,7 +178,7 @@ func (g *Game) game(clients map[*domain.Client]string, timePerPlayer uint) {
 						// TODO
 					}
 					state.board.Move(from, to, promotionPiece)
-					state.turnHasEnded(map[string]string{}, []move{m})
+					state.turnHasEnded(map[string]string{}, &m)
 				}
 			case "resign":
 				{
@@ -205,10 +205,9 @@ func (g *Game) game(clients map[*domain.Client]string, timePerPlayer uint) {
 				}
 				if allAccepted {
 					gameEndReason := "draw"
-					state.sendGameUpdate(gameUpdate{
+					state.sendGameUpdate(gameTurn{
 						RemainingTime: state.remainingTime(),
-						GameEnd:       &gameEndReason,
-					})
+					}, &gameEndReason)
 					state.gameHasEnded = true
 				}
 			}
@@ -243,10 +242,9 @@ type move struct {
 	Promotion *string `json:"promotion"`
 }
 
-type gameUpdate struct {
+type gameTurn struct {
 	RemainingTime    uint              `json:"remaining-time"`
-	Moves            []move            `json:"moves"`
-	GameEnd          *string           `json:"game-end"`
+	Move             *move             `json:"move"`
 	LostParticipants map[string]string `json:"lost-participants"`
 }
 
@@ -295,21 +293,19 @@ func (s *gameState) playerHasLost(player int, onTime bool) {
 		} else {
 			gameEnd = "resign"
 		}
-		s.sendGameUpdate(gameUpdate{
+		s.sendGameUpdate(gameTurn{
 			RemainingTime:    remainingTime,
-			GameEnd:          &gameEnd,
 			LostParticipants: lostParticipants,
-			Moves:            []move{},
-		})
+		}, &gameEnd)
 	} else if player != s.whoseTurn {
 		s.sendResign(name)
 	} else {
-		s.turnHasEnded(lostParticipants, []move{})
+		s.turnHasEnded(lostParticipants, nil)
 		// game continues
 	}
 }
 
-func (s *gameState) turnHasEnded(lostParticipants map[string]string, moves []move) {
+func (s *gameState) turnHasEnded(lostParticipants map[string]string, move *move) {
 	remainingTime := s.remainingTime()
 	for {
 		s.nextTurn()
@@ -327,23 +323,22 @@ func (s *gameState) turnHasEnded(lostParticipants map[string]string, moves []mov
 			s.playerOrder[s.whoseTurn] = nil
 			if s.remainingPlayersCount() == 1 {
 				s.gameHasEnded = true
-				s.sendGameUpdate(gameUpdate{
+				s.sendGameUpdate(gameTurn{
 					RemainingTime:    remainingTime,
-					GameEnd:          &playerDeathReason,
 					LostParticipants: lostParticipants,
-					Moves:            moves,
-				})
+					Move:             move,
+				}, &playerDeathReason)
 				return
 			}
 		} else {
 			break
 		}
 	}
-	s.sendGameUpdate(gameUpdate{
+	s.sendGameUpdate(gameTurn{
 		RemainingTime:    remainingTime,
-		Moves:            moves,
+		Move:             move,
 		LostParticipants: lostParticipants,
-	})
+	}, nil)
 }
 
 func (s *gameState) sendResign(name string) {
@@ -355,8 +350,16 @@ func (s *gameState) sendResign(name string) {
 	}
 }
 
-func (s *gameState) sendGameUpdate(update gameUpdate) {
+type gameUpdate struct {
+	Turns   []gameTurn `json:"turns"`
+	GameEnd *string    `json:"game-end"`
+}
+
+func (s *gameState) sendGameUpdate(turn gameTurn, gameEnd *string) {
 	for client := range s.clients {
-		client.Write("game", "game-update", update)
+		client.Write("game", "game-update", gameUpdate{
+			Turns:   []gameTurn{turn},
+			GameEnd: gameEnd,
+		})
 	}
 }
