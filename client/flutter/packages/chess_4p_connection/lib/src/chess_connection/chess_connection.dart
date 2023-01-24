@@ -6,7 +6,7 @@ import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'chess_connection_listener.dart';
-import 'domain/raw_move.dart';
+import 'domain/turn.dart';
 
 /// A connection via websockets to /server,
 /// which can be listened to by implementations of a [ChessConnectionListener]
@@ -115,21 +115,14 @@ class ChessConnection {
         switch (subtype) {
           case "game-update":
             final gameEnd = content["game-end"];
-            final lostPlayersJson = content["lost-participants"] as Map;
-            final lostPlayers = lostPlayersJson.cast<String, String>();
-            final jsonMoves = content["moves"] as List;
-            final moves = jsonMoves
-                .map((rawMove) => RawMove.fromJson(rawMove))
+            final jsonTurns = content["turns"] as List;
+            final turns = jsonTurns
+                .map((jsonTurn) => Turn.fromJson(jsonTurn))
                 .toList(growable: false);
-            final remainingTimeMilliseconds = content["remaining-time"];
-            final remainingTime =
-                Duration(milliseconds: remainingTimeMilliseconds);
             for (final listener in _listeners) {
               listener.gameUpdate(
                 gameEnd,
-                lostPlayers,
-                moves,
-                remainingTime,
+                turns,
               );
             }
             break;
