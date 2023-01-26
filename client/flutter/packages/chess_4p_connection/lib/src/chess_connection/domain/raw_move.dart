@@ -33,4 +33,16 @@ class RawMove {
     }
     throw ArgumentError("$s is not an acceptable promotion");
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RawMove &&
+          runtimeType == other.runtimeType &&
+          from == other.from &&
+          to == other.to &&
+          promotion == other.promotion;
+
+  @override
+  int get hashCode => from.hashCode ^ to.hashCode ^ promotion.hashCode;
 }

@@ -1,4 +1,5 @@
 import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'package:chess/blocs/join_game/join_game_cubit.dart';
 import 'package:chess/blocs/participants_count/participants_count_cubit.dart';
 import 'package:chess/ui/in_room/in_room_common.dart';
 import 'package:chess/ui/in_room/which_players_in_room_display.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_nord_theme/flutter_nord_theme.dart';
 
 import '../../blocs/in_room/in_room_cubit.dart';
+import '../../blocs/join_room/join_room_cubit.dart';
 
 class AdminRoomLobby extends StatelessWidget {
   const AdminRoomLobby({Key? key}) : super(key: key);
@@ -137,7 +139,11 @@ class AdminRoomLobby extends StatelessWidget {
                             initialTimerDuration: const Duration(minutes: 5),
                             alignment: Alignment.topLeft,
                             mode: CupertinoTimerPickerMode.ms,
-                            onTimerDurationChanged: (Duration value) {},
+                            onTimerDurationChanged: (Duration time) {
+                              context
+                                  .read<JoinGameCubit>()
+                                  .changeTimeSettings(time);
+                            },
                           ),
                         ),
                       ],
@@ -188,8 +194,8 @@ class AdminRoomLobby extends StatelessWidget {
                               showShouldLeaveDialog(context);
                             },
                             style: ButtonStyle(
-                              padding:
-                                  MaterialStateProperty.all(const EdgeInsets.all(16)),
+                              padding: MaterialStateProperty.all(
+                                  const EdgeInsets.all(16)),
                               overlayColor: MaterialStateProperty.resolveWith(
                                 (states) {
                                   if (!states
@@ -209,28 +215,39 @@ class AdminRoomLobby extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          TextButton(
-                            onPressed: () {},
-                            style: ButtonStyle(
-                              padding:
-                                  MaterialStateProperty.all(const EdgeInsets.all(16)),
-                              overlayColor: MaterialStateProperty.resolveWith(
-                                (states) {
-                                  if (!states
-                                      .contains(MaterialState.disabled)) {
-                                    return NordColors.$7.withAlpha(50);
-                                  }
-                                },
-                              ),
-                            ),
-                            child: const Text(
-                              "start game",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 20,
-                                color: NordColors.$7,
-                              ),
-                            ),
+                          BlocBuilder<ParticipantsCountCubit, int>(
+                            builder: (context, count) {
+                              return TextButton(
+                                onPressed: count > 1
+                                    ? () {
+                                        context
+                                            .read<JoinGameCubit>()
+                                            .startGame();
+                                      }
+                                    : null,
+                                style: ButtonStyle(
+                                  padding: MaterialStateProperty.all(
+                                      const EdgeInsets.all(16)),
+                                  overlayColor:
+                                      MaterialStateProperty.resolveWith(
+                                    (states) {
+                                      if (!states
+                                          .contains(MaterialState.disabled)) {
+                                        return NordColors.$7.withAlpha(50);
+                                      }
+                                    },
+                                  ),
+                                ),
+                                child: const Text(
+                                  "start game",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 20,
+                                    color: NordColors.$7,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ],
                       )

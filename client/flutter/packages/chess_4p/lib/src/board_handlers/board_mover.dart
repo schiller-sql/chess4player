@@ -82,7 +82,7 @@ class BoardMover {
   }
 
   /// Shorthand for directly applying [analyseMoves].
-  void analyzeAndApplyMoves(
+  List<Move> analyzeAndApplyMoves(
     int fromX,
     int fromY,
     int toX,
@@ -93,6 +93,7 @@ class BoardMover {
     for (final move in moves) {
       applyMove(move);
     }
+    return moves;
   }
 
   /// Analyse a chess move into different [Move] objects.

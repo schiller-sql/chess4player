@@ -32,4 +32,27 @@ class Move {
     this.promotion,
     this.hitPiece,
   });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Move &&
+          runtimeType == other.runtimeType &&
+          fromX == other.fromX &&
+          fromY == other.fromY &&
+          toX == other.toX &&
+          toY == other.toY &&
+          firstMove == other.firstMove &&
+          promotion == other.promotion &&
+          hitPiece == other.hitPiece;
+
+  @override
+  int get hashCode =>
+      fromX.hashCode ^
+      fromY.hashCode ^
+      toX.hashCode ^
+      toY.hashCode ^
+      firstMove.hashCode ^
+      promotion.hashCode ^
+      hitPiece.hashCode;
 }

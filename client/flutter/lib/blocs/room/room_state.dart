@@ -11,8 +11,9 @@ class RoomInitial extends RoomState {
 
 class InRoom extends RoomState {
   final bool isAdmin;
+  final ChessRoom room;
 
-  const InRoom({required this.isAdmin});
+  const InRoom({required this.room, required this.isAdmin});
 }
 
 class NotInRoom extends RoomState {

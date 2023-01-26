@@ -5,6 +5,7 @@ import 'package:chess_4p_connection/src/chess_room_repository/errors/room_disban
 
 import '../chess_connection/chess_connection.dart';
 import '../chess_connection/chess_connection_listener.dart';
+import '../chess_connection/domain/turn.dart';
 import 'chess_room_repository_contract.dart';
 import 'domain/room.dart';
 import 'domain/room_update.dart';
@@ -22,7 +23,7 @@ class ChessRoomRepository
   final ChessConnection connection;
 
   ChessRoomRepository({required this.connection}) {
-    connection.addChessListener(this);
+    connection.addChessListener(this); // TODO: WTF?
   }
 
   @override
@@ -195,7 +196,7 @@ class ChessRoomRepository
   }
 
   @override
-  void gameUpdate(String? gameEnd, Map<String, String> lostPlayers, List<RawMove> moves, Duration remainingTime) {
+  void gameUpdate(String? gameEnd, List<Turn> turns) {
   }
 
   @override
