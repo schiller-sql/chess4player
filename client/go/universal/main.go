@@ -85,6 +85,22 @@ func main() {
 				log.Println("read:", err)
 				return
 			}
+			if message.SubType == "created" {
+				code := message.Content["code"].(string)
+				fmt.Println(code)
+				// if runtime.GOOS == "darwin" {
+				// 	c := exec.Command("pbcopy")
+				// 				pipe, e := c.StdinPipe()
+				// if e != nil {
+				// return
+				// }
+				// _, e = pipe.Write([]byte(code))
+				// if e != nil {
+				// 	return
+				// }
+				// c.Run()
+				// }
+			}
 			log.Printf("\nrecv: %s", message)
 			socketEvent <- message
 		}

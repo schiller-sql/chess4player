@@ -14,6 +14,8 @@ dependencies:
   chess_4p:
     path: ../chess_4p
   chess_vectors_flutter: ^1.0.18
+  chess_4p_connection:
+    path: ../chess_4p_connection
 
 dev_dependencies:
   flutter_test:

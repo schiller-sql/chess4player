@@ -182,6 +182,7 @@ class ChessConnection {
         '"subtype":"$subtype",'
         '"content":${content == null ? '{}' : jsonEncode(content)}'
         '}';
+    print(string);
     _channel!.sink.add(string);
   }
 

@@ -46,7 +46,7 @@ class BoardMover {
     for(final player in update.eliminatedPlayers) {
       board.setActive(player);
     }
-    for(var i = update.moves.length - 1; i >= 0; i++) {
+    for(var i = update.moves.length - 1; i >= 0; i--) {
       final move = update.moves[i];
       reverseApplyMove(move);
     }
@@ -75,7 +75,7 @@ class BoardMover {
     fromPiece.hasBeenMoved = !move.firstMove;
     board.writePiece(fromPiece, move.fromX, move.fromY);
     if(move.hitPiece != null) {
-      board.writePiece(move.hitPiece!, move.toX, move.toY);
+      board.overwritePiece(move.hitPiece!, move.toX, move.toY);
     } else {
       board.removePiece(move.toX, move.toY);
     }

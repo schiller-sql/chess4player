@@ -21,14 +21,12 @@ class JoinGameCubit extends Cubit<JoinGameState> {
   }
 
   void _change(Game? game) {
-    if(game == null) {
-      emit(InNoGameState());
-    } else {
+    if(game != null) {
       emit(InGameState(game));
     }
   }
 
-  Duration _time = const Duration(minutes: 5);
+  Duration _time = const Duration(minutes: 15);
 
   void changeTimeSettings(Duration time) {
     _time = time;
@@ -39,9 +37,14 @@ class JoinGameCubit extends Cubit<JoinGameState> {
     gameStartRepository.startGame(_time);
   }
 
+  void leaveGame() {
+    emit(InNoGameState());
+  }
+
   @override
   Future<void> close() async {
     await super.close();
+    await _sub.cancel();
     gameStartRepository.close();
   }
 }

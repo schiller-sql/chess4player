@@ -2,6 +2,7 @@ import 'package:chess/ui/in_room/player_room_waiting_page.dart';
 import 'package:chess_4p_connection/chess_4p_connection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../blocs/join_game/join_game_cubit.dart';
 import '../../blocs/participants_count/participants_count_cubit.dart';
@@ -33,7 +34,18 @@ class InRoomRouter extends StatelessWidget {
               MaterialPage(
                 key: ValueKey(state.game),
                 child: WillPopScope(
-                    onWillPop: () async => false, child: InGamePage()),
+                  onWillPop: () async => false,
+                  child: RepositoryProvider(
+                    create: (context) {
+                      // TODO: for test purposes
+                      print("hahahahahahhahahah");
+                      return ChessGameRepository(
+                        connection: GetIt.I.get<ChessConnection>(),
+                        game: state.game)..connect();
+                    },
+                    child: const InGamePage(),
+                  ),
+                ),
               ),
           ],
           onPopPage: (route, result) {

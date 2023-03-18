@@ -1,6 +1,7 @@
 package websocket
 
 import (
+	"fmt"
 	"math/rand"
 	"server/board"
 	"server/domain"
@@ -154,8 +155,9 @@ func (g *Game) game(clients map[*domain.Client]string, timePerPlayer uint) {
 					for i, v := range unCastedMoveData {
 						moveData[i] = int(v.(float64))
 					}
+					fmt.Printf("%#v", moveData)
 					var promotion *string
-					rawPromotion, promotionKeyFound := message.Message.Content["castedRawPromotion"]
+					rawPromotion, promotionKeyFound := message.Message.Content["promotion"]
 					castedRawPromotion, promotionCouldBeCast := rawPromotion.(string)
 					if castedRawPromotion == "" || !promotionKeyFound || !promotionCouldBeCast {
 						promotion = nil
@@ -260,6 +262,9 @@ func (s *gameState) nextTurn() {
 	}
 	for s.playerOrder[turn] == nil {
 		turn++
+		if turn == 4 {
+			turn = 0
+		}
 	}
 	s.whoseTurn = turn
 	playerTime := s.playerTime[turn]

@@ -136,7 +136,7 @@ class AdminRoomLobby extends StatelessWidget {
                           height: 60,
                           width: 200,
                           child: CupertinoTimerPicker(
-                            initialTimerDuration: const Duration(minutes: 5),
+                            initialTimerDuration: const Duration(minutes: 15),
                             alignment: Alignment.topLeft,
                             mode: CupertinoTimerPickerMode.ms,
                             onTimerDurationChanged: (Duration time) {

@@ -1,4 +1,4 @@
-# Web-socket protocol of chess4player v1.0.0
+# Web-socket protocol of chess4player v1.2.0
 
 ## Connection to the server
 
@@ -134,6 +134,16 @@ a game update event will be sent,
 detailing the remaining time of the player whose turn it is,
 the game end cause
 and the resigning player in the lost players list.
+
+If the resigning player was not the last however,
+their resign does not count after the current turn is ended.
+
+Example:
+- player A, B, C, and D are in a game.
+- it is player A's turn
+- C resigns while it is still player A's turn
+- player A can still not move their pawn, as it blocks 
+
 
 #### Draw requesting and accepting
 

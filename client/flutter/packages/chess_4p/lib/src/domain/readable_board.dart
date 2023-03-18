@@ -7,4 +7,8 @@ abstract class ReadableBoard {
 
   /// Get the piece of a coordinate, check if there is a piece with [isEmpty].
   Piece getPiece(int x, int y);
+
+  bool isOut(int x, int y);
+
+  int get changeIndex;
 }

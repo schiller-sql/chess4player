@@ -1,3 +1,4 @@
+import 'package:chess_4p_connection/chess_4p_connection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chess_4p/src/accessible_positions_painter.dart';
 import 'package:chess_4p/chess_4p.dart';
@@ -7,29 +8,36 @@ import 'domain/piece_set.dart';
 
 class ChessBoard extends StatefulWidget {
   final PieceSet pieceSet;
+  final IChessGameRepositoryContract chessGameRepository;
 
-  const ChessBoard({Key? key, required this.pieceSet}) : super(key: key);
+  const ChessBoard({
+    Key? key,
+    required this.pieceSet,
+    required this.chessGameRepository,
+  }) : super(key: key);
 
   @override
   State<ChessBoard> createState() => _ChessBoardState();
 }
 
-class _ChessBoardState extends State<ChessBoard> {
-  late Board board;
+class _ChessBoardState extends State<ChessBoard>
+    implements ChessGameRepositoryListener {
   late BoardAnalyzer boardAnalyzer;
-  late BoardMover boardMover;
+  IChessGameRepositoryContract get repo => widget.chessGameRepository;
+  ReadableBoard get board => widget.chessGameRepository.board;
 
   @override
   void initState() {
     super.initState();
-    board = Board.standard();
-    board.removePiece(6, 12);
-    board.removePiece(1, 7);
-    board.removePiece(8, 13);
-    board.removePiece(9, 13);
     boardAnalyzer =
         BoardAnalyzer(board: board, analyzingDirection: Direction.up);
-    boardMover = BoardMover(board: board);
+    repo.addListener(this);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    repo.removeListener(this);
   }
 
   Set<Field> selectableFields = {};
@@ -54,14 +62,14 @@ class _ChessBoardState extends State<ChessBoard> {
   }
 
   void movePiece(int toX, int toY) {
-    final field = Field(toX, toY);
-    if (selectableFields.contains(field)) {
+    final to = Field(toX, toY);
+    if (selectableFields.contains(to) &&
+        repo.playerOnTurn == repo.game.ownPlayerPosition) {
       setState(() {
-        final fromX = selectedField!.x, fromY = selectedField!.y;
-        if (boardMover.analyzeMoveIsPromotion(fromX, fromY, toX, toY)) {
-          promotionCandidate = field;
+        if (repo.moveIsPromotion(selectedField!, to)) {
+          promotionCandidate = to;
         } else {
-          boardMover.analyzeAndApplyMoves(fromX, fromY, toX, toY);
+          repo.move(selectedField!, to);
           selectedField = null;
         }
         selectableFields = {};
@@ -78,13 +86,7 @@ class _ChessBoardState extends State<ChessBoard> {
 
   void executePromotion(PieceType pieceType) {
     setState(() {
-      boardMover.analyzeAndApplyMoves(
-        selectedField!.x,
-        selectedField!.y,
-        promotionCandidate!.x,
-        promotionCandidate!.y,
-        pieceType,
-      );
+      repo.move(selectedField!, promotionCandidate!, pieceType);
       promotionCandidate = null;
       selectedField = null;
     });
@@ -242,5 +244,15 @@ class _ChessBoardState extends State<ChessBoard> {
         ),
       ),
     );
+  }
+
+  @override
+  void changed(IChessGameRepositoryContract chessGameRepository) {
+    setState(() {});
+  }
+
+  @override
+  void timerChange(String player, Duration duration, bool hasStarted) {
+    // TODO: implement timerChange
   }
 }

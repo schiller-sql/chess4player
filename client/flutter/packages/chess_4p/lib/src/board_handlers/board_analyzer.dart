@@ -5,6 +5,8 @@ import '../domain/piece.dart';
 import '../domain/piece_type.dart';
 import 'dart:math' as math;
 
+import '../domain/readable_board.dart';
+
 // TODO: en passent (first remove/but later pls)
 // TODO: für alle analysis nach einem zug wird eine klassenobject erstellt
 
@@ -27,7 +29,7 @@ class _ChessVector {
 /// that has the direction of [analyzingDirection].
 class BoardAnalyzer {
   /// The board to analyze.
-  final Board board;
+  final ReadableBoard board;
 
   /// The direction to analyze from.
   final Direction analyzingDirection;
