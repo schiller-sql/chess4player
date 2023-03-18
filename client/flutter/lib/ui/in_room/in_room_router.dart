@@ -36,13 +36,9 @@ class InRoomRouter extends StatelessWidget {
                 child: WillPopScope(
                   onWillPop: () async => false,
                   child: RepositoryProvider(
-                    create: (context) {
-                      // TODO: for test purposes
-                      print("hahahahahahhahahah");
-                      return ChessGameRepository(
+                    create: (context) => ChessGameRepository(
                         connection: GetIt.I.get<ChessConnection>(),
-                        game: state.game)..connect();
-                    },
+                        game: state.game)..connect(),
                     child: const InGamePage(),
                   ),
                 ),

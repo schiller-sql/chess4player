@@ -1,4 +1,3 @@
-import 'package:chess/blocs/in_room/in_room_cubit.dart';
 import 'package:chess/theme/chess_theme.dart' as theme;
 import 'package:chess_4p_connection/chess_4p_connection.dart';
 import 'package:flutter/material.dart';
@@ -15,12 +14,26 @@ class InGamePage extends StatefulWidget {
 }
 
 class _InGamePageState extends State<InGamePage> {
+  late final ChessGameRepository repo;
+
+  @override
+  void initState() {
+    super.initState();
+    repo = context.read<ChessGameRepository>();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    // TODO: suboptimal solution
+    repo.close();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Stack(
         children: [
-
           ChessBoard(
             chessGameRepository: context.read<ChessGameRepository>(),
             pieceSet: theme.pieceSet,
