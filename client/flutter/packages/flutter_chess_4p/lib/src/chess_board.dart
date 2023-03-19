@@ -248,7 +248,17 @@ class _ChessBoardState extends State<ChessBoard>
 
   @override
   void changed(IChessGameRepositoryContract chessGameRepository) {
-    setState(() {});
+    setState(() {
+      if (selectedField != null) {
+        if (boardAnalyzer.canAnalyze(selectedField!.x, selectedField!.y)) {
+          selectableFields = boardAnalyzer.accessibleFields(
+              selectedField!.x, selectedField!.y);
+        } else {
+          selectedField = null;
+          selectableFields = {};
+        }
+      }
+    });
   }
 
   @override
