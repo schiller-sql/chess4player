@@ -14,19 +14,19 @@ class InGamePage extends StatefulWidget {
 }
 
 class _InGamePageState extends State<InGamePage> {
-  late final ChessGameRepository repo;
+  late final ChessGameRepository _repo;
 
   @override
   void initState() {
     super.initState();
-    repo = context.read<ChessGameRepository>();
+    _repo = context.read<ChessGameRepository>();
   }
 
   @override
   void dispose() {
     super.dispose();
     // TODO: suboptimal solution
-    repo.close();
+    _repo.close();
   }
 
   @override
@@ -36,7 +36,11 @@ class _InGamePageState extends State<InGamePage> {
         children: [
           ChessBoard(
             chessGameRepository: context.read<ChessGameRepository>(),
-            pieceSet: theme.pieceSet,
+            pieceSet: DirectionOffsetPieceSet(
+              baseSet: theme.pieceSet,
+              offset:
+                  context.read<ChessGameRepository>().game.ownPlayerPosition,
+            ),
           ),
           Align(
             alignment: Alignment.topRight,
