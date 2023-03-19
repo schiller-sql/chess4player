@@ -228,7 +228,6 @@ class _ChessBoardState extends State<ChessBoard>
         aspectRatio: 1,
         child: Stack(
           children: [
-            if (doingPromotion) _buildPromotionDialog(),
             IgnorePointer(
               ignoring: doingPromotion,
               child: GridView.builder(
@@ -240,6 +239,7 @@ class _ChessBoardState extends State<ChessBoard>
                     chessFieldItemBuilder(i % 14, i ~/ 14),
               ),
             ),
+            if (doingPromotion) _buildPromotionDialog(),
           ],
         ),
       ),
