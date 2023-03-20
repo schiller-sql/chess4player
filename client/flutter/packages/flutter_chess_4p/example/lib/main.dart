@@ -1,14 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_chess_4p/flutter_4p_chess.dart';
 
 void main() async {
   runApp(const MyApp());
-
-  await HapticFeedback.heavyImpact();
-  await HapticFeedback.heavyImpact();
-  await HapticFeedback.heavyImpact();
-  await HapticFeedback.heavyImpact();
 }
 
 class MyApp extends StatelessWidget {
