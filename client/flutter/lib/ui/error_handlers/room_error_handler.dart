@@ -19,6 +19,7 @@ class RoomJoinErrorHandler extends StatelessWidget {
         if (state is CouldNotGetInRoomError) {
           showDialog(
             context: context,
+            useRootNavigator: false,
             builder: (context) => ErrorDialog(
               icon: Icons.groups,
               title: 'Could not join room',

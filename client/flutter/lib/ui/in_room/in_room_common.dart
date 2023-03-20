@@ -68,11 +68,12 @@ Widget _buildShouldLeaveDialog(BuildContext context, bool isAdmin) {
   );
 }
 
-void showShouldLeaveDialog(BuildContext context) async {
+Future<bool> showShouldLeaveDialog(BuildContext context, ) async {
   final inRoomCubit = context.read<InRoomCubit>();
   final roomCubit = context.read<RoomCubit>();
   final confirmLeave = await showDialog<bool>(
     context: context,
+    useRootNavigator: false,
     builder: (context) => _buildShouldLeaveDialog(
       context,
       inRoomCubit.state.room.isAdmin,
@@ -82,4 +83,5 @@ void showShouldLeaveDialog(BuildContext context) async {
   if (confirmLeave) {
     roomCubit.leave();
   }
+  return confirmLeave;
 }
