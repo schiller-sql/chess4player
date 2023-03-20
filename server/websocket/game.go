@@ -53,6 +53,7 @@ func StartGame(clients map[*domain.Client]string, time uint) *Game {
 type gameState struct {
 	board             *board.Board
 	clients           map[*domain.Client]string
+	clientIsNotInRoom map[*domain.Client]bool
 	playerOrder       [4]*player
 	acceptedDraw      [4]bool
 	playerTime        [4]uint
@@ -68,7 +69,7 @@ type player struct {
 }
 
 func (g *Game) game(clients map[*domain.Client]string, timePerPlayer uint) {
-	state := gameState{clients: clients}
+	state := gameState{clients: clients, clientIsNotInRoom: map[*domain.Client]bool{}}
 
 	for i := 0; i < 4; i++ {
 		state.playerTime[i] = timePerPlayer
@@ -131,6 +132,7 @@ func (g *Game) game(clients map[*domain.Client]string, timePerPlayer uint) {
 				if playerNumber == -1 {
 					break
 				}
+				state.clientIsNotInRoom[leftGame] = true
 				state.playerHasLost(playerNumber, false)
 			}
 		case message := <-g.message:
@@ -362,9 +364,12 @@ type gameUpdate struct {
 
 func (s *gameState) sendGameUpdate(turn gameTurn, gameEnd *string) {
 	for client := range s.clients {
-		client.Write("game", "game-update", gameUpdate{
-			Turns:   []gameTurn{turn},
-			GameEnd: gameEnd,
-		})
+		_, ok := s.clientIsNotInRoom[client]
+		if !ok {
+			client.Write("game", "game-update", gameUpdate{
+				Turns:   []gameTurn{turn},
+				GameEnd: gameEnd,
+			})
+		}
 	}
 }
