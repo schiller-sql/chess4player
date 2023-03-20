@@ -8,7 +8,7 @@ import '../chess_game_start_repository/domain/game.dart';
 import 'domain/player.dart';
 
 class ChessGameRepository extends ChessConnectionListener
-    implements IChessGameRepositoryContract {
+    implements IChessGameRepository {
   bool _lastUpdateNotAffirmed = false;
   @override
   int playerOnTurn = 0;
@@ -20,37 +20,49 @@ class ChessGameRepository extends ChessConnectionListener
   String? gameEnd;
 
   @override
-  final List<Player?> players;
+  List<Player?> players;
 
   @override
-  final Board board;
+  Board board;
 
-  late final BoardMover _boardMover;
+  late BoardMover _boardMover;
+  @override
+  late BoardAnalyzer boardAnalyzer;
 
   final List<ChessGameRepositoryListener> _listeners = [];
   final ChessConnection connection;
   @override
-  final Game game;
+  Game game;
+
+  static Board _boardFromGame(Game game) {
+    return Board.standardWithOmission(
+      game.playerOrder.map((player) => player != null).toList(growable: false),
+    );
+  }
+
+  static List<Player?> _playersFromGame(Game game) {
+    return game.playerOrder
+        .map(
+          (playerName) => playerName == null
+              ? null
+              : Player(
+                  name: playerName,
+                  remainingTime: game.time,
+                ),
+        )
+        .toList(growable: false);
+  }
 
   ChessGameRepository({
     required this.connection,
     required this.game,
-  })  : board = Board.standardWithOmission(
-          game.playerOrder
-              .map((player) => player != null)
-              .toList(growable: false),
-        ),
-        players = game.playerOrder
-            .map(
-              (playerName) => playerName == null
-                  ? null
-                  : Player(
-                      name: playerName,
-                      remainingTime: game.time,
-                    ),
-            )
-            .toList(growable: false) {
+  })  : board = _boardFromGame(game),
+        players = _playersFromGame(game) {
     _boardMover = BoardMover(board: board);
+    boardAnalyzer = BoardAnalyzer(
+      board: board,
+      analyzingDirection: Direction.up,
+    );
   }
 
   @override
@@ -200,5 +212,18 @@ class ChessGameRepository extends ChessConnectionListener
       toY: toTurned.y,
       promotion: promotion,
     );
+  }
+
+  @override
+  void restart(Game game) {
+    this.game = game;
+    players = _playersFromGame(game);
+    board = _boardFromGame(game);
+    _boardMover = BoardMover(board: board);
+    boardAnalyzer = BoardAnalyzer(
+      board: board,
+      analyzingDirection: Direction.up,
+    );
+    _changed();
   }
 }

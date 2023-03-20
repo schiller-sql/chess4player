@@ -44,7 +44,7 @@ class RoomRouter extends StatelessWidget {
                           )..startListeningToRoom(),
                         ),
                       ],
-                      child: InRoomRouter(adminGame: state.isAdmin),
+                      child: InRoomRouter(adminGame: state.room.isAdmin),
                     ),
                   ),
                 ),

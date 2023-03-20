@@ -67,6 +67,7 @@ class ChessConnection {
   }
 
   void _handleEvent(dynamic rawEvent) {
+    print(rawEvent);
     Map<String, dynamic> event = jsonDecode(rawEvent);
     final type = event["type"];
     final subtype = event["subtype"];

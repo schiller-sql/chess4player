@@ -4,12 +4,12 @@ import '../chess_game_start_repository/domain/game.dart';
 import 'domain/player.dart';
 
 abstract class ChessGameRepositoryListener {
-  void changed(IChessGameRepositoryContract chessGameRepository);
+  void changed(IChessGameRepository chessGameRepository);
 
   void timerChange(String player, Duration duration, bool hasStarted);
 }
 
-abstract class IChessGameRepositoryContract {
+abstract class IChessGameRepository {
   List<BoardUpdate> get updates;
   int get playerOnTurn;
   List<Player?> get players;
@@ -18,7 +18,10 @@ abstract class IChessGameRepositoryContract {
   String? get gameEnd;
   Game get game;
 
+  BoardAnalyzer get boardAnalyzer;
+
   void connect();
+  void restart(Game game);
   void close();
 
   void move(Field from, Field to, [PieceType? promotion]);

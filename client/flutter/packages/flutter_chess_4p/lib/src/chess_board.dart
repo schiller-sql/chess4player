@@ -8,7 +8,7 @@ import 'domain/piece_set.dart';
 
 class ChessBoard extends StatefulWidget {
   final PieceSet pieceSet;
-  final IChessGameRepositoryContract chessGameRepository;
+  final IChessGameRepository chessGameRepository;
 
   const ChessBoard({
     Key? key,
@@ -22,15 +22,13 @@ class ChessBoard extends StatefulWidget {
 
 class _ChessBoardState extends State<ChessBoard>
     implements ChessGameRepositoryListener {
-  late BoardAnalyzer boardAnalyzer;
-  IChessGameRepositoryContract get repo => widget.chessGameRepository;
-  ReadableBoard get board => widget.chessGameRepository.board;
+  IChessGameRepository get repo => widget.chessGameRepository;
+  ReadableBoard get board => repo.board;
+  BoardAnalyzer get boardAnalyzer => repo.boardAnalyzer;
 
   @override
   void initState() {
     super.initState();
-    boardAnalyzer =
-        BoardAnalyzer(board: board, analyzingDirection: Direction.up);
     repo.addListener(this);
   }
 
@@ -247,7 +245,7 @@ class _ChessBoardState extends State<ChessBoard>
   }
 
   @override
-  void changed(IChessGameRepositoryContract chessGameRepository) {
+  void changed(IChessGameRepository chessGameRepository) {
     setState(() {
       if (selectedField != null) {
         if (boardAnalyzer.canAnalyze(selectedField!.x, selectedField!.y)) {

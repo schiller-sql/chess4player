@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../blocs/game/game_cubit.dart';
 import '../../blocs/join_game/join_game_cubit.dart';
 import '../../blocs/participants_count/participants_count_cubit.dart';
+import '../game/in_game_router.dart';
 import 'admin_room_lobby.dart';
-import '../game/in_game_page.dart';
 
 class InRoomRouter extends StatelessWidget {
   final bool adminGame;
@@ -38,8 +39,24 @@ class InRoomRouter extends StatelessWidget {
                   child: RepositoryProvider(
                     create: (context) => ChessGameRepository(
                         connection: GetIt.I.get<ChessConnection>(),
-                        game: state.game)..connect(),
-                    child: const InGamePage(),
+                        game: state.game)
+                      ..connect(),
+                    child: MultiBlocProvider(
+                      providers: [
+                        BlocProvider(
+                          create: (context) => GameCubit(
+                            chessGameStartRepository:
+                                context.read<ChessGameStartRepository>(),
+                            chessGameRepository:
+                                context.read<ChessGameRepository>(),
+                          )..startListeningToGames(),
+                        ),
+                        // BlocProvider.value(
+                        //   value: context.read<InRoomCubit>(),
+                        // ),
+                      ],
+                      child: const InGameRouter(),
+                    ),
                   ),
                 ),
               ),

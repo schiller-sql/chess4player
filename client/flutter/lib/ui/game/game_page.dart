@@ -6,29 +6,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../blocs/room/room_cubit.dart';
 
-class InGamePage extends StatefulWidget {
-  const InGamePage({Key? key}) : super(key: key);
+class GamePage extends StatefulWidget {
+  const GamePage({Key? key}) : super(key: key);
 
   @override
-  State<InGamePage> createState() => _InGamePageState();
+  State<GamePage> createState() => _GamePageState();
 }
 
-class _InGamePageState extends State<InGamePage> {
-  late final ChessGameRepository _repo;
-
-  @override
-  void initState() {
-    super.initState();
-    _repo = context.read<ChessGameRepository>();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    // TODO: suboptimal solution
-    _repo.close();
-  }
-
+class _GamePageState extends State<GamePage> {
   @override
   Widget build(BuildContext context) {
     return Center(

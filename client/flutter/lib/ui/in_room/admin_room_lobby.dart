@@ -5,12 +5,10 @@ import 'package:chess/ui/in_room/in_room_common.dart';
 import 'package:chess/ui/in_room/which_players_in_room_display.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_nord_theme/flutter_nord_theme.dart';
 
 import '../../blocs/in_room/in_room_cubit.dart';
-import '../../blocs/join_room/join_room_cubit.dart';
 
 class AdminRoomLobby extends StatelessWidget {
   const AdminRoomLobby({Key? key}) : super(key: key);
@@ -190,9 +188,7 @@ class AdminRoomLobby extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           TextButton(
-                            onPressed: () {
-                              showShouldLeaveDialog(context);
-                            },
+                            onPressed: () => showShouldLeaveDialog(context),
                             style: ButtonStyle(
                               padding: MaterialStateProperty.all(
                                   const EdgeInsets.all(16)),
