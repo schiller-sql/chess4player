@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:chess_4p_connection/chess_4p_connection.dart';
-import 'package:chess_4p_connection/src/chess_connection/domain/raw_move.dart';
+import 'package:chess_4p_connection/src/chess_connection/domain/turn.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class ChessConnectionLogListener extends ChessConnectionListener {
@@ -58,11 +58,9 @@ class ChessConnectionLogListener extends ChessConnectionListener {
 
   @override
   void gameUpdate(
-      String? gameEnd,
-      Map<String, String> lostPlayers,
-      List<RawMove> moves,
-      Duration remainingTime,
-      ) {
+    String? gameEnd,
+    List<Turn> turns,
+  ) {
     print("gameUpdate");
     print("\n\n");
   }
@@ -82,7 +80,8 @@ void main() async {
       uri: Uri.parse('ws://localhost:8080'),
     )..connect();
     connectionService2.joinRoom(
-        code: ChessConnectionLogListener.lastCreatedRoomCode, playerName: 'asa');
+        code: ChessConnectionLogListener.lastCreatedRoomCode,
+        playerName: 'asa');
     // connectionService2.addChessListener(
     //   ChessConnectionLogListener(name: (i + 2).toString()),
     // );

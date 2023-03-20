@@ -33,10 +33,11 @@ void main() {
   group("pawn exceptions", () {
     // TODO: en passent
     late BoardAnalyzer analyzer;
+    late Board board;
     late Piece pawnPiece; // pawn is still at state 0, allowed to move +2
 
     setUp(() {
-      final board = Board.empty();
+      board = Board.empty();
       pawnPiece = p3;
       board.writePiece(pawnPiece, 8, 8);
       board.writePiece(k3, 3, 3);
@@ -48,14 +49,14 @@ void main() {
 
     test("friendly piece (+1) in front and diagonal (no moving,no attacking)",
         () {
-      analyzer.board.writePiece(k3, 7, 8);
-      analyzer.board.writePiece(k3, 7, 7);
+      board.writePiece(k3, 7, 8);
+      board.writePiece(k3, 7, 7);
       expect(analyzer.accessibleFields(8, 8), isEmpty);
     });
 
     test("enemy piece (+2) in front and diagonal (no moving 2,attacking", () {
-      analyzer.board.writePiece(k2, 6, 8);
-      analyzer.board.writePiece(k2, 7, 7);
+      board.writePiece(k2, 6, 8);
+      board.writePiece(k2, 7, 7);
       expect(
         analyzer.accessibleFields(8, 8),
         {Field(7, 8), Field(7, 7)},
