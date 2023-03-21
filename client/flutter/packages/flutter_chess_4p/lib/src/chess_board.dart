@@ -98,7 +98,10 @@ class _ChessBoardState extends State<ChessBoard>
     Widget? child;
     if (!board.isEmpty(x, y)) {
       final piece = board.getPiece(x, y);
-      child = widget.pieceSet.createPiece(piece.type, piece.direction);
+      child = widget.pieceSet.createPiece(
+        piece.type,
+        piece.isDead ? null : piece.direction,
+      );
     }
     if (selectedField?.x == x && selectedField?.y == y) {
       child = Opacity(

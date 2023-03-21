@@ -7,6 +7,7 @@ const pieceColors = DirectionalTuple(
   NordColors.$13,
   NordColors.$14,
   NordColors.$15,
+  Colors.grey,
 );
 
 final pieceSet = WikiColoredPieceSet(

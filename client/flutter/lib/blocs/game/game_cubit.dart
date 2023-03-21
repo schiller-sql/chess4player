@@ -25,7 +25,6 @@ class GameCubit extends Cubit<GameState> implements ChessGameRepositoryListener 
   void _gameChange(Game? newGame) {
     if(newGame != null) {
       emit(const InGame());
-      chessGameRepository.restart(newGame);
     }
   }
 

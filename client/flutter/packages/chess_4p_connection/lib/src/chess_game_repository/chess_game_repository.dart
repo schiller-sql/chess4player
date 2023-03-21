@@ -37,6 +37,7 @@ class ChessGameRepository extends ChessConnectionListener
   static Board _boardFromGame(Game game) {
     return Board.standardWithOmission(
       game.playerOrder.map((player) => player != null).toList(growable: false),
+      game.ownPlayerPosition,
     );
   }
 
@@ -216,6 +217,7 @@ class ChessGameRepository extends ChessConnectionListener
 
   @override
   void restart(Game game) {
+    throw UnimplementedError("Should not be used, will maybe be deprecated");
     this.game = game;
     players = _playersFromGame(game);
     board = _boardFromGame(game);

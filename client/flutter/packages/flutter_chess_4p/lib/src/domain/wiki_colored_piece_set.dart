@@ -13,6 +13,7 @@ class WikiColoredPieceSet extends PieceSet {
     Colors.yellow,
     Colors.green,
     Colors.red,
+    Colors.grey,
   );
 
   // static const DirectionalTuple<double> _defaultStrokeWidth =
@@ -29,7 +30,7 @@ class WikiColoredPieceSet extends PieceSet {
         );
 
   @override
-  Widget createPiece(PieceType pieceType, Direction direction) {
+  Widget createPiece(PieceType pieceType, Direction? direction) {
     return _pieces[pieceType]!.get(direction);
   }
 
@@ -44,6 +45,7 @@ class WikiColoredPieceSet extends PieceSet {
         _createPiece(pieceType, strokeColor.right, fillColor.right),
         _createPiece(pieceType, strokeColor.down, fillColor.down),
         _createPiece(pieceType, strokeColor.left, fillColor.left),
+        _createPiece(pieceType, strokeColor.left, fillColor.inactive),
       );
     }
     return pieceMap;

@@ -24,6 +24,6 @@ void main() {
   });
 
   test("standard board layout", () {
-    print(Board.standardWithOmission([true, false, true, true]));
+    print(Board.standardWithOmission([true, false, true, true], 1));
   });
 }

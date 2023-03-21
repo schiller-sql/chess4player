@@ -14,7 +14,7 @@ class JoinGameCubit extends Cubit<JoinGameState> {
     required this.gameStartRepository,
   }) : super(InNoGameState());
 
-  void startListeningToGame() {
+  void startListeningToGames() {
     gameStartRepository.connect();
     _sub = gameStartRepository.gameStream.listen(_change);
     _change(gameStartRepository.currentGame);

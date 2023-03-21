@@ -36,7 +36,7 @@ class RoomRouter extends StatelessWidget {
                           create: (context) => JoinGameCubit(
                             gameStartRepository:
                                 context.read<ChessGameStartRepository>(),
-                          )..startListeningToGame(),
+                          )..startListeningToGames(),
                         ),
                         BlocProvider(
                           create: (context) => InRoomCubit(

@@ -10,9 +10,14 @@ class DirectionOffsetPieceSet extends PieceSet {
       : assert(offset >= 0 && offset <= 3);
 
   @override
-  Widget createPiece(PieceType pieceType, Direction direction) =>
+  Widget createPiece(
+    PieceType pieceType,
+    Direction? direction,
+  ) =>
       baseSet.createPiece(
         pieceType,
-        Direction.fromInt(direction.clockwiseRotationsFromUp + offset),
+        direction == null
+            ? null
+            : Direction.fromInt(direction.clockwiseRotationsFromUp + offset),
       );
 }

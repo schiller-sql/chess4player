@@ -25,16 +25,20 @@ class Board implements ReadableBoard {
   /// Standard board for four players, with directions.
   Board.standard() : _boardData = genDefaultBoard();
 
-  factory Board.standardWithOmission(List<bool> keepRotations) {
-    assert (keepRotations.length == 4);
+  factory Board.standardWithOmission(
+    List<bool> keepRotations,
+    int fromPosition,
+  ) {
+    assert(keepRotations.length == 4);
 
     final board = Board.standard();
-    for(var rotation = 0; rotation < 4; rotation++) {
-      if(keepRotations[rotation]) continue;
-      for(var x = 3; x <= 10; x++) {
-        for(var y = 12; y <= 13; y++) {
-          final rotatedX = Field.clockwiseRotateXBy(x, y, rotation);
-          final rotatedY = Field.clockwiseRotateYBy(x, y, rotation);
+    for (var rotation = 0; rotation < 4; rotation++) {
+      final actualRotation = rotation - fromPosition;
+      if (keepRotations[rotation]) continue;
+      for (var x = 3; x <= 10; x++) {
+        for (var y = 12; y <= 13; y++) {
+          final rotatedX = Field.clockwiseRotateXBy(x, y, actualRotation);
+          final rotatedY = Field.clockwiseRotateYBy(x, y, actualRotation);
           board.removePiece(rotatedX, rotatedY);
         }
       }
@@ -55,8 +59,8 @@ class Board implements ReadableBoard {
   }
 
   void _setDirectionDead({required bool dead, required Direction direction}) {
-    for(var y = 0; y < 14; y++) {
-      for(var x = 0; x < 14; x++) {
+    for (var y = 0; y < 14; y++) {
+      for (var x = 0; x < 14; x++) {
         final piece = _boardData[y][x];
         if (piece != null && piece.direction == direction) {
           piece.isDead = dead;
