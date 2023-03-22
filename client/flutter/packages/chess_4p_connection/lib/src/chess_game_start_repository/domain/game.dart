@@ -15,6 +15,6 @@ class Game {
     final playerIndex = playerOrder.indexWhere(
       (playerNameInOrder) => playerName == playerNameInOrder,
     );
-    return Direction.fromInt(playerIndex);
+    return Direction.fromInt(playerIndex - ownPlayerPosition);
   }
 }

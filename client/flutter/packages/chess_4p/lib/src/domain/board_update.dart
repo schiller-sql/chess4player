@@ -11,7 +11,7 @@ class BoardUpdate {
   final Set<Direction> eliminatedPlayers;
 
   BoardUpdate({
-    required this.moves,
-    required this.eliminatedPlayers,
+    this.moves = const [],
+    this.eliminatedPlayers = const {},
   });
 }

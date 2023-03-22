@@ -182,7 +182,13 @@ class ChessGameRepository extends ChessConnectionListener
       moves: [],
       eliminatedPlayers: {playerDirection},
     );
-    _addNewBoardUpdate(update);
+    if(_lastUpdateNotAffirmed) {
+      final lastUpdate = updates.removeLast();
+      _addNewBoardUpdate(update);
+      updates.add(lastUpdate);
+    } else {
+      _addNewBoardUpdate(update);
+    }
     _changed();
   }
 

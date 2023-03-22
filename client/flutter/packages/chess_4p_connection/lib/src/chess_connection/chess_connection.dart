@@ -127,7 +127,7 @@ class ChessConnection {
               );
             }
             break;
-          case "player-resign":
+          case "player-resigned":
             final playerName = content["participant"];
             for (final listener in _listeners) {
               listener.playerResign(playerName);

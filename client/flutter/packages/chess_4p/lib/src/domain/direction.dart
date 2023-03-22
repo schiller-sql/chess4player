@@ -26,7 +26,9 @@ enum Direction {
   }
 
   static Direction fromInt(int i) {
-    assert(i >= 0);
+    while (i < 0) {
+      i += 4;
+    }
     var direction = up;
     for (var j = 0; j < i; j++) {
       direction = direction.clockwiseRotate;
