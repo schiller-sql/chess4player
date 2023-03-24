@@ -14,6 +14,7 @@ class Board implements ReadableBoard {
   int _changeIndex = 0;
 
   /// The changeIndex, after each change this number increases; starts at 0.
+  @override
   int get changeIndex => _changeIndex;
 
   /// Standard constructor for an Empty board.
@@ -27,7 +28,7 @@ class Board implements ReadableBoard {
 
   factory Board.standardWithOmission(
     List<bool> keepRotations,
-    int fromPosition,
+    [int fromPosition = 0,]
   ) {
     assert(keepRotations.length == 4);
 
@@ -70,6 +71,7 @@ class Board implements ReadableBoard {
   }
 
   /// If a coordinate is in the board.
+  @override
   bool isOut(int x, int y) {
     if (x < 0 || x >= 14 || y < 0 || y >= 14) {
       return true;
@@ -133,5 +135,30 @@ class Board implements ReadableBoard {
     return Board._raw(
       Iterable<List<Piece?>>.generate(14, (i) => [..._boardData[i]]).toList(),
     );
+  }
+
+  void clear() {
+    for (var y = 0; y < 14; y++) {
+      for (var x = 0; x < 14; x++) {
+        _boardData[y][x] = null;
+      }
+    }
+    _changeIndex++;
+  }
+
+  void copyFromBoardOnEmpty(Board board) {
+    for (var y = 0; y < 14; y++) {
+      for (var x = 0; x < 14; x++) {
+        if (isEmpty(x, y)) {
+          _boardData[y][x] = board._boardData[y][x];
+        }
+      }
+    }
+    _changeIndex++;
+  }
+
+  void copyBoard(Board board) {
+    clear();
+    copyFromBoardOnEmpty(board);
   }
 }
