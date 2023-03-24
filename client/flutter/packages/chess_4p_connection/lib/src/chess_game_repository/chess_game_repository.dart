@@ -223,6 +223,7 @@ class ChessGameRepository extends ChessConnectionListener
 
   @override
   void restart(Game game) {
+    // TODO: deprecate
     throw UnimplementedError("Should not be used, will maybe be deprecated");
     this.game = game;
     players = _playersFromGame(game);

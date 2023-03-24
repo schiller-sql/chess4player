@@ -311,4 +311,38 @@ void main() {
       });
     });
   });
+
+  group("specific tests", () {
+    test(
+        "bug: a enemy queen directly next to king, yet rook can be moved, "
+        "as it is technically in vector of queen", () {
+      final board = Board.standardWithOmission([true, false, false, false]);
+      final analyzer = BoardAnalyzer(
+        board: board,
+        analyzingDirection: Direction.up,
+      );
+      board.removePiece(6, 13);
+      board.removePiece(8, 13);
+      board.overwritePiece(b3, 4, 13);
+      board.writePiece(q3, 8, 13);
+
+      expect(analyzer.accessibleFields(3, 13), isEmpty);
+      expect(analyzer.accessibleFields(7, 13), {Field(8, 13)});
+    });
+
+    test("horse attacks king, queen can save, pawn cannot", () {
+      final board = Board.empty();
+      final analyzer = BoardAnalyzer(
+        board: board,
+        analyzingDirection: Direction.up,
+      );
+      board.writePiece(k0, 8, 8);
+      board.writePiece(n1, 7, 10);
+      board.writePiece(q0, 7, 11);
+      board.writePiece(p0, 3, 3);
+
+      expect(analyzer.accessibleFields(3, 3), isEmpty);
+      expect(analyzer.accessibleFields(7, 11), {Field(7, 10)});
+    });
+  });
 }
