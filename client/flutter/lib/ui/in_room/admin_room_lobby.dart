@@ -224,13 +224,14 @@ class AdminRoomLobby extends StatelessWidget {
                                 style: ButtonStyle(
                                   padding: MaterialStateProperty.all(
                                       const EdgeInsets.all(16)),
-                                  overlayColor:
+                                  foregroundColor:
                                       MaterialStateProperty.resolveWith(
                                     (states) {
-                                      if (!states
+                                      if (states
                                           .contains(MaterialState.disabled)) {
-                                        return NordColors.$7.withAlpha(50);
+                                        return NordColors.$3;
                                       }
+                                      return NordColors.$7;
                                     },
                                   ),
                                 ),
@@ -239,7 +240,6 @@ class AdminRoomLobby extends StatelessWidget {
                                   style: TextStyle(
                                     fontWeight: FontWeight.w500,
                                     fontSize: 20,
-                                    color: NordColors.$7,
                                   ),
                                 ),
                               );
