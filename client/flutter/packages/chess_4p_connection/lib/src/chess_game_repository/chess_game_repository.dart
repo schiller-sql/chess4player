@@ -9,6 +9,9 @@ import 'domain/player.dart';
 
 class ChessGameRepository extends ChessConnectionListener
     implements IChessGameRepository {
+  @override
+  bool get canMove =>
+      playerOnTurn == game.ownPlayerPosition && !_lastUpdateNotAffirmed;
   bool _lastUpdateNotAffirmed = false;
   @override
   int playerOnTurn = 0;
@@ -182,7 +185,7 @@ class ChessGameRepository extends ChessConnectionListener
       moves: [],
       eliminatedPlayers: {playerDirection},
     );
-    if(_lastUpdateNotAffirmed) {
+    if (_lastUpdateNotAffirmed) {
       final lastUpdate = updates.removeLast();
       _addNewBoardUpdate(update);
       updates.add(lastUpdate);

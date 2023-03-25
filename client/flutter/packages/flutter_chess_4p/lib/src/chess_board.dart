@@ -61,8 +61,7 @@ class _ChessBoardState extends State<ChessBoard>
 
   void movePiece(int toX, int toY) {
     final to = Field(toX, toY);
-    if (selectableFields.contains(to) &&
-        repo.playerOnTurn == repo.game.ownPlayerPosition) {
+    if (selectableFields.contains(to) && repo.canMove) {
       setState(() {
         if (repo.moveIsPromotion(selectedField!, to)) {
           promotionCandidate = to;

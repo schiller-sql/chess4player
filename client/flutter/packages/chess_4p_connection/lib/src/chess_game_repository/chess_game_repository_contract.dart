@@ -11,6 +11,7 @@ abstract class ChessGameRepositoryListener {
 
 abstract class IChessGameRepository {
   List<BoardUpdate> get updates;
+  bool get canMove;
   int get playerOnTurn;
   List<Player?> get players;
   int get firstNonImplementedUpdate;
