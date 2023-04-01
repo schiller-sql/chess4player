@@ -1,5 +1,6 @@
 import 'package:chess_4p/chess_4p.dart';
 import 'package:chess_4p_connection/src/chess_game_repository/chess_game_repository_contract.dart';
+import '../util/list_shift_extension.dart';
 
 import '../chess_connection/chess_connection.dart';
 import '../chess_connection/chess_connection_listener.dart';
@@ -15,6 +16,7 @@ class ChessGameRepository extends ChessConnectionListener
   bool _lastUpdateNotAffirmed = false;
   @override
   int playerOnTurn = 0;
+  DateTime _playerOnTurnTime;
   @override
   final List<BoardUpdate> updates = [];
   @override
@@ -23,7 +25,10 @@ class ChessGameRepository extends ChessConnectionListener
   String? gameEnd;
 
   @override
-  List<Player?> players;
+  final List<Player?> players;
+
+  @override
+  late final List<Player?> playersFromOwnPerspective;
 
   @override
   Board board;
@@ -34,8 +39,9 @@ class ChessGameRepository extends ChessConnectionListener
 
   final List<ChessGameRepositoryListener> _listeners = [];
   final ChessConnection connection;
-  @override
   Game game;
+
+  Player get _currentPlayer => players[playerOnTurn]!;
 
   static Board _boardFromGame(Game game) {
     return Board.standardWithOmission(
@@ -61,12 +67,15 @@ class ChessGameRepository extends ChessConnectionListener
     required this.connection,
     required this.game,
   })  : board = _boardFromGame(game),
-        players = _playersFromGame(game) {
+        players = _playersFromGame(game),
+        _playerOnTurnTime = DateTime.now() {
     _boardMover = BoardMover(board: board);
     boardAnalyzer = BoardAnalyzer(
       board: board,
       analyzingDirection: Direction.up,
     );
+    players[0]!.isOnTurn = true;
+    playersFromOwnPerspective = players.shift(game.ownPlayerPosition);
   }
 
   @override
@@ -85,9 +94,26 @@ class ChessGameRepository extends ChessConnectionListener
     }
   }
 
+  void _sendListenersTimeUpdate(
+    String player,
+    Duration duration,
+    bool hasStarted,
+  ) {
+    for (var listener in _listeners) {
+      listener.timerChange(player, duration, hasStarted);
+    }
+  }
+
   @override
   void addListener(ChessGameRepositoryListener listener) {
     _listeners.add(listener);
+    if (gameEnd == null) {
+      final durationBetweenLastMove =
+          DateTime.now().difference(_playerOnTurnTime);
+      final timeOfCurrentPlayer =
+          _currentPlayer.remainingTime - durationBetweenLastMove;
+      _sendListenersTimeUpdate(_currentPlayer.name, timeOfCurrentPlayer, true);
+    }
   }
 
   @override
@@ -95,26 +121,60 @@ class ChessGameRepository extends ChessConnectionListener
     _listeners.remove(listener);
   }
 
+  // @override
+  // void playerResign(String playerName) {
+  //  final playerIndex = players.indexWhere(
+  //    (player) => player?.name == playerName,
+  //  );
+  //  final player = players[playerIndex]!;
+  //  player.lostReason = "resign";
+  //  final playerDirection = Direction.fromInt(playerIndex);
+  //  final update = BoardUpdate(eliminatedPlayers: {playerDirection});
+  //  if (firstNonImplementedUpdate == updates.length) {
+//     updates.add(update);
+  //   } else {
+  //     final notImplementedUpdates = updates.sublist(firstNonImplementedUpdate);
+  //     updates.removeRange(firstNonImplementedUpdate, updates.length);
+  //     updates.add(update);
+//     updates.addAll(notImplementedUpdates);
+  //   }
+//   _boardMover.applyBoardUpdate(update);
+  //  }
+
   @override
   void gameUpdate(
     String? gameEnd,
     List<Turn> turns,
   ) {
-    var howManyTurnsPlayed = turns.length;
-    if (gameEnd != null) {
-      howManyTurnsPlayed--;
+    _currentPlayer.isOnTurn = false;
+    _playerOnTurnTime = DateTime.now();
+    for (var turnIndex = 0; turnIndex < turns.length; turnIndex++) {
+      final turn = turns[turnIndex];
+      _sendListenersTimeUpdate(
+        _currentPlayer.name,
+        turn.remainingTime,
+        false,
+      );
+      _currentPlayer.remainingTime = turn.remainingTime;
+      // don't go to next player, if the game ends
+      if (turnIndex < turns.length - 1 || gameEnd == null) {
+        // go to next player
+        do {
+          playerOnTurn++;
+          if (playerOnTurn == 4) {
+            playerOnTurn = 0;
+          }
+        } while (players[playerOnTurn] == null ||
+            players[playerOnTurn]?.lostReason != null);
+      }
     }
-    var turnIndex = 0;
-    while (howManyTurnsPlayed > 0) {
-      howManyTurnsPlayed--;
-      do {
-        playerOnTurn++;
-        if (playerOnTurn == 4) {
-          playerOnTurn = 0;
-        }
-      } while (players[playerOnTurn] == null ||
-          players[playerOnTurn]?.lostReason != null);
-      players[playerOnTurn]?.remainingTime = turns[turnIndex].remainingTime;
+    _currentPlayer.isOnTurn = true;
+    if (gameEnd == null) {
+      _sendListenersTimeUpdate(
+        _currentPlayer.name,
+        _currentPlayer.remainingTime,
+        true,
+      );
     }
     if (_lastUpdateNotAffirmed) {
       final update = updates[updates.length - 1];
@@ -228,14 +288,14 @@ class ChessGameRepository extends ChessConnectionListener
   void restart(Game game) {
     // TODO: deprecate
     throw UnimplementedError("Should not be used, will maybe be deprecated");
-    this.game = game;
-    players = _playersFromGame(game);
-    board = _boardFromGame(game);
-    _boardMover = BoardMover(board: board);
-    boardAnalyzer = BoardAnalyzer(
-      board: board,
-      analyzingDirection: Direction.up,
-    );
-    _changed();
+    // this.game = game;
+    // players = _playersFromGame(game);
+    // board = _boardFromGame(game);
+    // _boardMover = BoardMover(board: board);
+    // boardAnalyzer = BoardAnalyzer(
+    //   board: board,
+    //   analyzingDirection: Direction.up,
+    // );
+    // _changed();
   }
 }

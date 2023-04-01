@@ -34,6 +34,11 @@ class _ChessBoardState extends State<ChessBoard>
   @override
   void initState() {
     super.initState();
+    for (Player? player in repo.players) {
+      if (player != null) {
+        _playerTimeNotifiers[player.name] = ValueNotifier(repo.game.time);
+      }
+    }
     repo.addListener(this);
   }
 
@@ -230,6 +235,8 @@ class _ChessBoardState extends State<ChessBoard>
         aspectRatio: 1,
         child: Stack(
           children: [
+            for (var playerIndex = 0; playerIndex < 4; playerIndex++)
+              _buildPlayerDisplay(playerIndex),
             IgnorePointer(
               ignoring: doingPromotion,
               child: GridView.builder(
@@ -243,6 +250,71 @@ class _ChessBoardState extends State<ChessBoard>
             ),
             if (doingPromotion) _buildPromotionDialog(),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPlayerDisplay(int playerIndex) {
+    final player = repo.playersFromOwnPerspective[playerIndex];
+    if (player == null) {
+      return const SizedBox();
+    }
+    final playerName = player.name;
+    final notifier = _playerTimeNotifiers[playerName]!;
+    final playerDirection = Direction.fromInt(playerIndex);
+    var backgroundColor = widget.playerStyles.getPlayerColor(playerDirection);
+    var color = widget.playerStyles.getPlayerAccentColor(playerDirection);
+    if(player.isOnTurn) {
+      final tempBackgroundColor = backgroundColor;
+      backgroundColor = color;
+      color = tempBackgroundColor;
+    }
+    if(player.hasLost) {
+      backgroundColor = widget.playerStyles.getPlayerColor(null);
+      color = widget.playerStyles.getPlayerAccentColor(null);
+    }
+    return Align(
+      alignment: _playerAlignments[playerIndex],
+      child: FractionallySizedBox(
+        widthFactor: 3 / 14,
+        heightFactor: 3 / 14,
+        child: Container(
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            border: null,
+          ),
+          padding: const EdgeInsets.all(16),
+          width: double.infinity,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                playerName,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: color,
+                  decoration: TextDecoration.none,
+                  fontWeight: player.isOut ? FontWeight.w500 : FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 8),
+              AnimatedBuilder(
+                animation: notifier,
+                builder: (context, child) {
+                  return Text(
+                    notifier.value.hoursAndMinutesFormat(),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: color,
+                      decoration: TextDecoration.none,
+                      fontWeight: player.isOut ? FontWeight.w500 : FontWeight.w700,
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -263,8 +335,32 @@ class _ChessBoardState extends State<ChessBoard>
     });
   }
 
+  SecondsCountdownTimer? _lastTimer;
+
+  final Map<String, ValueNotifier<Duration>> _playerTimeNotifiers = {};
+
+  static final _playerAlignments = [
+    Alignment.bottomLeft,
+    Alignment.topLeft,
+    Alignment.topRight,
+    Alignment.bottomRight,
+  ];
+
   @override
   void timerChange(String player, Duration duration, bool hasStarted) {
-    // TODO: implement timerChange
+    final notifier = _playerTimeNotifiers[player]!;
+    if (!hasStarted) {
+      _lastTimer?.cancel();
+      _lastTimer = null;
+      notifier.value = duration;
+    } else {
+      assert(_lastTimer == null);
+      _lastTimer = SecondsCountdownTimer(
+        duration: duration,
+        durationChanged: (countdownDuration) {
+          notifier.value = countdownDuration;
+        },
+      );
+    }
   }
 }

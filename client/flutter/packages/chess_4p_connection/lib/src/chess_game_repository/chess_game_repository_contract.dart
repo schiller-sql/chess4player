@@ -14,6 +14,7 @@ abstract class IChessGameRepository {
   bool get canMove;
   int get playerOnTurn;
   List<Player?> get players;
+  List<Player?> get playersFromOwnPerspective;
   int get firstNonImplementedUpdate;
   ReadableBoard get board;
   String? get gameEnd;

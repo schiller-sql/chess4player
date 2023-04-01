@@ -17,4 +17,5 @@ class Game {
     );
     return Direction.fromInt(playerIndex - ownPlayerPosition);
   }
+
 }
