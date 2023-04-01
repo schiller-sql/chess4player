@@ -226,6 +226,8 @@ func (g *Game) game(clients map[*domain.Client]string, timePerPlayer uint) {
 }
 
 func (s *gameState) remainingTime() uint {
+	// TODO: method is called multiple times, once to send to clients
+	// TODO: and a second time to save in the gameState
 	now := time.Now()
 	passedTime := uint(now.Sub(s.lastTurnTimestamp).Milliseconds())
 	return s.playerTime[s.whoseTurn] - passedTime
@@ -254,10 +256,12 @@ type gameTurn struct {
 
 func (s *gameState) firstTurn() {
 	s.whoseTurn = 3
+	s.lastTurnTimestamp = time.Now()
 	s.nextTurn()
 }
 
 func (s *gameState) nextTurn() {
+	s.playerTime[s.whoseTurn] = s.remainingTime()
 	turn := s.whoseTurn + 1
 	if turn == 4 {
 		turn = 0
