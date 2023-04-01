@@ -80,7 +80,7 @@ class PlayerRoomWaitingPage extends StatelessWidget {
         color2: NordColors.$2,
         child: Center(
           child: ChessLoadingAnimation(
-            pieces: pieceSet,
+            pieces: playerStyles,
             size: 150,
           ),
         ),

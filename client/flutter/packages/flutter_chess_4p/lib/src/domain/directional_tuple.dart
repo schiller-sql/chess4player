@@ -24,7 +24,7 @@ class DirectionalTuple<E> {
         );
 
   E getFromInt(int? i) {
-    if(i == null) {
+    if (i == null) {
       return inactive;
     }
     assert(i >= 0);
@@ -56,11 +56,29 @@ class DirectionalTuple<E> {
     }
   }
 
-  // E getDirection(Direction direction) {
-  //   return _get(direction)!;
-  // }
+  DirectionalTuple<T> map<T>(T Function(E e) mapFunction) {
+    return DirectionalTuple(
+      mapFunction(up),
+      mapFunction(right),
+      mapFunction(down),
+      mapFunction(left),
+      mapFunction(inactive),
+    );
+  }
 
-  // E getDirectionWithDefault(Direction direction, E alt) {
-  //   return _get(direction) ?? alt;
-  // }
+  DirectionalTuple<E> copyWith({
+    E? up,
+    E? right,
+    E? down,
+    E? left,
+    E? inactive,
+  }) {
+    return DirectionalTuple(
+      up ?? this.up,
+      right ?? this.right,
+      down ?? this.down,
+      left ?? this.left,
+      inactive ?? this.inactive,
+    );
+  }
 }

@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:chess_vectors_flutter/chess_vectors_flutter.dart';
 
 import 'directional_tuple.dart';
-import 'piece_set.dart';
+import 'player_styles.dart';
 
-class WikiColoredPieceSet extends PieceSet {
-  static const DirectionalTuple<Color> _defaultStrokeColor =
+class WikiPiecesPlayerStyles extends PlayerStyles {
+  static const DirectionalTuple<Color> defaultAccentColors =
       DirectionalTuple.all(Colors.black);
-  static const DirectionalTuple<Color> _defaultFillColor = DirectionalTuple(
+  static const DirectionalTuple<Color> defaultBaseColors = DirectionalTuple(
     Colors.blue,
     Colors.yellow,
     Colors.green,
@@ -16,18 +16,19 @@ class WikiColoredPieceSet extends PieceSet {
     Colors.grey,
   );
 
-  // static const DirectionalTuple<double> _defaultStrokeWidth =
-  //     DirectionalTuple.all(4);
-
+  final DirectionalTuple<Color> _playerColors;
+  final DirectionalTuple<Color> _playerAccentColors;
   final Map<PieceType, DirectionalTuple<Widget>> _pieces;
 
-  WikiColoredPieceSet({
-    DirectionalTuple<Color> strokeColor = _defaultStrokeColor,
-    DirectionalTuple<Color> fillColor = _defaultFillColor,
-  }) : _pieces = _pieceMapFrom(
-          strokeColor,
-          fillColor,
-        );
+  WikiPiecesPlayerStyles({
+    DirectionalTuple<Color> baseColors = defaultBaseColors,
+    DirectionalTuple<Color> accentColors = defaultAccentColors,
+  })  : _pieces = _pieceMapFrom(
+          accentColors,
+          baseColors,
+        ),
+        _playerColors = baseColors,
+        _playerAccentColors = accentColors;
 
   @override
   Widget createPiece(PieceType pieceType, Direction? direction) {
@@ -45,7 +46,7 @@ class WikiColoredPieceSet extends PieceSet {
         _createPiece(pieceType, strokeColor.right, fillColor.right),
         _createPiece(pieceType, strokeColor.down, fillColor.down),
         _createPiece(pieceType, strokeColor.left, fillColor.left),
-        _createPiece(pieceType, strokeColor.left, fillColor.inactive),
+        _createPiece(pieceType, strokeColor.inactive, fillColor.inactive),
       );
     }
     return pieceMap;
@@ -81,5 +82,15 @@ class WikiColoredPieceSet extends PieceSet {
       key: UniqueKey(),
       child: widget,
     );
+  }
+
+  @override
+  Color getPlayerColor(Direction? playerDirection) {
+    return _playerColors.get(playerDirection);
+  }
+
+  @override
+  Color getPlayerAccentColor(Direction? playerDirection) {
+    return _playerAccentColors.get(playerDirection);
   }
 }

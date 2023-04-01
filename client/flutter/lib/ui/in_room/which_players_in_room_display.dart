@@ -40,7 +40,7 @@ class WhichPlayersInRoomDisplay extends StatelessWidget {
                           child: Icon(
                             Icons.arrow_upward_sharp,
                             size: 90,
-                            color: pieceColors.getFromInt(i),
+                            color: baseColors.getFromInt(i),
                           ),
                         ),
                       ),

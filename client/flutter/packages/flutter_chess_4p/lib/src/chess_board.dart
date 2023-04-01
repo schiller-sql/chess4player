@@ -4,15 +4,20 @@ import 'package:flutter_chess_4p/src/accessible_positions_painter.dart';
 import 'package:chess_4p/chess_4p.dart';
 
 import 'chess_board_painter.dart';
-import 'domain/piece_set.dart';
+import 'domain/chess_board_color_style.dart';
+import 'domain/player_styles.dart';
+import 'seconds_countdown_timer.dart';
+import 'duration_simple_format_extension.dart';
 
 class ChessBoard extends StatefulWidget {
-  final PieceSet pieceSet;
+  final PlayerStyles playerStyles;
+  final ChessBoardColorStyle colorStyle;
   final IChessGameRepository chessGameRepository;
 
   const ChessBoard({
     Key? key,
-    required this.pieceSet,
+    required this.playerStyles,
+    this.colorStyle = const ChessBoardColorStyle(),
     required this.chessGameRepository,
   }) : super(key: key);
 
@@ -97,18 +102,15 @@ class _ChessBoardState extends State<ChessBoard>
     Widget? child;
     if (!board.isEmpty(x, y)) {
       final piece = board.getPiece(x, y);
-      child = widget.pieceSet.createPiece(
+      child = widget.playerStyles.createPiece(
         piece.type,
         piece.isDead ? null : piece.direction,
       );
     }
     if (selectedField?.x == x && selectedField?.y == y) {
-      child = Opacity(
-        opacity: 0.6,
-        child: ColoredBox(
-          color: Colors.green,
-          child: child,
-        ),
+      child = ColoredBox(
+        color: widget.colorStyle.selectedFieldColor,
+        child: child,
       );
     }
     if (boardAnalyzer.canAnalyze(x, y)) {
@@ -198,7 +200,7 @@ class _ChessBoardState extends State<ChessBoard>
                     ])
                       _buildPromotionDialogSection(
                         child: SizedBox.expand(
-                          child: widget.pieceSet.createPiece(
+                          child: widget.playerStyles.createPiece(
                             pieceType,
                             Direction.up,
                           ),
@@ -219,10 +221,10 @@ class _ChessBoardState extends State<ChessBoard>
   Widget build(BuildContext context) {
     return CustomPaint(
       foregroundPainter: AccessiblePositionsPainter(selectableFields),
-      painter: const ChessBoardPainter(
-        backgroundTileColor2: Colors.black,
-        backgroundTileColor1: Colors.white,
-        backgroundColor: Colors.grey,
+      painter: ChessBoardPainter(
+        backgroundTileColor2: widget.colorStyle.fieldColor1,
+        backgroundTileColor1: widget.colorStyle.fieldColor2,
+        backgroundColor: widget.colorStyle.backgroundColor,
       ),
       child: AspectRatio(
         aspectRatio: 1,

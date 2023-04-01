@@ -21,8 +21,8 @@ class _GamePageState extends State<GamePage> {
         children: [
           ChessBoard(
             chessGameRepository: context.read<ChessGameRepository>(),
-            pieceSet: DirectionOffsetPieceSet(
-              baseSet: theme.pieceSet,
+            playerStyles: DirectionOffsetPlayerStyles(
+              baseSet: theme.playerStyles,
               offset:
                   context.read<ChessGameRepository>().game.ownPlayerPosition,
             ),
