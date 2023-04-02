@@ -265,55 +265,79 @@ class _ChessBoardState extends State<ChessBoard>
     final playerDirection = Direction.fromInt(playerIndex);
     var backgroundColor = widget.playerStyles.getPlayerColor(playerDirection);
     var color = widget.playerStyles.getPlayerAccentColor(playerDirection);
-    if(player.isOnTurn) {
+    if (!player.isOnTurn) {
       final tempBackgroundColor = backgroundColor;
-      backgroundColor = color;
-      color = tempBackgroundColor;
+      backgroundColor = color.withAlpha(180);
+      color = tempBackgroundColor.withAlpha(100);
     }
-    if(player.hasLost) {
-      backgroundColor = widget.playerStyles.getPlayerColor(null);
-      color = widget.playerStyles.getPlayerAccentColor(null);
+    if (player.hasLost) {
+      backgroundColor = widget.colorStyle.inactiveBaseTextColor ??
+          widget.playerStyles.getPlayerColor(null);
+      color = widget.colorStyle.inactiveAccentTextColor ??
+          widget.playerStyles.getPlayerAccentColor(null).withAlpha(200);
+    }
+    final isOnTopOfBoard = playerIndex == 1 || playerIndex == 2;
+    final isLeftOfBoard = playerIndex <= 1;
+    var children = [
+      Text(
+        player.name,
+        style: TextStyle(
+          color: backgroundColor,
+          fontWeight: FontWeight.w700,
+          fontSize: 24,
+        ),
+      ),
+      const SizedBox(height: 8),
+      Container(
+        width: 116,
+        color: backgroundColor,
+        padding: const EdgeInsets.all(8),
+        child: AnimatedBuilder(
+          animation: notifier,
+          builder: (context, child) {
+            return Wrap(
+              children: [
+                Icon(
+                  Icons.schedule,
+                  size: 28,
+                  color: color,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  notifier.value.hoursAndMinutesFormat(),
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: color,
+                    decoration: TextDecoration.none,
+                    fontWeight: player.isOnTurn
+                        ? FontWeight.w700
+                        : (player.isOut ? FontWeight.w500 : FontWeight.w600),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    ];
+    if (!isOnTopOfBoard) {
+      children = [...children.reversed];
     }
     return Align(
       alignment: _playerAlignments[playerIndex],
       child: FractionallySizedBox(
         widthFactor: 3 / 14,
         heightFactor: 3 / 14,
-        child: Container(
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            border: null,
-          ),
-          padding: const EdgeInsets.all(16),
-          width: double.infinity,
+        child: Padding(
+          padding: const EdgeInsets.all(8),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                playerName,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: color,
-                  decoration: TextDecoration.none,
-                  fontWeight: player.isOut ? FontWeight.w500 : FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 8),
-              AnimatedBuilder(
-                animation: notifier,
-                builder: (context, child) {
-                  return Text(
-                    notifier.value.hoursAndMinutesFormat(),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: color,
-                      decoration: TextDecoration.none,
-                      fontWeight: player.isOut ? FontWeight.w500 : FontWeight.w700,
-                    ),
-                  );
-                },
-              ),
-            ],
+            crossAxisAlignment: isLeftOfBoard
+                ? CrossAxisAlignment.end
+                : CrossAxisAlignment.start,
+            mainAxisAlignment: isOnTopOfBoard
+                ? MainAxisAlignment.end
+                : MainAxisAlignment.start,
+            children: children,
           ),
         ),
       ),
