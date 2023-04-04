@@ -381,7 +381,7 @@ Content:
 
 # `game`
 
-### `started```
+### `started`
 
 The game has started and the time is running for the first player.
 
