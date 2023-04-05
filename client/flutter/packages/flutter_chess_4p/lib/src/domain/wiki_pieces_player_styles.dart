@@ -18,12 +18,12 @@ class WikiPiecesPlayerStyles extends PlayerStyles {
 
   final DirectionalTuple<Color> _playerColors;
   final DirectionalTuple<Color> _playerAccentColors;
-  final Map<PieceType, DirectionalTuple<Widget>> _pieces;
+  final List<DirectionalTuple<Widget>> _pieces;
 
   WikiPiecesPlayerStyles({
     DirectionalTuple<Color> baseColors = defaultBaseColors,
     DirectionalTuple<Color> accentColors = defaultAccentColors,
-  })  : _pieces = _pieceMapFrom(
+  })  : _pieces = _pieceListFrom(
           accentColors,
           baseColors,
         ),
@@ -32,24 +32,25 @@ class WikiPiecesPlayerStyles extends PlayerStyles {
 
   @override
   Widget createPiece(PieceType pieceType, Direction? direction) {
-    return _pieces[pieceType]!.get(direction);
+    return _pieces[pieceType.index].get(direction);
   }
 
-  static Map<PieceType, DirectionalTuple<Widget>> _pieceMapFrom(
+  static List<DirectionalTuple<Widget>> _pieceListFrom(
     DirectionalTuple<Color> strokeColor,
     DirectionalTuple<Color> fillColor,
   ) {
-    final pieceMap = <PieceType, DirectionalTuple<Widget>>{};
+    final pieceList = <DirectionalTuple<Widget>>[];
     for (final pieceType in PieceType.values) {
-      pieceMap[pieceType] = DirectionalTuple(
+      final pieceTuple = DirectionalTuple(
         _createPiece(pieceType, strokeColor.up, fillColor.up),
         _createPiece(pieceType, strokeColor.right, fillColor.right),
         _createPiece(pieceType, strokeColor.down, fillColor.down),
         _createPiece(pieceType, strokeColor.left, fillColor.left),
         _createPiece(pieceType, strokeColor.inactive, fillColor.inactive),
       );
+      pieceList.add(pieceTuple);
     }
-    return pieceMap;
+    return List.unmodifiable(pieceList);
   }
 
   static Widget _createPiece(
