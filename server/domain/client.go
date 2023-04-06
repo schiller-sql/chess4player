@@ -3,11 +3,13 @@ package domain
 import (
 	"github.com/gorilla/websocket"
 	"log"
+	"sync"
 )
 
 type Client struct {
 	Conn    *websocket.Conn
 	Handler Handler
+	sync.Mutex
 }
 
 type Message struct {
@@ -27,42 +29,37 @@ type ClientEvent struct {
 	Client  *Client
 }
 
-func (this *Client) Read() {
-	defer func() {
-		// TODO: fehlt was?
-		this.Disconnect()
-	}()
-
+func (c *Client) Read() {
 	for {
 		var input Message
-		err := this.Conn.ReadJSON(&input)
+		err := c.Conn.ReadJSON(&input)
 		if err != nil {
 			log.Println("ERROR ", err)
-			this.Disconnect()
+			c.Disconnect()
+			c.Handler.Unregister(c)
 			return
 		}
-		this.Handler.Input(ClientEvent{input, this})
+		c.Handler.Input(ClientEvent{input, c})
 	}
 }
 
-// TODO: allowed for multiple writes parallel?
-// TDOO: does mutex have to be used on client????
-func (this *Client) Write(returnType string, returnSubType string, returnContent interface{}) {
-	err := this.Conn.WriteJSON(returnMessage{
+func (c *Client) Write(returnType string, returnSubType string, returnContent interface{}) {
+	c.Mutex.Lock()
+	err := c.Conn.WriteJSON(returnMessage{
 		Type:    returnType,
 		SubType: returnSubType,
 		Content: returnContent,
 	})
 	if err != nil {
 		log.Println("ERROR ", err)
-		return
 	}
+	c.Mutex.Unlock()
 }
 
-func (this *Client) Disconnect() {
+func (c *Client) Disconnect() {
 	log.Println("DEBUG disconnecting client")
-	this.Handler.Unregister(this)
-	err := this.Conn.Close()
+	c.Handler.Unregister(c)
+	err := c.Conn.Close()
 	if err != nil {
 		log.Println("ERROR ", err)
 		return
