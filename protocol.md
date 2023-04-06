@@ -1,4 +1,4 @@
-# Web-socket protocol of chess4player v1.2.0
+# Web-socket protocol of chess4player v1.3.0
 
 ## Connection to the server
 
@@ -156,6 +156,8 @@ if all players remaining in the game,
 have at some point accepted the accepted the draw,
 the game ends.
 A person that has requested has already accepted a draw.
+
+Draw requests are only sent to players who have not lost.
 
 #### Invalid moves
 
