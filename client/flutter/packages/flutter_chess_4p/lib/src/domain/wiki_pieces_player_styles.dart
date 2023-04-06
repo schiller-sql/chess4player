@@ -32,7 +32,7 @@ class WikiPiecesPlayerStyles extends PlayerStyles {
 
   @override
   Widget createPiece(PieceType pieceType, Direction? direction) {
-    return _pieces[pieceType.index].get(direction);
+    return _pieces[pieceType.index][direction];
   }
 
   static List<DirectionalTuple<Widget>> _pieceListFrom(
@@ -87,11 +87,11 @@ class WikiPiecesPlayerStyles extends PlayerStyles {
 
   @override
   Color getPlayerColor(Direction? playerDirection) {
-    return _playerColors.get(playerDirection);
+    return _playerColors[playerDirection];
   }
 
   @override
   Color getPlayerAccentColor(Direction? playerDirection) {
-    return _playerAccentColors.get(playerDirection);
+    return _playerAccentColors[playerDirection];
   }
 }

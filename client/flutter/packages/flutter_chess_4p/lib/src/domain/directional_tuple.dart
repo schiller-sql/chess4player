@@ -41,7 +41,7 @@ class DirectionalTuple<E> {
     }
   }
 
-  E get(Direction? direction) {
+  operator [](Direction? direction) {
     switch (direction) {
       case Direction.up:
         return up;
