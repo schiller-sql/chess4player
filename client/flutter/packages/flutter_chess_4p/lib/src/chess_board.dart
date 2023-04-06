@@ -26,7 +26,7 @@ class ChessBoard extends StatefulWidget {
 }
 
 class _ChessBoardState extends State<ChessBoard>
-    implements ChessGameRepositoryListener {
+    with DefaultChessGameRepositoryListener {
   IChessGameRepository get repo => widget.chessGameRepository;
   ReadableBoard get board => repo.board;
   BoardAnalyzer get boardAnalyzer => repo.boardAnalyzer;
@@ -284,10 +284,10 @@ class _ChessBoardState extends State<ChessBoard>
         style: TextStyle(
           color: backgroundColor,
           fontWeight: FontWeight.w700,
-          fontSize: 24,
+          fontSize: 20,
         ),
       ),
-      const SizedBox(height: 8),
+      const SizedBox(height: 4),
       Container(
         width: 116,
         color: backgroundColor,

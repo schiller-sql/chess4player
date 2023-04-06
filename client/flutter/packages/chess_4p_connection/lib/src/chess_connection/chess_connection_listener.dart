@@ -32,4 +32,7 @@ abstract class ChessConnectionListener {
 
   /// See protocol: type: game, subtype: player-resigned
   void playerResign(String playerName) {}
+
+  /// See protocol: type: game, subtype: draw-request
+  void drawRequest(String requesterName) {}
 }

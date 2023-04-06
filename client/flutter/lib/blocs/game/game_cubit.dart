@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 part 'game_state.dart';
 
-class GameCubit extends Cubit<GameState> implements ChessGameRepositoryListener {
+class GameCubit extends Cubit<GameState> with DefaultChessGameRepositoryListener {
   final IChessGameRepository chessGameRepository;
   final IChessGameStartRepository chessGameStartRepository;
   late final StreamSubscription _chessGameStartSub;

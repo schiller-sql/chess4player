@@ -1,19 +1,17 @@
 import 'dart:async';
 
-import 'package:chess_4p_connection/src/chess_connection/domain/raw_move.dart';
 import 'package:chess_4p_connection/src/chess_room_repository/errors/room_disbanded_exception.dart';
 
 import '../chess_connection/chess_connection.dart';
 import '../chess_connection/chess_connection_listener.dart';
-import '../chess_connection/domain/turn.dart';
 import 'chess_room_repository_contract.dart';
 import 'domain/room.dart';
 import 'domain/room_update.dart';
 import 'domain/room_update_type.dart';
 import 'errors/room_join_exception.dart';
 
-class ChessRoomRepository
-    implements IChessRoomRepository, ChessConnectionListener {
+class ChessRoomRepository extends ChessConnectionListener
+    implements IChessRoomRepository {
   @override
   bool isJoiningRoom = false;
 
@@ -189,17 +187,5 @@ class ChessRoomRepository
         ),
       );
     }
-  }
-
-  @override
-  void gameStarted(Duration time, List<String?> playerOrder) {
-  }
-
-  @override
-  void gameUpdate(String? gameEnd, List<Turn> turns) {
-  }
-
-  @override
-  void playerResign(String playerName) {
   }
 }

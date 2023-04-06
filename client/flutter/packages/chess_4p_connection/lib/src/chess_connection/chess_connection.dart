@@ -142,6 +142,12 @@ class ChessConnection {
               listener.gameStarted(time, playerOrder);
             }
             break;
+          case "draw-requested":
+            final requester = content["requester"];
+            for (final listener in _listeners) {
+              listener.drawRequest(requester);
+            }
+            break;
         }
         break;
     }

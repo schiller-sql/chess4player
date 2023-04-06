@@ -1,11 +1,11 @@
 import 'package:chess_4p/chess_4p.dart';
-import 'package:chess_4p_connection/src/chess_game_repository/chess_game_repository_contract.dart';
+import '../chess_connection/chess_connection_listener.dart';
 import '../util/list_shift_extension.dart';
 
 import '../chess_connection/chess_connection.dart';
-import '../chess_connection/chess_connection_listener.dart';
 import '../chess_connection/domain/turn.dart';
 import '../chess_game_start_repository/domain/game.dart';
+import 'chess_game_repository_contract.dart';
 import 'domain/player.dart';
 
 class ChessGameRepository extends ChessConnectionListener
@@ -39,6 +39,7 @@ class ChessGameRepository extends ChessConnectionListener
 
   final List<ChessGameRepositoryListener> _listeners = [];
   final ChessConnection connection;
+  @override
   Game game;
 
   Player get _currentPlayer => players[playerOnTurn]!;
@@ -188,6 +189,12 @@ class ChessGameRepository extends ChessConnectionListener
     this.gameEnd = gameEnd;
     for (final turn in turns) {
       turn.lostPlayers.forEach((name, lostReason) {
+        if (gameEnd == null) {
+          final isSelf = playersFromOwnPerspective[0]!.name == name;
+          for (final listener in _listeners) {
+            listener.playerLost(name, isSelf, lostReason);
+          }
+        }
         for (final player in players) {
           if (player == null) continue;
           if (player.name == name) {
@@ -237,8 +244,12 @@ class ChessGameRepository extends ChessConnectionListener
   void playerResign(String playerName) {
     for (var player in players) {
       if (player?.name == playerName) {
-        player?.lostReason = "resign";
+        player?.lostReason = "resigned";
       }
+    }
+    final isSelf = playersFromOwnPerspective[0]!.name == playerName;
+    for (final listener in _listeners) {
+      listener.playerLost(playerName, isSelf, "resigned");
     }
     final playerDirection = game.getDirectionFromPlayerName(playerName);
     final update = BoardUpdate(
@@ -297,5 +308,43 @@ class ChessGameRepository extends ChessConnectionListener
     //   analyzingDirection: Direction.up,
     // );
     // _changed();
+  }
+
+  @override
+  void resign() {
+    _lastUpdateNotAffirmed = true;
+    final update = BoardUpdate(
+      eliminatedPlayers: {Direction.fromInt(game.ownPlayerPosition)},
+    );
+    _addNewBoardUpdate(update);
+    _changed();
+    connection.resignGame();
+  }
+
+  @override
+  void drawRequest(String requesterName) {
+    final ownPlayer = playersFromOwnPerspective[0]!;
+    if(ownPlayer.hasLost) return;
+    final ownName = ownPlayer.name;
+    final isRequester = ownName == requesterName;
+    for (final listener in _listeners) {
+      listener.drawRequest(requesterName, isRequester);
+    }
+  }
+
+  bool _hasAcceptedDraw = false;
+
+  @override
+  void acceptDraw() {
+    if (_hasAcceptedDraw) return;
+    _hasAcceptedDraw = true;
+    connection.drawGameAccept();
+  }
+
+  @override
+  void requestDraw() {
+    if (_hasAcceptedDraw) return;
+    _hasAcceptedDraw = true;
+    connection.drawGameRequest();
   }
 }

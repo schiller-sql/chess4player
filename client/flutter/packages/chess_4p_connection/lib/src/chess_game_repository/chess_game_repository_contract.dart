@@ -7,6 +7,25 @@ abstract class ChessGameRepositoryListener {
   void changed(IChessGameRepository chessGameRepository);
 
   void timerChange(String player, Duration duration, bool hasStarted);
+
+  void drawRequest(String player, bool isOwnRequest);
+
+  void playerLost(String player, bool isSelf, String reason);
+}
+
+mixin DefaultChessGameRepositoryListener
+    implements ChessGameRepositoryListener {
+  @override
+  void changed(IChessGameRepository chessGameRepository) {}
+
+  @override
+  void timerChange(String player, Duration duration, bool hasStarted) {}
+
+  @override
+  void drawRequest(String player, bool isOwnRequest) {}
+
+  @override
+  void playerLost(String player, bool isSelf, String reason) {}
 }
 
 abstract class IChessGameRepository {
@@ -33,4 +52,10 @@ abstract class IChessGameRepository {
   void addListener(ChessGameRepositoryListener listener);
 
   void removeListener(ChessGameRepositoryListener listener);
+
+  void resign();
+
+  void acceptDraw();
+
+  void requestDraw();
 }
