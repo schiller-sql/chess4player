@@ -53,9 +53,7 @@ func StartGame(clients map[*domain.Client]string, time uint) *Game {
 type gameState struct {
 	board             *board.Board
 	clients           map[*domain.Client]string
-	clientIsNotInRoom map[*domain.Client]bool
 	playerOrder       [4]*player
-	acceptedDraw      [4]bool
 	playerTime        [4]uint
 	whoseTurn         int
 	lastTurnTimestamp time.Time
@@ -64,12 +62,13 @@ type gameState struct {
 }
 
 type player struct {
-	name   string
-	client *domain.Client
+	name         string
+	client       *domain.Client
+	acceptedDraw bool
 }
 
 func (g *Game) game(clients map[*domain.Client]string, timePerPlayer uint) {
-	state := gameState{clients: clients, clientIsNotInRoom: map[*domain.Client]bool{}}
+	state := gameState{clients: clients}
 
 	for i := 0; i < 4; i++ {
 		state.playerTime[i] = timePerPlayer
@@ -132,7 +131,7 @@ func (g *Game) game(clients map[*domain.Client]string, timePerPlayer uint) {
 				if playerNumber == -1 {
 					break
 				}
-				state.clientIsNotInRoom[leftGame] = true
+				delete(state.clients, leftGame)
 				state.playerHasLost(playerNumber, false)
 			}
 		case message := <-g.message:
@@ -189,31 +188,11 @@ func (g *Game) game(clients map[*domain.Client]string, timePerPlayer uint) {
 					state.playerHasLost(playerNumber, false)
 				}
 			case "draw-request":
-				m := map[string]interface{}{
-					"requester": clients[message.Client],
-				}
-				for client := range clients {
-					client.Write("game", "draw-requested", m)
-				}
-				// TODO: suspekt
+				state.drawAction(message.Client, true)
+				break
 			case "draw-accept":
-				allAccepted := true
-				for i := 0; i < 4; i++ {
-					if state.playerOrder[i] != nil {
-						if state.playerOrder[i].client == message.Client {
-							state.acceptedDraw[i] = true
-						} else if !state.acceptedDraw[i] {
-							allAccepted = false
-						}
-					}
-				}
-				if allAccepted {
-					gameEndReason := "draw"
-					state.sendGameUpdate(gameTurn{
-						RemainingTime: state.remainingTime(),
-					}, &gameEndReason)
-					state.gameHasEnded = true
-				}
+				state.drawAction(message.Client, false)
+				break
 			}
 		case <-g.forceGameEnd:
 			state.gameHasEnded = true
@@ -223,6 +202,36 @@ func (g *Game) game(clients map[*domain.Client]string, timePerPlayer uint) {
 	g.m.Lock()
 	g.hasEnded = true
 	g.m.Unlock()
+}
+
+func (s *gameState) drawAction(sender *domain.Client, wasRequest bool) {
+	for _, p := range s.playerOrder {
+		if p != nil && p.client == sender {
+			p.acceptedDraw = true
+		}
+	}
+	if s.allPlayersAcceptedDraw() {
+		gameEndReason := "draw"
+		s.sendGameUpdate(gameTurn{
+			RemainingTime:    s.remainingTime(),
+			LostParticipants: map[string]string{},
+		}, &gameEndReason)
+		s.gameHasEnded = true
+	} else if wasRequest {
+		m := map[string]interface{}{
+			"requester": s.clients[sender],
+		}
+		s.sendToAllPlayers("draw-requested", m)
+	}
+}
+
+func (s *gameState) allPlayersAcceptedDraw() bool {
+	for _, p := range s.playerOrder {
+		if p != nil && !p.acceptedDraw {
+			return false
+		}
+	}
+	return true
 }
 
 func (s *gameState) remainingTime() uint {
@@ -357,9 +366,7 @@ func (s *gameState) sendResign(name string) {
 	message := map[string]interface{}{
 		"participant": name,
 	}
-	for client := range s.clients {
-		client.Write("game", "player-resigned", message)
-	}
+	s.sendAllInRoom("player-resigned", message)
 }
 
 type gameUpdate struct {
@@ -368,13 +375,23 @@ type gameUpdate struct {
 }
 
 func (s *gameState) sendGameUpdate(turn gameTurn, gameEnd *string) {
+	gameUpdate := gameUpdate{
+		Turns:   []gameTurn{turn},
+		GameEnd: gameEnd,
+	}
+	s.sendAllInRoom("game-update", gameUpdate)
+}
+
+func (s *gameState) sendAllInRoom(returnSubType string, message interface{}) {
 	for client := range s.clients {
-		_, ok := s.clientIsNotInRoom[client]
-		if !ok {
-			client.Write("game", "game-update", gameUpdate{
-				Turns:   []gameTurn{turn},
-				GameEnd: gameEnd,
-			})
+		client.Write("game", returnSubType, message)
+	}
+}
+
+func (s *gameState) sendToAllPlayers(returnSubType string, message interface{}) {
+	for _, p := range s.playerOrder {
+		if p != nil {
+			p.client.Write("game", returnSubType, message)
 		}
 	}
 }
