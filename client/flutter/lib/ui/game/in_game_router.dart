@@ -4,6 +4,7 @@ import 'package:chess/ui/game/game_page.dart';
 import 'package:chess_4p_connection/chess_4p_connection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_chess_4p/flutter_4p_chess.dart';
 import 'package:flutter_nord_theme/flutter_nord_theme.dart';
 
 import '../../blocs/game/game_cubit.dart';
@@ -13,7 +14,6 @@ import '../../blocs/in_room/in_room_cubit.dart';
 import '../../blocs/join_game/join_game_cubit.dart';
 import '../../blocs/room/room_cubit.dart';
 import '../../theme/chess_theme.dart' as theme;
-import '../../widgets/custom_icons/chess_icons.dart';
 
 class InGameRouter extends StatefulWidget {
   const InGameRouter({Key? key}) : super(key: key);

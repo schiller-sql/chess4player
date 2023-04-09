@@ -46,9 +46,3 @@ flutter:
   assets:
   # config
     - ../.env
-
-  fonts:
-  # custom icons
-    - family: ChessIcons
-      fonts:
-        - asset: ttf/ChessIcons.ttf

@@ -5,6 +5,7 @@ import 'package:flutter_chess_4p/src/accessible_positions_painter.dart';
 import 'package:chess_4p/chess_4p.dart';
 
 import 'chess_board_painter.dart';
+import 'chess_icons.dart';
 import 'domain/chess_board_color_style.dart';
 import 'domain/player_styles.dart';
 import 'seconds_countdown_timer.dart';
@@ -279,15 +280,37 @@ class _ChessBoardState extends State<ChessBoard>
     }
     final isOnTopOfBoard = playerIndex == 1 || playerIndex == 2;
     final isLeftOfBoard = playerIndex <= 1;
-    var children = [
-      Text(
-        player.name,
-        style: TextStyle(
-          color: backgroundColor,
-          fontWeight: FontWeight.w700,
-          fontSize: 20,
-        ),
+    Widget nameDisplay = Text(
+      player.name,
+      style: TextStyle(
+        color: backgroundColor,
+        fontWeight: FontWeight.w700,
+        fontSize: 20,
       ),
+    );
+    if (player.hasLost) {
+      final nameDisplayIconData = player.lostReason == "resign"
+          ? Icons.flag
+          : ChessIcons.fallen_filled_king;
+      var nameDisplayChildren = [
+        nameDisplay,
+        const SizedBox(width: 4),
+        Icon(
+          nameDisplayIconData,
+          color: backgroundColor,
+          size: 24,
+        ),
+      ];
+      if (isLeftOfBoard) {
+        nameDisplayChildren = nameDisplayChildren.reversed.toList();
+      }
+      nameDisplay = Row(
+        mainAxisSize: MainAxisSize.min,
+        children: nameDisplayChildren,
+      );
+    }
+    var children = [
+      nameDisplay,
       const SizedBox(height: 4),
       Container(
         width: 116,
