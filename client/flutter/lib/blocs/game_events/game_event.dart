@@ -1,25 +1,32 @@
 part of 'game_events_bloc.dart';
 
-class GameEvent {}
+abstract class GameEvent {
+  final String playerName;
+  final Direction playerDirection;
+  final bool isSelf;
+
+  GameEvent({
+    required this.isSelf,
+    required this.playerName,
+    required this.playerDirection,
+  });
+}
 
 class PlayerLostEvent extends GameEvent {
-  final bool isSelf;
-  final String playerName;
   final String reason;
 
   PlayerLostEvent({
-    required this.isSelf,
-    required this.playerName,
     required this.reason,
+    required super.isSelf,
+    required super.playerName,
+    required super.playerDirection,
   });
 }
 
 class DrawRequestEvent extends GameEvent {
-  final bool selfRequested;
-  final String playerName;
-
   DrawRequestEvent({
-    required this.selfRequested,
-    required this.playerName,
+    required super.isSelf,
+    required super.playerName,
+    required super.playerDirection,
   });
 }

@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:chess_4p/chess_4p.dart';
 import 'package:chess_4p_connection/chess_4p_connection.dart';
 import 'package:flutter/material.dart';
 
@@ -12,15 +13,25 @@ class GameEventsBloc extends Bloc<GameEvent, GameEventsState>
   GameEventsBloc({
     required this.chessGameRepository,
   }) : super(const NoEvent()) {
-    on<DrawRequestEvent>((event, emit) async {
-      emit(ShowEvent(event));
-      await Future.delayed(const Duration(milliseconds: 5000));
-      emit(const NoEvent());
+    on<DrawRequestEvent>((event, emit) {
+      final Duration duration;
+      if (event.isSelf) {
+        duration = const Duration(milliseconds: 4000);
+      } else {
+        duration = const Duration(milliseconds: 15000);
+      }
+      emit(ShowEvent(duration: duration, eventData: event));
+      return Future.delayed(duration);
     });
-    on<PlayerLostEvent>((event, emit) async {
-      emit(ShowEvent(event));
-      await Future.delayed(const Duration(milliseconds: 1000));
-      emit(const NoEvent());
+    on<PlayerLostEvent>((event, emit) {
+      final Duration duration;
+      if (event.isSelf) {
+        duration = const Duration(milliseconds: 4000);
+      } else {
+        duration = const Duration(milliseconds: 7000);
+      }
+      emit(ShowEvent(eventData: event, duration: duration));
+      return Future.delayed(duration);
     });
   }
 
@@ -34,12 +45,19 @@ class GameEventsBloc extends Bloc<GameEvent, GameEventsState>
     return super.close();
   }
 
+  Direction playerDirectionFromName(String playerName) {
+    final playerIndex = chessGameRepository.players
+        .indexWhere((player) => player?.name == playerName);
+    return Direction.fromInt(playerIndex);
+  }
+
   @override
   void drawRequest(String player, bool isOwnRequest) {
     add(
       DrawRequestEvent(
-        selfRequested: isOwnRequest,
+        isSelf: isOwnRequest,
         playerName: player,
+        playerDirection: playerDirectionFromName(player),
       ),
     );
   }
@@ -51,6 +69,7 @@ class GameEventsBloc extends Bloc<GameEvent, GameEventsState>
         isSelf: isSelf,
         playerName: player,
         reason: reason,
+        playerDirection: playerDirectionFromName(player),
       ),
     );
   }

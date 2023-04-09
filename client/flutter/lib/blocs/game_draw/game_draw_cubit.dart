@@ -4,20 +4,38 @@ import 'package:flutter/material.dart';
 
 part 'game_draw_state.dart';
 
-class GameDrawCubit extends Cubit<GameDrawState> {
+class GameDrawCubit extends Cubit<GameDrawState>
+    with DefaultChessGameRepositoryListener {
   final IChessGameRepository chessGameRepository;
 
   GameDrawCubit({
     required this.chessGameRepository,
-  }) : super(const GameDrawState(playerHasAcceptedDraw: false));
+  }) : super(const GameDrawState(canDraw: true));
+
+  void startListeningToGame() {
+    chessGameRepository.addListener(this);
+  }
 
   void requestDraw() {
-    emit(const GameDrawState(playerHasAcceptedDraw: true));
+    emit(const GameDrawState(canDraw: false));
     chessGameRepository.requestDraw();
   }
 
   void acceptDraw() {
-    emit(const GameDrawState(playerHasAcceptedDraw: true));
+    emit(const GameDrawState(canDraw: false));
     chessGameRepository.acceptDraw();
+  }
+
+  @override
+  void playerLost(String player, bool isSelf, String reason) {
+    if(isSelf) {
+      emit(const GameDrawState(canDraw: false));
+    }
+  }
+
+  @override
+  Future<void> close() {
+    chessGameRepository.removeListener(this);
+    return super.close();
   }
 }

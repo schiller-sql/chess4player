@@ -97,27 +97,20 @@ class _GamePageState extends State<GamePage> {
                         );
                       },
                     ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.logout_sharp,
-                      ),
-                      tooltip: "leave room",
-                      onPressed: () => showShouldLeaveDialog(context),
-                    ),
                     BlocBuilder<GameDrawCubit, GameDrawState>(
                       builder: (context, state) {
                         return IconButton(
                           icon: const Icon(
                             Icons.handshake_sharp,
                           ),
-                          tooltip: state.playerHasAcceptedDraw
-                              ? "how have already agreed to draw"
-                              : "agree to draw",
-                          onPressed: state.playerHasAcceptedDraw
-                              ? null
-                              : () {
+                          tooltip: state.canDraw
+                              ? "request a draw"
+                              : "how have already agreed to draw",
+                          onPressed: state.canDraw
+                              ? () {
                                   context.read<GameDrawCubit>().requestDraw();
-                                },
+                                }
+                              : null,
                         );
                       },
                     ),
@@ -126,7 +119,7 @@ class _GamePageState extends State<GamePage> {
                         Icons.low_priority_sharp,
                       ),
                       tooltip:
-                          canFitSideBar ? "already showing history" : "history",
+                          canFitSideBar ? "already showing history" : "show history",
                       onPressed: canFitSideBar
                           ? null
                           : () {
@@ -137,6 +130,13 @@ class _GamePageState extends State<GamePage> {
                               );
                               appWindow.position = off;
                             },
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.logout_sharp,
+                      ),
+                      tooltip: "leave room",
+                      onPressed: () => showShouldLeaveDialog(context),
                     ),
                   ],
                 ),

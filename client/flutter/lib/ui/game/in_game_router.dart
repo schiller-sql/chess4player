@@ -4,6 +4,7 @@ import 'package:chess/ui/game/game_page.dart';
 import 'package:chess_4p_connection/chess_4p_connection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_nord_theme/flutter_nord_theme.dart';
 
 import '../../blocs/game/game_cubit.dart';
 import '../../blocs/game_draw/game_draw_cubit.dart';
@@ -11,6 +12,8 @@ import '../../blocs/game_events/game_events_bloc.dart';
 import '../../blocs/in_room/in_room_cubit.dart';
 import '../../blocs/join_game/join_game_cubit.dart';
 import '../../blocs/room/room_cubit.dart';
+import '../../theme/chess_theme.dart' as theme;
+import '../../widgets/custom_icons/chess_icons.dart';
 
 class InGameRouter extends StatefulWidget {
   const InGameRouter({Key? key}) : super(key: key);
@@ -23,11 +26,32 @@ class _InGameRouterState extends State<InGameRouter> {
   late final GameDrawCubit gameDrawCubit;
   late final GameEventsBloc gameEventsCubit;
 
+  Widget _buildTextWithIconInFront({
+    required IconData icon,
+    required String text,
+    required Color color,
+  }) {
+    return RichText(
+      text: TextSpan(
+        style: TextStyle(color: color),
+        children: [
+          WidgetSpan(
+            child: Padding(
+              padding: const EdgeInsets.only(right: 4),
+              child: Icon(icon, color: color, size: 18),
+            ),
+          ),
+          TextSpan(text: text),
+        ],
+      ),
+    );
+  }
+
   @override
   void initState() {
     gameDrawCubit = GameDrawCubit(
       chessGameRepository: context.read<ChessGameRepository>(),
-    );
+    )..startListeningToGame();
     gameEventsCubit = GameEventsBloc(
       chessGameRepository: context.read<ChessGameRepository>(),
     )..startListeningToGame();
@@ -46,18 +70,56 @@ class _InGameRouterState extends State<InGameRouter> {
     return BlocListener<GameEventsBloc, GameEventsState>(
       bloc: gameEventsCubit,
       listener: (context, state) {
-        if (state is NoEvent) {
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        } else if (state is ShowEvent) {
+        if (state is ShowEvent) {
           final event = state.eventData;
+          final canDraw = gameDrawCubit.state.canDraw;
+
           final SnackBar snackBar;
           if (event is DrawRequestEvent) {
+            String text;
+            if (event.isSelf) {
+              text = "You have sent a draw request";
+            } else {
+              text = "${event.playerName} wants to draw";
+              if (!canDraw) {
+                text += " (you have already accepted)";
+              }
+            }
             snackBar = SnackBar(
-              content: Text("${event.playerName} wants to draw"),
+              action: canDraw
+                  ? SnackBarAction(
+                      label: "accept draw",
+                      onPressed: gameDrawCubit.acceptDraw,
+                    )
+                  : null,
+              duration: state.duration,
+              content: Row(
+                children: [
+                  _buildTextWithIconInFront(
+                    icon: Icons.handshake_sharp,
+                    text: text,
+                    color: NordColors.$4,
+                  ),
+                ],
+              ),
             );
           } else if (event is PlayerLostEvent) {
+            final baseColor = theme.baseColors[event.playerDirection];
+            final accentColor = theme.accentColors[event.playerDirection];
+            final hasResigned = event.reason == "resign";
+            final loseReason = hasResigned ? "resigned" : "been set checkmate";
             snackBar = SnackBar(
-              content: Text("${event.playerName} has lost"),
+              duration: state.duration,
+              backgroundColor: baseColor,
+              content: _buildTextWithIconInFront(
+                icon: hasResigned
+                    ? Icons.flag
+                    : ChessIcons.fallen_filled_king,
+                text: event.isSelf
+                    ? "You have $loseReason"
+                    : "${event.playerName} has $loseReason",
+                color: accentColor,
+              ),
             );
           } else {
             throw StateError(
@@ -69,6 +131,7 @@ class _InGameRouterState extends State<InGameRouter> {
       },
       child: BlocListener<GameCubit, GameState>(
         listener: (context, state) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
           if (state is GameHasEnded) {
             showDialog(
               context: context,

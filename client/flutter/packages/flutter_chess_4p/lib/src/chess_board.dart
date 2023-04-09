@@ -1,5 +1,6 @@
 import 'package:chess_4p_connection/chess_4p_connection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_chess_4p/src/accessible_positions_painter.dart';
 import 'package:chess_4p/chess_4p.dart';
 

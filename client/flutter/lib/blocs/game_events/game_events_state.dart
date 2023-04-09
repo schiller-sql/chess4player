@@ -11,7 +11,10 @@ class NoEvent extends GameEventsState {
 
 class ShowEvent extends GameEventsState {
   final GameEvent eventData;
+  final Duration duration;
 
-  const ShowEvent(this.eventData);
+  const ShowEvent({
+    required this.eventData,
+    required this.duration,
+  });
 }
-

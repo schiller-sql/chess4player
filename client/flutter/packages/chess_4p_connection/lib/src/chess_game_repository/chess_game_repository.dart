@@ -244,12 +244,12 @@ class ChessGameRepository extends ChessConnectionListener
   void playerResign(String playerName) {
     for (var player in players) {
       if (player?.name == playerName) {
-        player?.lostReason = "resigned";
+        player?.lostReason = "resign";
       }
     }
     final isSelf = playersFromOwnPerspective[0]!.name == playerName;
     for (final listener in _listeners) {
-      listener.playerLost(playerName, isSelf, "resigned");
+      listener.playerLost(playerName, isSelf, "resign");
     }
     final playerDirection = game.getDirectionFromPlayerName(playerName);
     final update = BoardUpdate(
