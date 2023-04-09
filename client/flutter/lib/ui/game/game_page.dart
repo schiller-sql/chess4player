@@ -103,9 +103,11 @@ class _GamePageState extends State<GamePage> {
                           icon: const Icon(
                             Icons.handshake_sharp,
                           ),
-                          tooltip: state.canDraw
-                              ? "request a draw"
-                              : "how have already agreed to draw",
+                          tooltip: state.didLose
+                              ? "you have already lost"
+                              : (state.canDraw
+                                  ? "request a draw"
+                                  : "how have already agreed to draw"),
                           onPressed: state.canDraw
                               ? () {
                                   context.read<GameDrawCubit>().requestDraw();
@@ -118,8 +120,9 @@ class _GamePageState extends State<GamePage> {
                       icon: const Icon(
                         Icons.low_priority_sharp,
                       ),
-                      tooltip:
-                          canFitSideBar ? "already showing history" : "show history",
+                      tooltip: canFitSideBar
+                          ? "already showing history"
+                          : "show history",
                       onPressed: canFitSideBar
                           ? null
                           : () {

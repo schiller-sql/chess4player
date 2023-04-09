@@ -2,7 +2,12 @@ part of 'game_draw_cubit.dart';
 
 @immutable
 class GameDrawState {
-  final bool canDraw;
+  final bool didAcceptDraw;
+  final bool didLose;
+  bool get canDraw => !didAcceptDraw && !didLose;
 
-  const GameDrawState({required this.canDraw});
+  const GameDrawState({
+    this.didAcceptDraw = false,
+    this.didLose = false,
+  });
 }

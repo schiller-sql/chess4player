@@ -10,26 +10,26 @@ class GameDrawCubit extends Cubit<GameDrawState>
 
   GameDrawCubit({
     required this.chessGameRepository,
-  }) : super(const GameDrawState(canDraw: true));
+  }) : super(const GameDrawState());
 
   void startListeningToGame() {
     chessGameRepository.addListener(this);
   }
 
   void requestDraw() {
-    emit(const GameDrawState(canDraw: false));
+    emit(const GameDrawState(didAcceptDraw: true));
     chessGameRepository.requestDraw();
   }
 
   void acceptDraw() {
-    emit(const GameDrawState(canDraw: false));
+    emit(const GameDrawState(didAcceptDraw: true));
     chessGameRepository.acceptDraw();
   }
 
   @override
   void playerLost(String player, bool isSelf, String reason) {
     if(isSelf) {
-      emit(const GameDrawState(canDraw: false));
+      emit(const GameDrawState(didLose: true));
     }
   }
 
