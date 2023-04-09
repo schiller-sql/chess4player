@@ -314,7 +314,7 @@ class ChessGameRepository extends ChessConnectionListener
   void resign() {
     _lastUpdateNotAffirmed = true;
     final update = BoardUpdate(
-      eliminatedPlayers: {Direction.fromInt(game.ownPlayerPosition)},
+      eliminatedPlayers: const {Direction.up},
     );
     _addNewBoardUpdate(update);
     _changed();
@@ -324,7 +324,7 @@ class ChessGameRepository extends ChessConnectionListener
   @override
   void drawRequest(String requesterName) {
     final ownPlayer = playersFromOwnPerspective[0]!;
-    if(ownPlayer.hasLost) return;
+    if (ownPlayer.hasLost) return;
     final ownName = ownPlayer.name;
     final isRequester = ownName == requesterName;
     for (final listener in _listeners) {
