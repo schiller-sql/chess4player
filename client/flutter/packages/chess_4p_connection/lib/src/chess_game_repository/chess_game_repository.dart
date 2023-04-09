@@ -312,12 +312,6 @@ class ChessGameRepository extends ChessConnectionListener
 
   @override
   void resign() {
-    _lastUpdateNotAffirmed = true;
-    final update = BoardUpdate(
-      eliminatedPlayers: const {Direction.up},
-    );
-    _addNewBoardUpdate(update);
-    _changed();
     connection.resignGame();
   }
 
