@@ -181,7 +181,7 @@ func (g *Game) game(clients map[*domain.Client]string, timePerPlayer uint) {
 						// TODO
 					}
 					state.board.Move(from, to, promotionPiece)
-					state.turnHasEnded(map[string]string{}, &m)
+					state.turnHasEnded(map[string]string{}, &m, false)
 				}
 			case "resign":
 				{
@@ -321,13 +321,18 @@ func (s *gameState) playerHasLost(player int, onTime bool) {
 	} else if player != s.whoseTurn {
 		s.sendResign(name)
 	} else {
-		s.turnHasEnded(lostParticipants, nil)
+		s.turnHasEnded(lostParticipants, nil, onTime)
 		// game continues
 	}
 }
 
-func (s *gameState) turnHasEnded(lostParticipants map[string]string, move *move) {
-	remainingTime := s.remainingTime()
+func (s *gameState) turnHasEnded(lostParticipants map[string]string, move *move, remainingTimeIsZero bool) {
+	var remainingTime uint
+	if remainingTimeIsZero {
+		remainingTime = 0
+	} else {
+		remainingTime = s.remainingTime()
+	}
 	for {
 		s.nextTurn()
 		checkmate, remi := s.board.CheckEndForDirection(board.Direction(s.whoseTurn))
