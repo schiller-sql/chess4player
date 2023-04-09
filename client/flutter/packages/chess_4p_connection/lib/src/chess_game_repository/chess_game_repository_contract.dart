@@ -42,7 +42,7 @@ abstract class IChessGameRepository {
   BoardAnalyzer get boardAnalyzer;
 
   void connect();
-  void restart(Game game);
+
   void close();
 
   void move(Field from, Field to, [PieceType? promotion]);

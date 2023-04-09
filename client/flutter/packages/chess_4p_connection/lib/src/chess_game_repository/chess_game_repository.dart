@@ -122,26 +122,6 @@ class ChessGameRepository extends ChessConnectionListener
     _listeners.remove(listener);
   }
 
-  // @override
-  // void playerResign(String playerName) {
-  //  final playerIndex = players.indexWhere(
-  //    (player) => player?.name == playerName,
-  //  );
-  //  final player = players[playerIndex]!;
-  //  player.lostReason = "resign";
-  //  final playerDirection = Direction.fromInt(playerIndex);
-  //  final update = BoardUpdate(eliminatedPlayers: {playerDirection});
-  //  if (firstNonImplementedUpdate == updates.length) {
-//     updates.add(update);
-  //   } else {
-  //     final notImplementedUpdates = updates.sublist(firstNonImplementedUpdate);
-  //     updates.removeRange(firstNonImplementedUpdate, updates.length);
-  //     updates.add(update);
-//     updates.addAll(notImplementedUpdates);
-  //   }
-//   _boardMover.applyBoardUpdate(update);
-  //  }
-
   @override
   void gameUpdate(
     String? gameEnd,
@@ -293,21 +273,6 @@ class ChessGameRepository extends ChessConnectionListener
       toY: toTurned.y,
       promotion: promotion,
     );
-  }
-
-  @override
-  void restart(Game game) {
-    // TODO: deprecate
-    throw UnimplementedError("Should not be used, will maybe be deprecated");
-    // this.game = game;
-    // players = _playersFromGame(game);
-    // board = _boardFromGame(game);
-    // _boardMover = BoardMover(board: board);
-    // boardAnalyzer = BoardAnalyzer(
-    //   board: board,
-    //   analyzingDirection: Direction.up,
-    // );
-    // _changed();
   }
 
   @override
