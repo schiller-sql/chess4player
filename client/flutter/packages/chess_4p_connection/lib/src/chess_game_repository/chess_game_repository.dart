@@ -170,11 +170,9 @@ class ChessGameRepository extends ChessConnectionListener
     this.gameEnd = gameEnd;
     for (final turn in turns) {
       turn.lostPlayers.forEach((name, lostReason) {
-        if (gameEnd == null) {
-          final isSelf = playersFromOwnPerspective[0]!.name == name;
-          for (final listener in _listeners) {
-            listener.playerLost(name, isSelf, lostReason);
-          }
+        final isSelf = playersFromOwnPerspective[0]!.name == name;
+        for (final listener in _listeners) {
+          listener.playerLost(name, isSelf, lostReason);
         }
         for (final player in players) {
           if (player == null) continue;
@@ -211,6 +209,20 @@ class ChessGameRepository extends ChessConnectionListener
       _addNewBoardUpdate(update);
     }
     _changed();
+    if (gameEnd != null) {
+      final remainingPlayers = players
+          .where((player) => player != null)
+          .cast<Player>()
+          .where((player) => !player.hasLost)
+          .map((player) => player.name)
+          .toList(growable: false);
+      for (final listener in _listeners) {
+        listener.gameEnd(
+          gameEnd,
+          remainingPlayers,
+        );
+      }
+    }
   }
 
   void _addNewBoardUpdate(BoardUpdate update) {

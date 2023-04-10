@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:chess_4p/chess_4p.dart';
 import 'package:chess_4p_connection/chess_4p_connection.dart';
 import 'package:flutter/material.dart';
@@ -13,26 +14,33 @@ class GameEventsBloc extends Bloc<GameEvent, GameEventsState>
   GameEventsBloc({
     required this.chessGameRepository,
   }) : super(const NoEvent()) {
-    on<DrawRequestEvent>((event, emit) {
-      final Duration duration;
-      if (event.isSelf) {
-        duration = const Duration(milliseconds: 4000);
-      } else {
-        duration = const Duration(milliseconds: 15000);
-      }
-      emit(ShowEvent(duration: duration, eventData: event));
-      return Future.delayed(duration);
-    });
-    on<PlayerLostEvent>((event, emit) {
-      final Duration duration;
-      if (event.isSelf) {
-        duration = const Duration(milliseconds: 4000);
-      } else {
-        duration = const Duration(milliseconds: 7000);
-      }
-      emit(ShowEvent(eventData: event, duration: duration));
-      return Future.delayed(duration);
-    });
+    on<DrawRequestEvent>(
+      (event, emit) {
+        final Duration duration;
+        if (event.isSelf) {
+          duration = const Duration(milliseconds: 4000);
+        } else {
+          duration = const Duration(milliseconds: 15000);
+        }
+        emit(ShowEvent(duration: duration, eventData: event));
+        return Future.delayed(duration);
+      },
+      transformer: sequential(),
+    );
+    on<PlayerLostEvent>(
+      (event, emit) {
+        final Duration duration;
+        if (event.isSelf) {
+          duration = const Duration(milliseconds: 4000);
+        } else {
+          duration = const Duration(milliseconds: 7000);
+        }
+        emit(ShowEvent(eventData: event, duration: duration));
+        return Future.delayed(duration);
+      },
+      transformer: sequential(),
+    );
+
   }
 
   void startListeningToGame() {

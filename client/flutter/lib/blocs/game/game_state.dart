@@ -13,6 +13,18 @@ class InGame extends GameState {
 
 class GameHasEnded extends GameState {
   final String gameEndReason;
+  final String ownName;
+  final List<String> remainingPlayers;
+  final Map<String, Direction> playerDirections;
 
-  const GameHasEnded({required this.gameEndReason});
+  bool get isRemainingPlayer => remainingPlayers.contains(ownName);
+
+  bool get singleWinner => remainingPlayers.length == 1;
+
+  const GameHasEnded({
+    required this.ownName,
+    required this.gameEndReason,
+    required this.remainingPlayers,
+    required this.playerDirections,
+  });
 }

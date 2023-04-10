@@ -12,6 +12,11 @@ abstract class ChessGameRepositoryListener {
   void drawRequest(String player, bool isOwnRequest);
 
   void playerLost(String player, bool isSelf, LoseReason reason);
+
+  void gameEnd(
+    String reason,
+    List<String> remainingPlayers,
+  );
 }
 
 mixin DefaultChessGameRepositoryListener
@@ -27,6 +32,12 @@ mixin DefaultChessGameRepositoryListener
 
   @override
   void playerLost(String player, bool isSelf, LoseReason reason) {}
+
+  @override
+  void gameEnd(
+    String reason,
+    List<String> remainingPlayers,
+  ) {}
 }
 
 abstract class IChessGameRepository {
