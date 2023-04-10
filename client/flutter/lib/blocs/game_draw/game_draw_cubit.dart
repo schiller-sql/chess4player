@@ -27,8 +27,10 @@ class GameDrawCubit extends Cubit<GameDrawState>
   }
 
   @override
-  void playerLost(String player, bool isSelf, LoseReason reason) {
-    if(isSelf) {
+  void playersLost(Map<String, LoseReason> players) {
+    final ownName = chessGameRepository.playersFromOwnPerspective[0]!.name;
+    final isSelf = players.containsKey(ownName);
+    if (isSelf) {
       emit(const GameDrawState(didLose: true));
     }
   }

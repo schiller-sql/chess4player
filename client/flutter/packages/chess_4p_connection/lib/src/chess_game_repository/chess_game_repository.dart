@@ -169,11 +169,10 @@ class ChessGameRepository extends ChessConnectionListener
     }
     this.gameEnd = gameEnd;
     for (final turn in turns) {
+      for (final listener in _listeners) {
+        listener.playersLost(turn.lostPlayers);
+      }
       turn.lostPlayers.forEach((name, lostReason) {
-        final isSelf = playersFromOwnPerspective[0]!.name == name;
-        for (final listener in _listeners) {
-          listener.playerLost(name, isSelf, lostReason);
-        }
         for (final player in players) {
           if (player == null) continue;
           if (player.name == name) {
@@ -240,9 +239,9 @@ class ChessGameRepository extends ChessConnectionListener
         player?.lostReason = LoseReason.resign;
       }
     }
-    final isSelf = playersFromOwnPerspective[0]!.name == playerName;
+    final lostPlayers = {playerName: LoseReason.resign};
     for (final listener in _listeners) {
-      listener.playerLost(playerName, isSelf, LoseReason.resign);
+      listener.playersLost(lostPlayers);
     }
     final playerDirection = game.getDirectionFromPlayerName(playerName);
     final update = BoardUpdate(

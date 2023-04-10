@@ -11,7 +11,7 @@ abstract class ChessGameRepositoryListener {
 
   void drawRequest(String player, bool isOwnRequest);
 
-  void playerLost(String player, bool isSelf, LoseReason reason);
+  void playersLost(Map<String, LoseReason> players);
 
   void gameEnd(
     String reason,
@@ -31,7 +31,7 @@ mixin DefaultChessGameRepositoryListener
   void drawRequest(String player, bool isOwnRequest) {}
 
   @override
-  void playerLost(String player, bool isSelf, LoseReason reason) {}
+  void playersLost(Map<String, LoseReason> players) {}
 
   @override
   void gameEnd(
