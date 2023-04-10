@@ -292,14 +292,21 @@ class _ChessBoardState extends State<ChessBoard>
       final nameDisplayIconData = player.lostReason == "resign"
           ? Icons.flag
           : ChessIcons.fallen_filled_king;
+      Widget icon = Icon(
+        nameDisplayIconData,
+        color: backgroundColor,
+        size: 24,
+      );
+      if (player.lostReason != "resign") {
+        icon = Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: icon,
+        );
+      }
       var nameDisplayChildren = [
         nameDisplay,
         const SizedBox(width: 4),
-        Icon(
-          nameDisplayIconData,
-          color: backgroundColor,
-          size: 24,
-        ),
+        icon,
       ];
       if (isLeftOfBoard) {
         nameDisplayChildren = nameDisplayChildren.reversed.toList();
