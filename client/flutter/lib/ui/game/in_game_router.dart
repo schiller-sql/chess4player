@@ -106,18 +106,13 @@ class _InGameRouterState extends State<InGameRouter> {
           } else if (event is PlayerLostEvent) {
             final baseColor = theme.baseColors[event.playerDirection];
             final accentColor = theme.accentColors[event.playerDirection];
-            final hasResigned = event.reason == "resign";
-            final loseReason = hasResigned ? "resigned" : "been set checkmate";
             snackBar = SnackBar(
               duration: state.duration,
               backgroundColor: baseColor,
               content: _buildTextWithIconInFront(
-                icon: hasResigned
-                    ? Icons.flag
-                    : ChessIcons.fallen_filled_king,
-                text: event.isSelf
-                    ? "You have $loseReason"
-                    : "${event.playerName} has $loseReason",
+                icon: iconDataFromLoseReason(event.reason),
+                text: event.reason
+                    .getText(event.isSelf ? null : event.playerName),
                 color: accentColor,
               ),
             );

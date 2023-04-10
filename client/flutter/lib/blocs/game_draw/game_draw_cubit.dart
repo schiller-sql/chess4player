@@ -27,7 +27,7 @@ class GameDrawCubit extends Cubit<GameDrawState>
   }
 
   @override
-  void playerLost(String player, bool isSelf, String reason) {
+  void playerLost(String player, bool isSelf, LoseReason reason) {
     if(isSelf) {
       emit(const GameDrawState(didLose: true));
     }

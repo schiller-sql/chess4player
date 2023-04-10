@@ -1,5 +1,6 @@
 import 'package:chess_4p/chess_4p.dart';
 import '../chess_connection/chess_connection_listener.dart';
+import '../chess_connection/domain/lose_reason.dart';
 import '../util/list_shift_extension.dart';
 
 import '../chess_connection/chess_connection.dart';
@@ -224,12 +225,12 @@ class ChessGameRepository extends ChessConnectionListener
   void playerResign(String playerName) {
     for (var player in players) {
       if (player?.name == playerName) {
-        player?.lostReason = "resign";
+        player?.lostReason = LoseReason.resign;
       }
     }
     final isSelf = playersFromOwnPerspective[0]!.name == playerName;
     for (final listener in _listeners) {
-      listener.playerLost(playerName, isSelf, "resign");
+      listener.playerLost(playerName, isSelf, LoseReason.resign);
     }
     final playerDirection = game.getDirectionFromPlayerName(playerName);
     final update = BoardUpdate(

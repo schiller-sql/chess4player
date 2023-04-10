@@ -5,9 +5,9 @@ import 'package:flutter_chess_4p/src/accessible_positions_painter.dart';
 import 'package:chess_4p/chess_4p.dart';
 
 import 'chess_board_painter.dart';
-import 'chess_icons.dart';
 import 'domain/chess_board_color_style.dart';
 import 'domain/player_styles.dart';
+import 'lose_icons.dart';
 import 'seconds_countdown_timer.dart';
 import 'duration_simple_format_extension.dart';
 
@@ -289,15 +289,12 @@ class _ChessBoardState extends State<ChessBoard>
       ),
     );
     if (player.hasLost) {
-      final nameDisplayIconData = player.lostReason == "resign"
-          ? Icons.flag
-          : ChessIcons.fallen_filled_king;
       Widget icon = Icon(
-        nameDisplayIconData,
+        iconDataFromLoseReason(player.lostReason!),
         color: backgroundColor,
         size: 24,
       );
-      if (player.lostReason != "resign") {
+      if (player.lostReason == LoseReason.checkmate) {
         icon = Padding(
           padding: const EdgeInsets.only(bottom: 6),
           child: icon,

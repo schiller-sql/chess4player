@@ -29,3 +29,5 @@ export 'src/chess_game_repository/chess_game_repository_contract.dart';
 
 export 'src/chess_connection_repository/chess_connection_repository.dart';
 export 'src/chess_connection_repository/chess_connection_repository_contract.dart';
+
+export 'src/chess_connection/domain/lose_reason.dart';

@@ -63,7 +63,7 @@ class GameEventsBloc extends Bloc<GameEvent, GameEventsState>
   }
 
   @override
-  void playerLost(String player, bool isSelf, String reason) {
+  void playerLost(String player, bool isSelf, LoseReason reason) {
     add(
       PlayerLostEvent(
         isSelf: isSelf,

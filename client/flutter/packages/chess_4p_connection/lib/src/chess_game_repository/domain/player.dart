@@ -1,6 +1,8 @@
+import '../../chess_connection/domain/lose_reason.dart';
+
 class Player {
   String name;
-  String? lostReason;
+  LoseReason? lostReason;
   Duration remainingTime;
   bool isOnTurn = false;
 

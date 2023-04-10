@@ -13,7 +13,7 @@ abstract class GameEvent {
 }
 
 class PlayerLostEvent extends GameEvent {
-  final String reason;
+  final LoseReason reason;
 
   PlayerLostEvent({
     required this.reason,

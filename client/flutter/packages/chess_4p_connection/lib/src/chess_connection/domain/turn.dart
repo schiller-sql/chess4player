@@ -1,7 +1,8 @@
+import 'lose_reason.dart';
 import 'raw_move.dart';
 
 class Turn {
-  final Map<String, String> lostPlayers;
+  final Map<String, LoseReason> lostPlayers;
   final RawMove? move;
   final Duration remainingTime;
 
@@ -13,7 +14,12 @@ class Turn {
 
   factory Turn.fromJson(Map<String, dynamic> json) {
     final lostPlayersJson = json["lost-participants"] as Map;
-    final lostPlayers = lostPlayersJson.cast<String, String>();
+    final lostPlayers = lostPlayersJson.map<String, LoseReason>(
+      (player, rawLoseReason) => MapEntry(
+        player,
+        LoseReason.fromJson(rawLoseReason),
+      ),
+    );
     final jsonMove = json["move"] as Map<String, dynamic>?;
     final RawMove? move;
     if (jsonMove != null) {

@@ -1,5 +1,6 @@
 import 'package:chess_4p/chess_4p.dart';
 
+import '../chess_connection/domain/lose_reason.dart';
 import '../chess_game_start_repository/domain/game.dart';
 import 'domain/player.dart';
 
@@ -10,7 +11,7 @@ abstract class ChessGameRepositoryListener {
 
   void drawRequest(String player, bool isOwnRequest);
 
-  void playerLost(String player, bool isSelf, String reason);
+  void playerLost(String player, bool isSelf, LoseReason reason);
 }
 
 mixin DefaultChessGameRepositoryListener
@@ -25,7 +26,7 @@ mixin DefaultChessGameRepositoryListener
   void drawRequest(String player, bool isOwnRequest) {}
 
   @override
-  void playerLost(String player, bool isSelf, String reason) {}
+  void playerLost(String player, bool isSelf, LoseReason reason) {}
 }
 
 abstract class IChessGameRepository {
