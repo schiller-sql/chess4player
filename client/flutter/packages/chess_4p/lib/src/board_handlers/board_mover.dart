@@ -33,7 +33,7 @@ class BoardMover {
     for(final move in update.moves) {
       applyMove(move);
     }
-    for(final player in update.eliminatedPlayers) {
+    for(final player in update.eliminatedPlayers.keys) {
       board.setInactive(player);
     }
   }
@@ -43,7 +43,7 @@ class BoardMover {
   /// Should only be done,
   /// if this [BoardUpdate] was the last thing applied to the board.
   void reverseApplyBoardUpdate(BoardUpdate update) {
-    for(final player in update.eliminatedPlayers) {
+    for(final player in update.eliminatedPlayers.keys) {
       board.setActive(player);
     }
     for(var i = update.moves.length - 1; i >= 0; i--) {
@@ -120,6 +120,7 @@ class BoardMover {
         toX: toX,
         toY: toY,
         firstMove: firstMove,
+        movedPieceType: fromPiece.type,
         promotion: promotion,
         hitPiece: hitPiece,
       ),
@@ -150,6 +151,7 @@ class BoardMover {
           fromY: rookFromY,
           toX: rookToX,
           toY: rookToY,
+          movedPieceType: PieceType.rook,
           firstMove: true,
         );
         moves.add(rookMove);

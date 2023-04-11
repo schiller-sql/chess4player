@@ -41,7 +41,7 @@ mixin DefaultChessGameRepositoryListener
 }
 
 abstract class IChessGameRepository {
-  List<BoardUpdate> get updates;
+  List<BoardUpdate<LoseReason>> get updates;
   bool get canMove;
   int get playerOnTurn;
   List<Player?> get players;

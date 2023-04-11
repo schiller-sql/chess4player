@@ -4,30 +4,46 @@ enum LoseReason {
   checkmate,
   time;
 
-  String getText(String? player) {
-    if (player == null) {
-      switch (this) {
-        case resign:
-          return "You have resigned";
-        case remi:
-          return "You have been set remi";
-        case checkmate:
-          return "You have been set checkmate";
-        case time:
-          return "You have run out of time";
+  String getText({String? player, bool withPlayer = true}) {
+    String playerRep;
+    if (withPlayer) {
+      if (player == null) {
+        playerRep = "You have ";
+      } else {
+        playerRep = "$player has ";
       }
     } else {
+      playerRep = "";
+    }
+    switch (this) {
+      case resign:
+        return "$playerRep resigned";
+      case remi:
+        return "$playerRep been set remi";
+      case checkmate:
+        return "$playerRep been set checkmate";
+      case time:
+        return "$playerRep run out of time";
+    }
+  }
+
+  String getTextWithoutNameComplex({
+    required bool causing,
+    required bool isSelf,
+  }) {
+    if (causing) {
       switch (this) {
-        case resign:
-          return "$player has resigned";
         case remi:
-          return "$player has been set remi";
+          return " to be set remi";
         case checkmate:
-          return "$player has been checkmated";
+          return " to be set checkmate";
         case time:
-          return "$player has run out of time";
+          throw UnimplementedError("Does not make any sense");
+        case resign:
+          throw UnimplementedError("Does not make any sense");
       }
     }
+    return getText(player: isSelf ? null : "", withPlayer: false);
   }
 
   static LoseReason fromJson(String rawLoseReason) {

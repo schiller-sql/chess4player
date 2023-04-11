@@ -19,7 +19,7 @@ class ChessGameRepository extends ChessConnectionListener
   int playerOnTurn = 0;
   DateTime _playerOnTurnTime;
   @override
-  final List<BoardUpdate> updates = [];
+  final List<BoardUpdate<LoseReason>> updates = [];
   @override
   int firstNonImplementedUpdate = 0;
   @override
@@ -53,16 +53,20 @@ class ChessGameRepository extends ChessConnectionListener
   }
 
   static List<Player?> _playersFromGame(Game game) {
-    return game.playerOrder
-        .map(
-          (playerName) => playerName == null
-              ? null
-              : Player(
-                  name: playerName,
-                  remainingTime: game.time,
-                ),
-        )
-        .toList(growable: false);
+    var index = -1;
+    return game.playerOrder.map(
+      (playerName) {
+        index++;
+        return playerName == null
+            ? null
+            : Player(
+                name: playerName,
+                remainingTime: game.time,
+                colorDirection: Direction.fromInt(index),
+                directionFromOwn: game.getDirectionFromPlayerName(playerName),
+              );
+      },
+    ).toList(growable: false);
   }
 
   ChessGameRepository({
@@ -128,6 +132,7 @@ class ChessGameRepository extends ChessConnectionListener
     String? gameEnd,
     List<Turn> turns,
   ) {
+    final playerOfUpdate = _currentPlayer;
     _currentPlayer.isOnTurn = false;
     _playerOnTurnTime = DateTime.now();
     for (var turnIndex = 0; turnIndex < turns.length; turnIndex++) {
@@ -196,13 +201,12 @@ class ChessGameRepository extends ChessConnectionListener
       } else {
         moves = [];
       }
-      Set<Direction> eliminatedPlayers = turn.lostPlayers.keys
-          .map(
-            (playerName) => game.getDirectionFromPlayerName(playerName),
-          )
-          .toSet();
+      final eliminatedPlayers = turn.lostPlayers.map((playerName, loseReason) => MapEntry(
+          game.getDirectionFromPlayerName(playerName), loseReason,
+      ));
       final update = BoardUpdate(
         moves: moves,
+        playerDirection: playerOfUpdate.directionFromOwn,
         eliminatedPlayers: eliminatedPlayers,
       );
       _addNewBoardUpdate(update);
@@ -224,7 +228,7 @@ class ChessGameRepository extends ChessConnectionListener
     }
   }
 
-  void _addNewBoardUpdate(BoardUpdate update) {
+  void _addNewBoardUpdate(BoardUpdate<LoseReason> update) {
     if (firstNonImplementedUpdate == updates.length) {
       firstNonImplementedUpdate++;
       _boardMover.applyBoardUpdate(update);
@@ -246,7 +250,7 @@ class ChessGameRepository extends ChessConnectionListener
     final playerDirection = game.getDirectionFromPlayerName(playerName);
     final update = BoardUpdate(
       moves: [],
-      eliminatedPlayers: {playerDirection},
+      eliminatedPlayers: {playerDirection: LoseReason.resign},
     );
     if (_lastUpdateNotAffirmed) {
       final lastUpdate = updates.removeLast();
@@ -272,7 +276,11 @@ class ChessGameRepository extends ChessConnectionListener
       to.y,
       promotion,
     );
-    final update = BoardUpdate(moves: moves, eliminatedPlayers: {});
+    final update = BoardUpdate(
+      moves: moves,
+      eliminatedPlayers: <Direction, LoseReason>{},
+      playerDirection: Direction.up,
+    );
     _addNewBoardUpdate(update);
     _lastUpdateNotAffirmed = true;
     _changed();

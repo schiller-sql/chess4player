@@ -15,6 +15,8 @@ class Move {
   /// If the piece moved was moved for the first time
   final bool firstMove;
 
+  final PieceType movedPieceType;
+
   /// If the piece got a promotion.
   ///
   /// If this is true, then the piece was a pawn.
@@ -29,6 +31,7 @@ class Move {
     required this.toX,
     required this.toY,
     required this.firstMove,
+    required this.movedPieceType,
     this.promotion,
     this.hitPiece,
   });

@@ -1,5 +1,4 @@
 import 'package:chess/blocs/in_room/in_room_cubit.dart';
-import 'package:chess/theme/chess_theme.dart';
 import 'package:chess/ui/in_room/in_room_common.dart';
 import 'package:chess_4p/chess_4p.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +7,7 @@ import 'package:flutter_nord_theme/flutter_nord_theme.dart';
 
 import '../../blocs/game/game_cubit.dart';
 import '../../blocs/join_game/join_game_cubit.dart';
+import 'game_common.dart';
 
 class GameEndedDialog extends StatefulWidget {
   final GameHasEnded gameEnd;
@@ -19,19 +19,6 @@ class GameEndedDialog extends StatefulWidget {
 }
 
 class _GameEndedDialogState extends State<GameEndedDialog> {
-  TextSpan _playerNameSpan(
-    String name,
-    String ownName,
-    Map<String, Direction> playerDirections,
-  ) {
-    return TextSpan(
-      text: name == ownName ? "you" : name,
-      style: TextStyle(
-        fontWeight: FontWeight.bold,
-        color: playerStyles.getPlayerColor(playerDirections[name]),
-      ),
-    );
-  }
 
   Iterable<TextSpan> _playerNameSpans(
     List<String> names,
@@ -39,7 +26,8 @@ class _GameEndedDialogState extends State<GameEndedDialog> {
     Map<String, Direction> playerDirections,
   ) sync* {
     for (var i = 0; i < names.length; i++) {
-      yield _playerNameSpan(names[i], ownName, playerDirections);
+      final name = names[i];
+      yield playerNameSpan(name, ownName, playerDirections[name]!);
       if (i != names.length - 1) {
         yield const TextSpan(
           text: ", ",
@@ -72,7 +60,7 @@ class _GameEndedDialogState extends State<GameEndedDialog> {
     return Text.rich(
       TextSpan(
         text: "The winner is: ",
-        children: [_playerNameSpan(name, ownName, playerDirections)],
+        children: [playerNameSpan(name, ownName, playerDirections[name]!)],
       ),
     );
   }

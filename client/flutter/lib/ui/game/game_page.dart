@@ -2,11 +2,12 @@ import 'dart:math';
 
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:chess/blocs/game_draw/game_draw_cubit.dart';
+import 'package:chess/blocs/game_history/game_history_cubit.dart';
 import 'package:chess/theme/chess_theme.dart' as theme;
 import 'package:chess/ui/game/game_common.dart';
 import 'package:chess/ui/in_room/in_room_common.dart';
+import 'package:chess_4p/chess_4p.dart';
 import 'package:chess_4p_connection/chess_4p_connection.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chess_4p/flutter_4p_chess.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,6 +27,7 @@ class _GamePageState extends State<GamePage> {
   late final GameEventsBloc gameEventsBloc;
 
   Widget _buildTextWithIconInFront({
+    bool bottomPaddingForIcon = false,
     required IconData icon,
     required String text,
     required Color color,
@@ -36,7 +38,10 @@ class _GamePageState extends State<GamePage> {
         children: [
           WidgetSpan(
             child: Padding(
-              padding: const EdgeInsets.only(right: 4),
+              padding: EdgeInsets.only(
+                right: 4,
+                bottom: bottomPaddingForIcon ? 2 : 0,
+              ),
               child: Icon(icon, color: color, size: 18),
             ),
           ),
@@ -99,8 +104,11 @@ class _GamePageState extends State<GamePage> {
           duration: state.duration,
           backgroundColor: baseColor,
           content: _buildTextWithIconInFront(
+            bottomPaddingForIcon: event.reason == LoseReason.checkmate,
             icon: iconDataFromLoseReason(event.reason),
-            text: event.reason.getText(event.isSelf ? null : event.playerName),
+            text: event.reason.getText(
+              player: event.isSelf ? null : event.playerName,
+            ),
             color: accentColor,
           ),
         );
@@ -126,6 +134,117 @@ class _GamePageState extends State<GamePage> {
   final boardKey = GlobalKey(debugLabel: "chess board");
   final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
+  WidgetSpan _piece(Direction playerDirection, PieceType type) {
+    Widget w = SizedBox(
+      height: 20,
+      width: 20,
+      child: theme.playerStyles.createPiece(type, playerDirection),
+    );
+    final needsPadding = type != PieceType.rook && type != PieceType.pawn;
+    if (needsPadding) {
+      w = Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        child: w,
+      );
+    }
+    return WidgetSpan(
+      child: w,
+    );
+  }
+
+  Iterable<InlineSpan> _movement(
+    BoardUpdate update,
+    GameHistoryState state,
+  ) sync* {
+    final playerDirection =
+        state.convertToColorDirection(update.playerDirection!);
+    yield playerNameSpan(
+      state.convertToName(update.playerDirection!),
+      state.ownName,
+      playerDirection,
+    );
+    yield const TextSpan(text: " moved");
+    final move = update.moves[0];
+    yield _piece(playerDirection, move.movedPieceType);
+    if (update.moves.length == 2) {
+      yield const TextSpan(text: " and");
+      yield _piece(playerDirection, update.moves[1].movedPieceType);
+    }
+    if (move.hitPiece != null) {
+      yield const TextSpan(text: "on");
+      final hitPlayer = state.convertToColorDirection(move.hitPiece!.direction);
+      yield _piece(hitPlayer, move.hitPiece!.type);
+    }
+    if (update.eliminatedPlayers.isNotEmpty) {
+      yield const TextSpan(
+        text: ", causing ",
+      );
+    }
+  }
+
+  Iterable<InlineSpan> _eliminatedPlayer(
+    Direction eliminatedPlayer,
+    BoardUpdate<LoseReason> update,
+    GameHistoryState state,
+  ) sync* {
+    final reason = update.eliminatedPlayers[eliminatedPlayer]!;
+    final name = state.convertToName(eliminatedPlayer);
+    yield playerNameSpan(
+      name,
+      state.ownName,
+      state.convertToColorDirection(eliminatedPlayer),
+    );
+    final causing = update.moves.isNotEmpty;
+    yield TextSpan(
+      text: reason.getTextWithoutNameComplex(
+        causing: causing,
+        isSelf: name == state.ownName,
+      ),
+    );
+  }
+
+  Widget _historyItem(
+      BoardUpdate<LoseReason> update, int number, GameHistoryState state) {
+    return Text.rich(
+      TextSpan(
+        text: "$number. ",
+        children: [
+          if (update.moves.isNotEmpty) ..._movement(update, state),
+          for (final eliminatedPlayer in update.eliminatedPlayers.keys)
+            ..._eliminatedPlayer(eliminatedPlayer, update, state),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHistoryList() {
+    return BlocBuilder<GameHistoryCubit, GameHistoryState>(
+      builder: (context, state) {
+        final updates = state.updates;
+        return ListView.builder(
+          itemCount: updates.length,
+          itemBuilder: (context, index) {
+            return ColoredBox(
+              color: index % 2 == 0 ? NordColors.$1 : NordColors.$2,
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  left: 8,
+                  top: 6,
+                  bottom: 6,
+                ),
+                child: _historyItem(
+                  updates[index],
+                  updates.length - index,
+                  state,
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -150,7 +269,20 @@ class _GamePageState extends State<GamePage> {
         children: [
           board,
           Expanded(
-            child: Container(color: NordColors.$3),
+            child: Column(
+              children: [
+                Container(
+                  color: NordColors.$3,
+                  height: 56,
+                ),
+                Expanded(
+                  child: Container(
+                    color: NordColors.$2,
+                    child: _buildHistoryList(),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       );
@@ -217,7 +349,9 @@ class _GamePageState extends State<GamePage> {
                                       : "how have already agreed to draw"),
                               onPressed: state.canDraw
                                   ? () {
-                                      context.read<GameDrawCubit>().requestDraw();
+                                      context
+                                          .read<GameDrawCubit>()
+                                          .requestDraw();
                                     }
                                   : null,
                             );

@@ -1,7 +1,10 @@
 import 'package:chess/blocs/resign/resign_cubit.dart';
+import 'package:chess_4p/chess_4p.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_nord_theme/flutter_nord_theme.dart';
+
+import '../../theme/chess_theme.dart';
 
 const _resignRouteSettings = RouteSettings(name: "resign");
 
@@ -64,4 +67,18 @@ Future<bool> showShouldResignDialog(BuildContext context) async {
     resignCubit.resign();
   }
   return willResign;
+}
+
+TextSpan playerNameSpan(
+    String name,
+    String ownName,
+    Direction playerDirection,
+    ) {
+  return TextSpan(
+    text: name == ownName ? "you" : name,
+    style: TextStyle(
+      fontWeight: FontWeight.bold,
+      color: playerStyles.getPlayerColor(playerDirection),
+    ),
+  );
 }

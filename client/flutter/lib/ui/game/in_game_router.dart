@@ -1,3 +1,4 @@
+import 'package:chess/blocs/game_history/game_history_cubit.dart';
 import 'package:chess/blocs/resign/resign_cubit.dart';
 import 'package:chess/ui/game/game_ended_dialog.dart';
 import 'package:chess/ui/game/game_page.dart';
@@ -20,11 +21,20 @@ class InGameRouter extends StatefulWidget {
 
 class _InGameRouterState extends State<InGameRouter> {
   late final GameDrawCubit gameDrawCubit;
+  late final GameHistoryCubit gameHistoryCubit;
+  late final ResignCubit resignCubit;
 
   @override
   void initState() {
+    final chessGameRepo = context.read<ChessGameRepository>();
     gameDrawCubit = GameDrawCubit(
-      chessGameRepository: context.read<ChessGameRepository>(),
+      chessGameRepository: chessGameRepo,
+    )..startListeningToGame();
+    gameHistoryCubit = GameHistoryCubit(
+      chessGameRepository: chessGameRepo,
+    )..startListeningToGame();
+    resignCubit = ResignCubit(
+      chessGameRepository: chessGameRepo,
     )..startListeningToGame();
     super.initState();
   }
@@ -32,6 +42,8 @@ class _InGameRouterState extends State<InGameRouter> {
   @override
   void dispose() {
     gameDrawCubit.close();
+    gameHistoryCubit.close();
+    resignCubit.close();
     super.dispose();
   }
 
@@ -63,14 +75,9 @@ class _InGameRouterState extends State<InGameRouter> {
       },
       child: MultiBlocProvider(
         providers: [
-          BlocProvider(
-            create: (context) => ResignCubit(
-              chessGameRepository: context.read<ChessGameRepository>(),
-            ),
-          ),
-          BlocProvider.value(
-            value: gameDrawCubit,
-          ),
+          BlocProvider.value(value: resignCubit),
+          BlocProvider.value(value: gameDrawCubit),
+          BlocProvider.value(value: gameHistoryCubit),
         ],
         child: const GamePage(),
       ),
