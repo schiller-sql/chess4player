@@ -303,7 +303,6 @@ func (s *gameState) playerHasLost(player int, onTime bool) {
 	lostParticipants := map[string]string{name: playerDeathReason}
 	if s.remainingPlayersCount() == 1 {
 		var remainingTime uint = 0
-		// TODO: "remaining-time":18446744073709551607 on lost on time
 		if !onTime {
 			remainingTime = s.remainingTime()
 		}
