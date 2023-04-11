@@ -1,35 +1,53 @@
+import 'package:chess_4p_connection/chess_4p_connection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_chess_4p/src/accessible_positions_painter.dart';
 import 'package:chess_4p/chess_4p.dart';
 
 import 'chess_board_painter.dart';
-import 'domain/piece_set.dart';
+import 'domain/chess_board_color_style.dart';
+import 'domain/player_styles.dart';
+import 'lose_icons.dart';
+import 'seconds_countdown_timer.dart';
+import 'duration_simple_format_extension.dart';
 
 class ChessBoard extends StatefulWidget {
-  final PieceSet pieceSet;
+  final PlayerStyles playerStyles;
+  final ChessBoardColorStyle colorStyle;
+  final IChessGameRepository chessGameRepository;
 
-  const ChessBoard({Key? key, required this.pieceSet}) : super(key: key);
+  const ChessBoard({
+    Key? key,
+    required this.playerStyles,
+    this.colorStyle = const ChessBoardColorStyle(),
+    required this.chessGameRepository,
+  }) : super(key: key);
 
   @override
   State<ChessBoard> createState() => _ChessBoardState();
 }
 
-class _ChessBoardState extends State<ChessBoard> {
-  late Board board;
-  late BoardAnalyzer boardAnalyzer;
-  late BoardMover boardMover;
+class _ChessBoardState extends State<ChessBoard>
+    with DefaultChessGameRepositoryListener {
+  IChessGameRepository get repo => widget.chessGameRepository;
+  ReadableBoard get board => repo.board;
+  BoardAnalyzer get boardAnalyzer => repo.boardAnalyzer;
 
   @override
   void initState() {
     super.initState();
-    board = Board.standard();
-    board.removePiece(6, 12);
-    board.removePiece(1, 7);
-    board.removePiece(8, 13);
-    board.removePiece(9, 13);
-    boardAnalyzer =
-        BoardAnalyzer(board: board, analyzingDirection: Direction.up);
-    boardMover = BoardMover(board: board);
+    for (Player? player in repo.players) {
+      if (player != null) {
+        _playerTimeNotifiers[player.name] = ValueNotifier(repo.game.time);
+      }
+    }
+    repo.addListener(this);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    repo.removeListener(this);
   }
 
   Set<Field> selectableFields = {};
@@ -54,18 +72,21 @@ class _ChessBoardState extends State<ChessBoard> {
   }
 
   void movePiece(int toX, int toY) {
-    final field = Field(toX, toY);
-    if (selectableFields.contains(field)) {
-      setState(() {
-        final fromX = selectedField!.x, fromY = selectedField!.y;
-        if (boardMover.moveIsPromotion(fromX, fromY, toX, toY)) {
-          promotionCandidate = field;
-        } else {
-          boardMover.nonPromotionMove(fromX, fromY, toX, toY);
-          selectedField = null;
-        }
-        selectableFields = {};
-      });
+    final to = Field(toX, toY);
+    if (selectableFields.contains(to)) {
+      if (repo.canMove) {
+        setState(() {
+          if (repo.moveIsPromotion(selectedField!, to)) {
+            promotionCandidate = to;
+          } else {
+            repo.move(selectedField!, to);
+            selectedField = null;
+          }
+          selectableFields = {};
+        });
+      } else {
+        SystemSound.play(SystemSoundType.alert);
+      }
     }
   }
 
@@ -78,13 +99,7 @@ class _ChessBoardState extends State<ChessBoard> {
 
   void executePromotion(PieceType pieceType) {
     setState(() {
-      boardMover.promotion(
-        selectedField!.x,
-        selectedField!.y,
-        promotionCandidate!.x,
-        promotionCandidate!.y,
-        pieceType,
-      );
+      repo.move(selectedField!, promotionCandidate!, pieceType);
       promotionCandidate = null;
       selectedField = null;
     });
@@ -98,15 +113,15 @@ class _ChessBoardState extends State<ChessBoard> {
     Widget? child;
     if (!board.isEmpty(x, y)) {
       final piece = board.getPiece(x, y);
-      child = widget.pieceSet.createPiece(piece.type, piece.direction);
+      child = widget.playerStyles.createPiece(
+        piece.type,
+        piece.isDead ? null : piece.direction,
+      );
     }
     if (selectedField?.x == x && selectedField?.y == y) {
-      child = Opacity(
-        opacity: 0.6,
-        child: ColoredBox(
-          color: Colors.green,
-          child: child,
-        ),
+      child = ColoredBox(
+        color: widget.colorStyle.selectedFieldColor,
+        child: child,
       );
     }
     if (boardAnalyzer.canAnalyze(x, y)) {
@@ -196,7 +211,7 @@ class _ChessBoardState extends State<ChessBoard> {
                     ])
                       _buildPromotionDialogSection(
                         child: SizedBox.expand(
-                          child: widget.pieceSet.createPiece(
+                          child: widget.playerStyles.createPiece(
                             pieceType,
                             Direction.up,
                           ),
@@ -217,16 +232,17 @@ class _ChessBoardState extends State<ChessBoard> {
   Widget build(BuildContext context) {
     return CustomPaint(
       foregroundPainter: AccessiblePositionsPainter(selectableFields),
-      painter: const ChessBoardPainter(
-        backgroundTileColor2: Colors.black,
-        backgroundTileColor1: Colors.white,
-        backgroundColor: Colors.grey,
+      painter: ChessBoardPainter(
+        backgroundTileColor2: widget.colorStyle.fieldColor1,
+        backgroundTileColor1: widget.colorStyle.fieldColor2,
+        backgroundColor: widget.colorStyle.backgroundColor,
       ),
       child: AspectRatio(
         aspectRatio: 1,
         child: Stack(
           children: [
-            if (doingPromotion) _buildPromotionDialog(),
+            for (var playerIndex = 0; playerIndex < 4; playerIndex++)
+              _buildPlayerDisplay(playerIndex),
             IgnorePointer(
               ignoring: doingPromotion,
               child: GridView.builder(
@@ -238,9 +254,169 @@ class _ChessBoardState extends State<ChessBoard> {
                     chessFieldItemBuilder(i % 14, i ~/ 14),
               ),
             ),
+            if (doingPromotion) _buildPromotionDialog(),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildPlayerDisplay(int playerIndex) {
+    final player = repo.playersFromOwnPerspective[playerIndex];
+    if (player == null) {
+      return const SizedBox();
+    }
+    final playerName = player.name;
+    final notifier = _playerTimeNotifiers[playerName]!;
+    final playerDirection = Direction.fromInt(playerIndex);
+    var backgroundColor = widget.playerStyles.getPlayerColor(playerDirection);
+    var color = widget.playerStyles.getPlayerAccentColor(playerDirection);
+    if (!player.isOnTurn) {
+      final tempBackgroundColor = backgroundColor;
+      backgroundColor = color.withAlpha(180);
+      color = tempBackgroundColor.withAlpha(100);
+    }
+    if (player.hasLost) {
+      backgroundColor = widget.colorStyle.inactiveBaseTextColor ??
+          widget.playerStyles.getPlayerColor(null);
+      color = widget.colorStyle.inactiveAccentTextColor ??
+          widget.playerStyles.getPlayerAccentColor(null).withAlpha(200);
+    }
+    final isOnTopOfBoard = playerIndex == 1 || playerIndex == 2;
+    final isLeftOfBoard = playerIndex <= 1;
+    Widget nameDisplay = Text(
+      player.name,
+      style: TextStyle(
+        color: backgroundColor,
+        fontWeight: FontWeight.w700,
+        fontSize: 20,
+      ),
+    );
+    if (player.hasLost) {
+      Widget icon = Icon(
+        iconDataFromLoseReason(player.lostReason!),
+        color: backgroundColor,
+        size: 24,
+      );
+      if (player.lostReason == LoseReason.checkmate) {
+        icon = Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: icon,
+        );
+      }
+      var nameDisplayChildren = [
+        nameDisplay,
+        const SizedBox(width: 4),
+        icon,
+      ];
+      if (isLeftOfBoard) {
+        nameDisplayChildren = nameDisplayChildren.reversed.toList();
+      }
+      nameDisplay = Row(
+        mainAxisSize: MainAxisSize.min,
+        children: nameDisplayChildren,
+      );
+    }
+    var children = [
+      nameDisplay,
+      const SizedBox(height: 4),
+      Container(
+        width: 116,
+        color: backgroundColor,
+        padding: const EdgeInsets.all(8),
+        child: AnimatedBuilder(
+          animation: notifier,
+          builder: (context, child) {
+            return Wrap(
+              children: [
+                Icon(
+                  Icons.schedule,
+                  size: 28,
+                  color: color,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  notifier.value.hoursAndMinutesFormat(),
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: color,
+                    decoration: TextDecoration.none,
+                    fontWeight: player.isOnTurn
+                        ? FontWeight.w700
+                        : (player.isOut ? FontWeight.w500 : FontWeight.w600),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    ];
+    if (!isOnTopOfBoard) {
+      children = [...children.reversed];
+    }
+    return Align(
+      alignment: _playerAlignments[playerIndex],
+      child: FractionallySizedBox(
+        widthFactor: 3 / 14,
+        heightFactor: 3 / 14,
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            crossAxisAlignment: isLeftOfBoard
+                ? CrossAxisAlignment.end
+                : CrossAxisAlignment.start,
+            mainAxisAlignment: isOnTopOfBoard
+                ? MainAxisAlignment.end
+                : MainAxisAlignment.start,
+            children: children,
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void changed(IChessGameRepository chessGameRepository) {
+    setState(() {
+      if (selectedField != null) {
+        if (boardAnalyzer.canAnalyze(selectedField!.x, selectedField!.y)) {
+          selectableFields = boardAnalyzer.accessibleFields(
+              selectedField!.x, selectedField!.y);
+        } else {
+          selectedField = null;
+          selectableFields = {};
+        }
+      }
+    });
+  }
+
+  SecondsCountdownTimer? _lastTimer;
+
+  final Map<String, ValueNotifier<Duration>> _playerTimeNotifiers = {};
+
+  static final _playerAlignments = [
+    Alignment.bottomLeft,
+    Alignment.topLeft,
+    Alignment.topRight,
+    Alignment.bottomRight,
+  ];
+
+  @override
+  void timerChange(String player, Duration duration, bool hasStarted) {
+    final notifier = _playerTimeNotifiers[player]!;
+    if (!hasStarted) {
+      _lastTimer?.cancel();
+      _lastTimer = null;
+      notifier.value = duration;
+    } else {
+      assert(_lastTimer == null);
+      _lastTimer = SecondsCountdownTimer(
+        duration: duration,
+        durationChanged: (countdownDuration) {
+          notifier.value = countdownDuration;
+        },
+      );
+    }
   }
 }

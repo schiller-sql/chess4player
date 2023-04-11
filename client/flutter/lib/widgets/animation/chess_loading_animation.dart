@@ -19,7 +19,7 @@ class ChessLoadingAnimation extends StatefulWidget {
 
   /// Where to get the chess pieces from,
   /// only the [Direction.up] pieces will be used.
-  final PieceSet pieces;
+  final PlayerStyles pieces;
 
   /// Default constructor
   const ChessLoadingAnimation({

@@ -86,19 +86,19 @@ void main() {
     });
 
     test("left castle", () {
-      boardMover.nonPromotionMove(13, 6, 13, 8);
+      boardMover.analyzeAndApplyMoves(13, 6, 13, 8);
       print(board);
       expect(board.toString(), castle_left_castle_test_expect);
     });
 
     test("right castle", () {
-      boardMover.nonPromotionMove(13, 6, 13, 4);
+      boardMover.analyzeAndApplyMoves(13, 6, 13, 4);
       print(board);
       expect(board.toString(), castle_right_castle_test_expect);
     });
 
     test("no castle", () {
-      boardMover.nonPromotionMove(13, 6, 13, 5);
+      boardMover.analyzeAndApplyMoves(13, 6, 13, 5);
       print(board);
       expect(board.toString(), castle_no_castle_test_expect);
     });
@@ -115,14 +115,14 @@ void main() {
     });
 
     test("promotion possible", () {
-      expect(boardMover.moveIsPromotion(7, 0, 6, 0), true);
-      boardMover.promotion(7, 0, 6, 0, PieceType.bishop);
+      expect(boardMover.analyzeMoveIsPromotion(7, 0, 6, 0), true);
+      boardMover.analyzeAndApplyMoves(7, 0, 6, 0, PieceType.bishop);
       expect(board.toString(), promotion_promotion_possible_test_expect);
     });
 
     test("no promotion possible", () {
       board.move(7, 0, 8, 0);
-      expect(boardMover.moveIsPromotion(8, 0, 7, 0), false);
+      expect(boardMover.analyzeMoveIsPromotion(8, 0, 7, 0), false);
     });
   });
 }

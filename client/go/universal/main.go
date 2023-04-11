@@ -85,6 +85,22 @@ func main() {
 				log.Println("read:", err)
 				return
 			}
+			if message.SubType == "created" {
+				code := message.Content["code"].(string)
+				fmt.Println(code)
+				// if runtime.GOOS == "darwin" {
+				// 	c := exec.Command("pbcopy")
+				// 				pipe, e := c.StdinPipe()
+				// if e != nil {
+				// return
+				// }
+				// _, e = pipe.Write([]byte(code))
+				// if e != nil {
+				// 	return
+				// }
+				// c.Run()
+				// }
+			}
 			log.Printf("\nrecv: %s", message)
 			socketEvent <- message
 		}
@@ -132,16 +148,18 @@ func main() {
 				printBoard()
 				break
 			case strings.Contains(order, "move"):
-				x1, _ := strconv.Atoi(order[5:6])
-				y1, _ := strconv.Atoi(order[7:8])
-				x2, _ := strconv.Atoi(order[9:10])
-				y2, _ := strconv.Atoi(order[11:12])
-				var promotion = ""
-				if len(order) == 14 {
-					promotion = string(order[13])
+				tokens := strings.Split(order[0:len(order)-1], " ")
+				x1, _ := strconv.Atoi(tokens[1])
+				y1, _ := strconv.Atoi(tokens[2])
+				x2, _ := strconv.Atoi(tokens[3])
+				y2, _ := strconv.Atoi(tokens[4])
+				var promotionNullable *string
+				if len(tokens) > 5 {
+					promotion := tokens[5]
+					promotionNullable = &promotion
 				}
-				write(conn, "game", "move", map[string]interface{}{"move": []int{x1, y1, x2, y2}, "promotion": promotion})
-				move(x1, y1, x2, y2, promotion)
+				write(conn, "game", "move", map[string]interface{}{"move": []int{x1, y1, x2, y2}, "promotion": promotionNullable})
+				//	move(x1, y1, x2, y2, )
 				printBoard()
 				break
 			case strings.Contains(order, "resign"):

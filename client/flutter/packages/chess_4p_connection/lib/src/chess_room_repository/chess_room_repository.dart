@@ -10,8 +10,8 @@ import 'domain/room_update.dart';
 import 'domain/room_update_type.dart';
 import 'errors/room_join_exception.dart';
 
-class ChessRoomRepository
-    implements IChessRoomRepository, ChessConnectionListener {
+class ChessRoomRepository extends ChessConnectionListener
+    implements IChessRoomRepository {
   @override
   bool isJoiningRoom = false;
 
@@ -21,7 +21,7 @@ class ChessRoomRepository
   final ChessConnection connection;
 
   ChessRoomRepository({required this.connection}) {
-    connection.addChessListener(this);
+    connection.addChessListener(this); // TODO: WTF?
   }
 
   @override

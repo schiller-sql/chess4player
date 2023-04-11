@@ -5,6 +5,8 @@ import '../domain/piece.dart';
 import '../domain/piece_type.dart';
 import 'dart:math' as math;
 
+import '../domain/readable_board.dart';
+
 // TODO: en passent (first remove/but later pls)
 // TODO: für alle analysis nach einem zug wird eine klassenobject erstellt
 
@@ -27,7 +29,7 @@ class _ChessVector {
 /// that has the direction of [analyzingDirection].
 class BoardAnalyzer {
   /// The board to analyze.
-  final Board board;
+  final ReadableBoard board;
 
   /// The direction to analyze from.
   final Direction analyzingDirection;
@@ -69,12 +71,22 @@ class BoardAnalyzer {
         _cachedAccessibleFields = {};
 
   /// If a [_ChessVector] (param: [vector]) applied to [x] and [y],
-  /// can reach [targetX] and [targetY].
+  /// can reach [targetX] and [targetY], without before hitting [avoid]
   bool _liesInPath(
-      _ChessVector vector, int x, int y, int targetX, int targetY) {
+    _ChessVector vector,
+    int x,
+    int y,
+    int targetX,
+    int targetY,
+    int avoidX,
+    int avoidY,
+  ) {
     do {
       if (targetX == x && targetY == y) {
         return true;
+      }
+      if (avoidX == x && avoidY == y) {
+        return false;
       }
       x += vector.dx;
       y += vector.dy;
@@ -125,6 +137,7 @@ class BoardAnalyzer {
         if (board.isEmpty(x, y)) continue;
         final piece = board.getPiece(x, y);
         if (piece.direction == analyzingDirection) continue;
+        if (piece.isDead) continue;
         switch (piece.type) {
           case PieceType.pawn:
             if (_pawnCanAttack(
@@ -522,6 +535,7 @@ class BoardAnalyzer {
         if (board.isOut(x, y) || board.isEmpty(x, y)) continue fields;
         final piece = board.getPiece(x, y);
         if (piece.direction == analyzingDirection) continue fields;
+        if (piece.isDead) continue fields;
         if (_canAttackIgnoringOwnKing(x, y, piece, attackingX, attackingY)) {
           return true;
         }
@@ -595,6 +609,7 @@ class BoardAnalyzer {
         if (board.isEmpty(x, y)) continue fields;
         final piece = board.getPiece(x, y);
         if (piece.direction == analyzingDirection) continue fields;
+        if (piece.isDead) continue fields;
         if (piece.type == PieceType.king || piece.type == PieceType.pawn) {
           if (_smallestDistance(kingX, kingY, x, y) > 2) continue fields;
         }
@@ -610,14 +625,10 @@ class BoardAnalyzer {
   /// All valid fields a non king piece can move to from [x] and [y],
   /// taking checking into account.
   Set<Field> _filteredAccessibleFieldsNonKing(int x, int y, Piece piece) {
-    late final Set<Field> accessibleFields;
-    if (_cachedCheckingPawnsAndKnights.isNotEmpty) {
-      if (_cachedCheckingPawnsAndKnights.length > 1) {
-        return {};
-      } else {
-        return {..._cachedCheckingPawnsAndKnights};
-      }
+    if(_cachedCheckingPawnsAndKnights.length > 1) {
+      return const {};
     }
+    late final Set<Field> accessibleFields;
     switch (piece.type) {
       case PieceType.pawn:
         accessibleFields = _allAccessibleFieldsFromPawn(x, y, piece);
@@ -637,16 +648,48 @@ class BoardAnalyzer {
       case PieceType.king:
         break;
     }
+    if(_cachedCheckingPawnsAndKnights.length == 1) {
+      if(accessibleFields.contains(_cachedCheckingPawnsAndKnights[0])) {
+        return {_cachedCheckingPawnsAndKnights[0]};
+      } else {
+        return const {};
+      }
+    }
     _cachedPinningVectors.forEach((checkingPieceField, vector) {
       if (_liesInPath(
-          vector, checkingPieceField.x, checkingPieceField.y, x, y)) {
-        accessibleFields.retainWhere((field) => _liesInPath(vector,
-            checkingPieceField.x, checkingPieceField.y, field.x, field.y));
+        vector,
+        checkingPieceField.x,
+        checkingPieceField.y,
+        x,
+        y,
+        _kingXCache,
+        _kingYCache,
+      )) {
+        accessibleFields.retainWhere(
+          (field) => _liesInPath(
+            vector,
+            checkingPieceField.x,
+            checkingPieceField.y,
+            field.x,
+            field.y,
+            _kingXCache,
+            _kingYCache,
+          ),
+        );
       }
     });
     _cachedCheckingVectors.forEach((checkingPieceField, vector) {
-      accessibleFields.retainWhere((field) => _liesInPath(vector,
-          checkingPieceField.x, checkingPieceField.y, field.x, field.y));
+      accessibleFields.retainWhere(
+        (field) => _liesInPath(
+          vector,
+          checkingPieceField.x,
+          checkingPieceField.y,
+          field.x,
+          field.y,
+          _kingXCache,
+          _kingYCache,
+        ),
+      );
     });
     return accessibleFields;
   }

@@ -19,6 +19,7 @@ class ConnectionErrorHandler extends StatelessWidget {
         if (state is ConnectionError) {
           showDialog(
             context: context,
+            useRootNavigator: false,
             builder: (context) => const ErrorDialog(
               icon: Icons.warning,
               title: 'Connection error',

@@ -26,11 +26,20 @@ enum Direction {
   }
 
   static Direction fromInt(int i) {
-    assert(i >= 0);
-    var direction = up;
-    for (var j = 0; j < i; j++) {
-      direction = direction.clockwiseRotate;
+    i = i % 4;
+    if (i < 0) {
+      i += 4;
     }
-    return direction;
+    assert(0 <= i && i <= 3);
+    switch (i) {
+      case 0:
+        return up;
+      case 1:
+        return right;
+      case 2:
+        return down;
+      default:
+        return left;
+    }
   }
 }

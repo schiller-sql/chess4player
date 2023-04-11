@@ -1,14 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_chess_4p/flutter_4p_chess.dart';
 
 void main() async {
   runApp(const MyApp());
-
-  await HapticFeedback.heavyImpact();
-  await HapticFeedback.heavyImpact();
-  await HapticFeedback.heavyImpact();
-  await HapticFeedback.heavyImpact();
 }
 
 class MyApp extends StatelessWidget {
@@ -69,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Center(child: ChessBoard(pieceSet: WikiColoredPieceSet(),)),
+      body: const Center(child: EmptyChessBoard()),
     );
   }
 }

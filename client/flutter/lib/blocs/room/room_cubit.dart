@@ -31,7 +31,7 @@ class RoomCubit extends Cubit<RoomState> {
         break;
       case RoomUpdateType.join:
       case RoomUpdateType.joining:
-        emit(InRoom(isAdmin: update.chessRoom.isAdmin));
+        emit(InRoom(room: update.chessRoom));
         break;
     }
   }

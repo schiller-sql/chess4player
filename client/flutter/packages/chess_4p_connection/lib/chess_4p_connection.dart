@@ -18,5 +18,16 @@ export 'src/chess_connection_repository/domain/connection_error_type.dart';
 export 'src/chess_connection_repository/domain/connection_status.dart';
 export 'src/chess_connection_repository/domain/connection_status_type.dart';
 
+export 'src/chess_game_start_repository/domain/game.dart';
+
+export 'src/chess_game_start_repository/chess_game_start_repository.dart';
+export 'src/chess_game_start_repository/chess_game_start_repository_contract.dart';
+
+export 'src/chess_game_repository/domain/player.dart';
+export 'src/chess_game_repository/chess_game_repository.dart';
+export 'src/chess_game_repository/chess_game_repository_contract.dart';
+
 export 'src/chess_connection_repository/chess_connection_repository.dart';
 export 'src/chess_connection_repository/chess_connection_repository_contract.dart';
+
+export 'src/chess_connection/domain/lose_reason.dart';
