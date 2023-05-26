@@ -7,6 +7,7 @@ import (
 	"os"
 	"server/domain"
 	"server/websocket"
+	"strconv"
 )
 
 func handleWs(pool *websocket.Pool, w http.ResponseWriter, r *http.Request) {
@@ -47,7 +48,15 @@ fatal(Bye and exit),
 panic(I'm bailing and calling panic())
 */
 func main() {
-	log.Println("INFO starting server")
+	port, a := os.LookupEnv("PORT")
+	if !a {
+		port = "8080"
+	} else if portNum, err := strconv.Atoi(port); err != nil || portNum < 0 || portNum > 65535 {
+		log.Println("FATAL ", "not a real port at env variable PORT")
+		os.Exit(1)
+	}
+
+	log.Println("INFO starting server on port: " + port)
 	file, err := openLogFile()
 	if err != nil {
 		log.Println("FATAL ", err)
@@ -70,7 +79,7 @@ func main() {
 		handleWs(pool, w, r)
 	})
 	log.Println(
-		"FATAL ", http.ListenAndServe(":8080", nil),
+		"FATAL ", http.ListenAndServe(":"+port, nil),
 	)
 	log.Println("PANIC force shutdown server")
 	os.Exit(1)
