@@ -1,11 +1,10 @@
 import 'package:chess/chess_4p_app.dart';
+import 'package:chess/repositories/connection_uri/connection_uri_repository.dart';
 import 'package:chess_4p_connection/chess_4p_connection.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
-
-import 'config.dart' as config;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,18 +16,20 @@ void main() async {
     appWindow.show();
   });
 
-  final configObjects = await Future.wait(
-    [
-      SharedPreferences.getInstance(),
-      config.getConnection(),
-    ],
-  );
-  final preferences = configObjects[0] as SharedPreferences;
+  final preferences = await SharedPreferences.getInstance();
   GetIt.I.registerSingleton<SharedPreferences>(preferences);
 
-  final chessConnection = configObjects[1] as ChessConnection;
+  final chessConnection = ChessConnection(
+    pingInterval: const Duration(milliseconds: 500),
+  );
   GetIt.I.registerSingleton<ChessConnection>(chessConnection);
 
-  runApp(const Chess4pApp());
-}
+  final connectionUriRepository = ConnectionUriRepository(
+    preferences: preferences,
+  );
+  await connectionUriRepository.init();
 
+  connectionUriRepository.currentUri = "ws://mueller.v6.rocks:80";
+
+  runApp(Chess4pApp(connectionUriRepository: connectionUriRepository));
+}
