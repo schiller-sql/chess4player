@@ -47,7 +47,7 @@ flutter:
 
   assets:
   # config
-    - ../.env
+    - .env
 
   fonts:
     # custom icons

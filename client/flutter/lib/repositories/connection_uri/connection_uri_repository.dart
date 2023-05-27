@@ -20,7 +20,7 @@ class ConnectionUriRepository {
   }
 
   Future<void> init() async {
-    await dotenv.load(fileName: "../.env");
+    await dotenv.load(fileName: ".env");
     final defaultConnectionUri = dotenv.maybeGet(_connectionUriEnvKey);
     assert(
       defaultConnectionUri != null,

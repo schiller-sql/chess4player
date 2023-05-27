@@ -134,7 +134,7 @@ fabric.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/androidstudio
 
-/client/.env
+/client/flutter/.env
 
 # macos specific
 **/.DS_Store
