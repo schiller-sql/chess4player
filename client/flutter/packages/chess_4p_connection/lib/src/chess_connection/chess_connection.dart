@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:chess_4p/chess_4p.dart';
+import 'package:chess_4p_connection/src/chess_connection/domain/chess_connection_error.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+import '../util/web_constant.dart';
 import 'chess_connection_listener.dart';
 import 'domain/turn.dart';
 
@@ -12,7 +14,8 @@ import 'domain/turn.dart';
 /// which can be listened to by implementations of a [ChessConnectionListener]
 class ChessConnection {
   final List<ChessConnectionListener> _listeners = [];
-  final Uri uri;
+  final Duration connectionAcceptDuration;
+  final Duration? pingInterval;
 
   StreamSubscription<dynamic>? _sub;
   WebSocketChannel? _channel;
@@ -23,7 +26,10 @@ class ChessConnection {
   /// which should be a websockets url,
   /// on which to find a four player chess server,
   /// which defines the protocol defined in /README.md or /protocol.txt
-  ChessConnection({required this.uri});
+  ChessConnection({
+    this.connectionAcceptDuration = const Duration(milliseconds: 500),
+    this.pingInterval,
+  });
 
   /// Connect via the [uri] given.
   ///
@@ -31,18 +37,25 @@ class ChessConnection {
   /// after the connection is no longer needed
   /// and the [ChessConnection] object should be discarded.
   ///
-  /// After the initial [connect] another [connect] cannot be called.
-  Future<void> connect() {
-    assert(_sub == null);
-    _channel = IOWebSocketChannel.connect(
-      uri,
-      // pingInterval: Duration(milliseconds: 500),
-    ); // TODO: not for web
-    final connectionCompleter = Completer();
+  /// Before connect returns, another connect cannot be called.
+  Future<void> connect({required String uri}) {
+    if (isConnected) {
+      disconnect();
+    }
+
+    if (isWeb) {
+      _channel = WebSocketChannel.connect(Uri.parse(uri));
+    } else {
+      _channel = IOWebSocketChannel.connect(
+        uri,
+        pingInterval: pingInterval,
+      );
+    }
+
+    final connectionCompleter = Completer<void>();
     _sub = _channel!.stream.listen(
       _handleEvent,
       onError: (error) {
-        print(error);
         connectionCompleter.completeError(error);
         _channel!.sink.close();
         _sub!.cancel();
@@ -53,11 +66,16 @@ class ChessConnection {
         if (_channel!.closeCode == 1000) {
           connectionCompleter.complete();
         } else {
-          connectionCompleter.completeError(Exception("Error"));
+          connectionCompleter.completeError(
+            ChessConnectionError(
+              uri: uri,
+              closeCode: _channel!.closeCode,
+              closeReason: _channel!.closeReason,
+            ),
+          );
         }
-        _channel!.sink.close();
-        _sub!.cancel();
-        _sub!.cancel();
+        _channel?.sink.close();
+        _sub?.cancel();
         _sub = null;
         _channel = null;
       },
@@ -172,13 +190,20 @@ class ChessConnection {
     _listeners.remove(listener);
   }
 
+  /// Disconnect from connection, listeners stay though.
+  void disconnect() {
+    _channel?.sink.close();
+    _channel = null;
+    _sub?.cancel();
+    _sub = null;
+  }
+
   /// Close the connection to the web-socket safely
   /// and remove all listeners.
   ///
   /// A [ChessConnection] can only be closed once.
   void close() {
-    _channel?.sink.close();
-    _sub?.cancel();
+    disconnect();
     _listeners.clear();
   }
 

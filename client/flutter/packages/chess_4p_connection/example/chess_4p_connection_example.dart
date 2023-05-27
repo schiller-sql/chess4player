@@ -67,8 +67,8 @@ class ChessConnectionLogListener extends ChessConnectionListener {
 }
 
 void main() async {
-  final connectionService =
-      ChessConnection(uri: Uri.parse('ws://localhost:8080'))..connect();
+  final connectionService = ChessConnection()
+    ..connect(uri: 'ws://localhost:8080');
   await Future.delayed(Duration(seconds: 2));
   connectionService.createRoom(playerName: "deine mom");
   connectionService.addChessListener(ChessConnectionLogListener(name: "first"));
@@ -76,9 +76,8 @@ void main() async {
   await Future.delayed(Duration(seconds: 2));
 
   for (var i = 0; i < 4; i++) {
-    final connectionService2 = ChessConnection(
-      uri: Uri.parse('ws://localhost:8080'),
-    )..connect();
+    final connectionService2 = ChessConnection()
+      ..connect(uri: 'ws://localhost:8080');
     connectionService2.joinRoom(
         code: ChessConnectionLogListener.lastCreatedRoomCode,
         playerName: 'asa');

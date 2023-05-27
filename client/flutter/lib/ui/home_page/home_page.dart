@@ -2,8 +2,10 @@ import 'dart:math';
 
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:chess/blocs/connection/connection_cubit.dart';
+import 'package:chess/blocs/connection_uri/connection_uri_cubit.dart';
 import 'package:chess/blocs/player_name/player_name_cubit.dart';
 import 'package:chess/theme/pin_theme.dart';
+import 'package:chess/ui/connection_uri_change/connection_uri_change_dialog.dart';
 import 'package:chess_4p_connection/chess_4p_connection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -96,26 +98,47 @@ class _HomePageState extends State<HomePage> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              AnimatedContainer(
-                padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
-                color: _colorForConnectionStatus(status),
-                duration: const Duration(milliseconds: 500),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _iconForConnectionStatus(status),
-                    const SizedBox(width: 4),
-                    Text(
-                      _textForConnectionStatus(status),
-                      style: TextStyle(
-                        color: status.type == ConnectionStatusType.error
-                            ? NordColors.$4
-                            : NordColors.$0,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  BlocBuilder<ConnectionUriCubit, String>(
+                    builder: (context, connectionUri) {
+                      return Tooltip(
+                        message: connectionUri,
+                        decoration: BoxDecoration(
+                          color: _colorForConnectionStatus(status),
+                        ),
+                        child: AnimatedContainer(
+                          padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+                          color: _colorForConnectionStatus(status),
+                          duration: const Duration(milliseconds: 300),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _iconForConnectionStatus(status),
+                              const SizedBox(width: 4),
+                              Text(
+                                _textForConnectionStatus(status),
+                                style: TextStyle(
+                                  color: status.type == ConnectionStatusType.error
+                                      ? NordColors.$4
+                                      : NordColors.$0,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.edit_outlined),
+                    color: _colorForConnectionStatus(status),
+                    tooltip: "edit server",
+                    onPressed: () => showConnectionUriChangeDialog(context),
+                  ),
+                ],
               ),
               const SizedBox(
                 height: 8,

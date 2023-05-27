@@ -19,14 +19,13 @@ class ChessConnectionRepository implements IChessConnectionRepository {
   });
 
   @override
-  void connect() {
-    assert(![ConnectionStatusType.connected, ConnectionStatusType.loading]
-        .contains(currentConnectionStatus.type));
+  void connect({required String uri}) {
+    assert(currentConnectionStatus.type != ConnectionStatusType.loading);
 
     _changeConnectionStatus(ConnectionStatus.loading());
 
     final loadingFinish = Future.delayed(waitTillLoadingFinished);
-    final connectionFinish = connection.connect();
+    final connectionFinish = connection.connect(uri: uri);
     var wasError = false;
     connectionFinish.then((_) {
       _changeConnectionStatus(ConnectionStatus.notConnected());

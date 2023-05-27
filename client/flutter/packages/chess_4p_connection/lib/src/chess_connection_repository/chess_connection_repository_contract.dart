@@ -4,5 +4,5 @@ abstract class IChessConnectionRepository {
   ConnectionStatus get currentConnectionStatus;
   Stream<ConnectionStatus> get connectionStatus;
 
-  void connect();
+  void connect({required String uri});
 }
