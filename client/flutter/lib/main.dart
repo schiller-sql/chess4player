@@ -29,7 +29,5 @@ void main() async {
   );
   await connectionUriRepository.init();
 
-  connectionUriRepository.currentUri = "ws://mueller.v6.rocks:80";
-
   runApp(Chess4pApp(connectionUriRepository: connectionUriRepository));
 }
