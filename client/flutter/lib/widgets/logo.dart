@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_nord_theme/flutter_nord_theme.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class Logo extends StatelessWidget {
   final double size;
@@ -11,10 +12,11 @@ class Logo extends StatelessWidget {
     return RichText(
       text: TextSpan(
           children: [
-            TextSpan(
-              text: "♟",
-              style: TextStyle(
-                fontSize: (142 / 120) * size,
+            WidgetSpan(
+              child: SvgPicture.asset(
+                "assets/chess_logo.svg",
+                semanticsLabel: "chess44 logo",
+                height: size,
               ),
             ),
             TextSpan(
