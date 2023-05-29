@@ -2,6 +2,7 @@ import 'package:chess/blocs/join_room/join_room_cubit.dart';
 import 'package:chess/repositories/connection_uri/connection_uri_repository.dart';
 import 'package:chess/ui/error_handlers/connection_error_handler.dart';
 import 'package:chess/ui/error_handlers/room_error_handler.dart';
+import 'package:chess/widgets/ms_window_buttons_fix_wrapper.dart';
 import 'package:chess_4p_connection/chess_4p_connection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -108,7 +109,9 @@ class Chess4pApp extends StatelessWidget {
           ],
           child: const RoomJoinErrorHandler(
             child: ConnectionErrorHandler(
-              child: RoomRouter(),
+              child: MSWindowButtonsFixWrapper(
+                child: RoomRouter(),
+              ),
             ),
           ),
         ),
