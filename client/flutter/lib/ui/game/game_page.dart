@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:bitsdojo_window/bitsdojo_window.dart';
@@ -263,10 +264,7 @@ class _GamePageState extends State<GamePage> {
       ),
     );
     if (canFitSideBar) {
-      board = Row(
-        mainAxisSize: canFitSideBar ? MainAxisSize.max : MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+      final sideBarChildren = [
           board,
           Expanded(
             child: Column(
@@ -284,7 +282,14 @@ class _GamePageState extends State<GamePage> {
               ],
             ),
           ),
-        ],
+        ];
+      if(Platform.isWindows) {
+        sideBarChildren.add(sideBarChildren.removeAt(0));
+      }
+      board = Row(
+        mainAxisSize: canFitSideBar ? MainAxisSize.max : MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: sideBarChildren,
       );
     } else {
       board = Center(child: board);
@@ -314,12 +319,13 @@ class _GamePageState extends State<GamePage> {
                   ),
                 ),
                 Align(
-                  alignment: Alignment.topRight,
+                  alignment: Platform.isWindows
+                      ? Alignment.topLeft
+                      : Alignment.topRight,
                   child: Padding(
                     padding: const EdgeInsets.all(8),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         BlocBuilder<ResignCubit, ResignState>(
                           builder: (context, state) {
@@ -367,12 +373,22 @@ class _GamePageState extends State<GamePage> {
                           onPressed: canFitSideBar
                               ? null
                               : () {
-                                  final off = appWindow.position;
-                                  appWindow.size = Size(
-                                    size.width + _sideBarWidth - widthDiff,
-                                    size.height,
-                                  );
-                                  appWindow.position = off;
+                                  if (Platform.isWindows) {
+                                    appWindow.size = Size(
+                                      size.width +
+                                          _sideBarWidth -
+                                          widthDiff +
+                                          80,
+                                      size.height,
+                                    );
+                                  } else {
+                                    final off = appWindow.position;
+                                    appWindow.size = Size(
+                                      size.width + _sideBarWidth - widthDiff,
+                                      size.height,
+                                    );
+                                    appWindow.position = off;
+                                  }
                                 },
                         ),
                         IconButton(
