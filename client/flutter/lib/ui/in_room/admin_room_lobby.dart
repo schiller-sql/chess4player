@@ -1,8 +1,8 @@
 import 'package:bitsdojo_window/bitsdojo_window.dart';
-import 'package:chess/blocs/join_game/join_game_cubit.dart';
-import 'package:chess/blocs/participants_count/participants_count_cubit.dart';
-import 'package:chess/ui/in_room/in_room_common.dart';
-import 'package:chess/ui/in_room/which_players_in_room_display.dart';
+import 'package:chess44/blocs/join_game/join_game_cubit.dart';
+import 'package:chess44/blocs/participants_count/participants_count_cubit.dart';
+import 'package:chess44/ui/in_room/in_room_common.dart';
+import 'package:chess44/ui/in_room/which_players_in_room_display.dart';
 import '../../blocs/game_timer/game_timer_cubit.dart';
 import "../../widgets/custom_date_picker.dart";
 import 'package:flutter/material.dart';

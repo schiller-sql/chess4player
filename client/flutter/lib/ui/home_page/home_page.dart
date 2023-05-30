@@ -1,11 +1,11 @@
 import 'dart:math';
 
 import 'package:bitsdojo_window/bitsdojo_window.dart';
-import 'package:chess/blocs/connection/connection_cubit.dart';
-import 'package:chess/blocs/connection_uri/connection_uri_cubit.dart';
-import 'package:chess/blocs/player_name/player_name_cubit.dart';
-import 'package:chess/theme/pin_theme.dart';
-import 'package:chess/ui/connection_uri_change/connection_uri_change_dialog.dart';
+import 'package:chess44/blocs/connection/connection_cubit.dart';
+import 'package:chess44/blocs/connection_uri/connection_uri_cubit.dart';
+import 'package:chess44/blocs/player_name/player_name_cubit.dart';
+import 'package:chess44/theme/pin_theme.dart';
+import 'package:chess44/ui/connection_uri_change/connection_uri_change_dialog.dart';
 import 'package:chess_4p_connection/chess_4p_connection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

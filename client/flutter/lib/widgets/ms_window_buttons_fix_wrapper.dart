@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:chess/widgets/ms_window_buttons.dart';
+import 'package:chess44/widgets/ms_window_buttons.dart';
 import 'package:flutter/material.dart';
 
 class MSWindowButtonsFixWrapper extends StatelessWidget {

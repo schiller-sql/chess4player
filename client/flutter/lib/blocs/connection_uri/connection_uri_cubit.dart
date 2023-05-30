@@ -1,5 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:chess/repositories/connection_uri/connection_uri_repository.dart';
+import 'package:chess44/repositories/connection_uri/connection_uri_repository.dart';
 
 class ConnectionUriCubit extends Cubit<String> {
   final ConnectionUriRepository connectionUriRepository;

@@ -1,4 +1,4 @@
-import 'package:chess/blocs/resign/resign_cubit.dart';
+import 'package:chess44/blocs/resign/resign_cubit.dart';
 import 'package:chess_4p/chess_4p.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

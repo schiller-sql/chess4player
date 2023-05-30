@@ -1,7 +1,7 @@
-import 'package:chess/blocs/game_history/game_history_cubit.dart';
-import 'package:chess/blocs/resign/resign_cubit.dart';
-import 'package:chess/ui/game/game_ended_dialog.dart';
-import 'package:chess/ui/game/game_page.dart';
+import 'package:chess44/blocs/game_history/game_history_cubit.dart';
+import 'package:chess44/blocs/resign/resign_cubit.dart';
+import 'package:chess44/ui/game/game_ended_dialog.dart';
+import 'package:chess44/ui/game/game_page.dart';
 import 'package:chess_4p_connection/chess_4p_connection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

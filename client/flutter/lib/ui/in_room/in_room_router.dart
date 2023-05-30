@@ -1,4 +1,4 @@
-import 'package:chess/ui/in_room/player_room_waiting_page.dart';
+import 'package:chess44/ui/in_room/player_room_waiting_page.dart';
 import 'package:chess_4p_connection/chess_4p_connection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

@@ -1,6 +1,6 @@
-import 'package:chess/blocs/in_room/in_room_cubit.dart';
-import 'package:chess/blocs/join_game/join_game_cubit.dart';
-import 'package:chess/blocs/room/room_cubit.dart';
+import 'package:chess44/blocs/in_room/in_room_cubit.dart';
+import 'package:chess44/blocs/join_game/join_game_cubit.dart';
+import 'package:chess44/blocs/room/room_cubit.dart';
 import 'package:chess_4p_connection/chess_4p_connection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

@@ -1,5 +1,5 @@
-import 'package:chess/blocs/participants_count/participants_count_cubit.dart';
-import 'package:chess/theme/chess_theme.dart';
+import 'package:chess44/blocs/participants_count/participants_count_cubit.dart';
+import 'package:chess44/theme/chess_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chess_4p/flutter_4p_chess.dart';

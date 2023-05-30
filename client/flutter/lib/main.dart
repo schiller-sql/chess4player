@@ -1,5 +1,7 @@
-import 'package:chess/chess_4p_app.dart';
-import 'package:chess/repositories/connection_uri/connection_uri_repository.dart';
+import 'dart:io';
+
+import 'package:chess44/chess_4p_app.dart';
+import 'package:chess44/repositories/connection_uri/connection_uri_repository.dart';
 import 'package:chess_4p_connection/chess_4p_connection.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -20,6 +22,7 @@ void main() async {
   GetIt.I.registerSingleton<SharedPreferences>(preferences);
 
   final chessConnection = ChessConnection(
+    connectionAcceptDuration: Platform.isWindows ? const Duration(seconds: 2) : const Duration(milliseconds: 500),
     pingInterval: const Duration(milliseconds: 500),
   );
   GetIt.I.registerSingleton<ChessConnection>(chessConnection);

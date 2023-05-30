@@ -2,11 +2,11 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:bitsdojo_window/bitsdojo_window.dart';
-import 'package:chess/blocs/game_draw/game_draw_cubit.dart';
-import 'package:chess/blocs/game_history/game_history_cubit.dart';
-import 'package:chess/theme/chess_theme.dart' as theme;
-import 'package:chess/ui/game/game_common.dart';
-import 'package:chess/ui/in_room/in_room_common.dart';
+import 'package:chess44/blocs/game_draw/game_draw_cubit.dart';
+import 'package:chess44/blocs/game_history/game_history_cubit.dart';
+import 'package:chess44/theme/chess_theme.dart' as theme;
+import 'package:chess44/ui/game/game_common.dart';
+import 'package:chess44/ui/in_room/in_room_common.dart';
 import 'package:chess_4p/chess_4p.dart';
 import 'package:chess_4p_connection/chess_4p_connection.dart';
 import 'package:flutter/material.dart';
