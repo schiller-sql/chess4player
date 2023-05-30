@@ -26,15 +26,9 @@ class JoinGameCubit extends Cubit<JoinGameState> {
     }
   }
 
-  Duration _time = const Duration(minutes: 15);
-
-  void changeTimeSettings(Duration time) {
-    _time = time;
-  }
-
-  void startGame() {
+  void startGame(Duration timer) {
     emit(LoadingGameState());
-    gameStartRepository.startGame(_time);
+    gameStartRepository.startGame(timer);
   }
 
   void leaveGame() {

@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../blocs/game/game_cubit.dart';
+import '../../blocs/game_timer/game_timer_cubit.dart';
 import '../../blocs/join_game/join_game_cubit.dart';
 import '../../blocs/participants_count/participants_count_cubit.dart';
 import '../game/in_game_router.dart';
@@ -23,12 +24,17 @@ class InRoomRouter extends StatelessWidget {
           pages: [
             MaterialPage(
               child: adminGame
-                  ? BlocProvider(
-                      create: (context) => ParticipantsCountCubit(
-                        roomRepository: context.read<ChessRoomRepository>(),
-                      )..startListeningToParticipants(),
-                      child: const AdminRoomLobby(),
-                    )
+                  ? MultiBlocProvider(providers: [
+                      BlocProvider(
+                        create: (context) => ParticipantsCountCubit(
+                          roomRepository: context.read<ChessRoomRepository>(),
+                        )..startListeningToParticipants(),
+                      ),
+                      BlocProvider(
+                        create: (context) => GameTimerCubit(
+                        )..setDefaultGameTime(),
+                      ),
+                    ], child: const AdminRoomLobby())
                   : const PlayerRoomWaitingPage(),
             ),
             if (state is InGameState)
