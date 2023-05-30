@@ -1,5 +1,6 @@
 import 'package:chess/blocs/in_room/in_room_cubit.dart';
 import 'package:chess/ui/in_room/in_room_common.dart';
+import 'package:chess/widgets/animation/chess_loading_animation.dart';
 import 'package:chess_4p/chess_4p.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_nord_theme/flutter_nord_theme.dart';
 
 import '../../blocs/game/game_cubit.dart';
 import '../../blocs/join_game/join_game_cubit.dart';
+import '../../theme/chess_theme.dart';
 import 'game_common.dart';
 
 class GameEndedDialog extends StatefulWidget {
@@ -19,7 +21,6 @@ class GameEndedDialog extends StatefulWidget {
 }
 
 class _GameEndedDialogState extends State<GameEndedDialog> {
-
   Iterable<TextSpan> _playerNameSpans(
     List<String> names,
     String ownName,
@@ -90,7 +91,7 @@ class _GameEndedDialogState extends State<GameEndedDialog> {
     }
     Widget content;
     if (gameEnd.singleWinner) {
-      if(gameEnd.isRemainingPlayer) {
+      if (gameEnd.isRemainingPlayer) {
         content = const Text("You are the last player standing");
       } else {
         content = _winningPlayer(
@@ -110,17 +111,34 @@ class _GameEndedDialogState extends State<GameEndedDialog> {
       title: Text(title),
       content: content,
       actions: [
-        if (isAdmin)
-          OutlinedButton(
-            onPressed: () {
-              context.read<JoinGameCubit>().leaveGame();
-              Navigator.pop(context);
-            },
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(NordColors.$7),
-            ),
-            child: const Text("return to room"),
+        if (!isAdmin) ...[
+          SizedBox(
+            width: 28,
+            height: 28,
+            child: ChessLoadingAnimation(pieces: playerStyles),
           ),
+          const Padding(
+            padding: EdgeInsets.only(top: 8.0),
+            child: Text(
+              "waiting for next round...",
+              style: TextStyle(
+                color: NordColors.$4,
+                fontSize: 12,
+              ),
+            ),
+          ),
+          const SizedBox(width: 4),
+        ],
+        OutlinedButton(
+          onPressed: () {
+            context.read<JoinGameCubit>().leaveGame();
+            Navigator.pop(context);
+          },
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all(NordColors.$7),
+          ),
+          child: Text("return to lobby${isAdmin ? " to start new game" : ""}"),
+        ),
         OutlinedButton(
           onPressed: () async {
             final left = await showShouldLeaveDialog(context);
