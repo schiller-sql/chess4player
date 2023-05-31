@@ -13,9 +13,9 @@
 </p>
 
 <p float="center">
-  <img src="https://github.com/schiller-sql/chess4player/assets/65500763/70706513-ffa0-482e-b7d6-e91f15058240" width="33%">
-  <img src="https://github.com/schiller-sql/chess4player/assets/65500763/3c2e658d-0c06-4dd6-9c5f-8ed2e5d26444" width="33%">
-  <img src="https://github.com/schiller-sql/chess4player/assets/65500763/b0f60d51-d873-4d2d-94df-fe29492cc1c8" width="33%">
+  <img src="https://github.com/schiller-sql/chess4player/assets/65500763/70706513-ffa0-482e-b7d6-e91f15058240" width="32.5%">
+  <img src="https://github.com/schiller-sql/chess4player/assets/65500763/3c2e658d-0c06-4dd6-9c5f-8ed2e5d26444" width="32.5%">
+  <img src="https://github.com/schiller-sql/chess4player/assets/65500763/b0f60d51-d873-4d2d-94df-fe29492cc1c8" width="32.5%">
 </p>
 
 <p float="center">
