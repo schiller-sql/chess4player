@@ -3,7 +3,7 @@
 </p>
 
 <h1 align="center">chess4player</h1>
-<h3 align="center">An open source multiplayer chess game for up to 4 players on windows, mac and GNU/linux</h3>
+<h3 align="center">An open source multiplayer chess game <br> for up to 4 players on windows, macOS and GNU/linux</h3>
 
 <br>
 
