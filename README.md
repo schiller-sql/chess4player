@@ -1,35 +1,28 @@
-# chess4player
+<p align="center">
+    <img width="150pixels" src="https://github.com/schiller-sql/chess4player/assets/65500763/e22b0430-8d61-4eb2-9596-dcfb973d8f54">
+</p>
 
-## IDEA
+<h1 align="center">chess4player</h1>
+<h3 align="center">An open source multiplayer chess game for up to 4 players</h3>
 
-## SERVER
+<br>
 
-## CLIENT
+<p align="center">
+    Written in frontend with <a Dart and href="https://flutter.dev">Flutter</a> using <a href="https://pub.dev/packages/bloc">bloc</a> as the state managment,<br> 
+    as well <a href="https://go.dev/">go</a> in the backend using <a href="https://github.com/gorilla#gorilla-toolkit">gorilla</a> for websocket connections
+</p>
 
-## PROTOCOL
+<p float="center">
+  <img src="https://github.com/schiller-sql/chess4player/assets/65500763/70706513-ffa0-482e-b7d6-e91f15058240" width="33%">
+  <img src="https://github.com/schiller-sql/chess4player/assets/65500763/3c2e658d-0c06-4dd6-9c5f-8ed2e5d26444" width="33%">
+  <img src="https://github.com/schiller-sql/chess4player/assets/65500763/b0f60d51-d873-4d2d-94df-fe29492cc1c8" width="33%">
+</p>
 
-### ROOM EVENTS
+<p float="center">
+  <img src="https://github.com/schiller-sql/chess4player/assets/65500763/2da5382f-7b80-4de8-85a5-7aabd61db46e" width="24%">
+  <img src="https://github.com/schiller-sql/chess4player/assets/65500763/e1cbfca7-15c5-4785-a255-694113cdced7" width="24%">
+  <img src="https://github.com/schiller-sql/chess4player/assets/65500763/f20db44c-9819-4110-bdd4-430e0743049f" width="24%">
+  <img src="https://github.com/schiller-sql/chess4player/assets/65500763/10cecd92-841e-4510-a329-b00f290443a9" width="24%">  
+</p>
 
-| event  | client                                                                                   | server                                                                                                      | description                     |
-|--------|------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|---------------------------------|
-| create | {"type": "room",   "subtype": "create",   "content": {"name": "user"}}                   | {"type": "room",   "subtype": "created",                     "content": {"code": "3UQBYM", "name": "user"}} | if name is empty ...            |
-| join   | {"type": "room",   "subtype": "join",     "content": {"code": "3UQBYM", "name": "user"}} | {"type": "room",   "subtype": "joined",                      "content": {"name": "user"}}                   | if name is empty ...            |
-|        |                                                                                          | {"type": "room",   "subtype": "participants-count-update",   "content": {"participants-count": 2}}          | only to the admin               |
-|        |                                                                                          | {"type": "room",   "subtype": "join-failed",                 "content": {"reason": "not found"}}            | if there is no room to the code |
-|        |                                                                                          | {"type": "room",   "subtype": "join-failed",                 "content": {"reason": "full"}}                 | if the room is already full     |
-|        |                                                                                          | {"type": "room",   "subtype": "join-failed",                 "content": {"reason": "started"}}              | if the game has already started |
-| leave  | {"type": "room","subtype": "leave", "content": {}}                                       | {"type": "room",   "subtype": "left",                        "content": {}}                                 | if participant left's           |
-|        |                                                                                          | {"type": "room",   "subtype": "disbanded",                   "content": {}}                                 | if admin left's ...             |
-
-### GAME EVENTS
-
-| event        | client                                                                                                    | server                                                                                                                                                                                 | description |
-|--------------|-----------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|
-| start        | {"type": "game",   "subtype": "start",          "content": {"time": 60000}}                               | {"type": "game",   "subtype": "started",          "content": {"participants": ["p1", "p2", "p3", "p4"], "time": 59600}}                                                                |             |
-| move         | {"type": "game",   "subtype": "move",           "content": {"move": [14, 15, 14, 16], "promotion?": "q"}} | {"type": "game",   "subtype": "moved",            "content": {"move": [14, 15, 14, 16], "promotion?": "q", "next-participant": "name", "remaining-time": 4734}}                        |             |
-|              |                                                                                                           | {"type": "game",   "subtype": "move-accepted",    "content": {"remaining-time": 6534, "next-participant": "name"}}                                                                     |             |
-| resign       | {"type": "game",   "subtype": "resign",         "content": {}}                                            | {"type": "game",   "subtype": "player-lost",      "content": {"participant": "name", "reason": "checkmate;resign"}}                                                                    |             |
-|              |                                                                                                           | {"type": "game",   "subtype": "end",              "content": {"reason": "checkmate;stalemate;50move-rule ;out-of-time;remi;insufficient-material;resignation;draw", "winner": ["p1"]}} |             |
-| draw-request | {"type": "game",   "subtype": "draw-request",   "content": {}}                                            | {"type": "game",   "subtype": "draw-requested",   "content": {"requester": "name"}}                                                                                                    |             |
-| draw-accept  | {"type": "game",   "subtype": "draw-accept",    "content": {}}                                            |                                                                                                                                                                                        |             |
-
+<br>
