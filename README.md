@@ -8,7 +8,7 @@
 <br>
 
 <p align="center">
-    Written in frontend with <a Dart and href="https://flutter.dev">Flutter</a> for desktop using <a href="https://pub.dev/packages/bloc">bloc</a> as the state managment,<br> 
+    Written in the frontend with <a Dart and href="https://flutter.dev">Flutter</a> for desktop using <a href="https://pub.dev/packages/bloc">bloc</a> as the state managment,<br> 
     as well <a href="https://go.dev/">go</a> in the backend using <a href="https://github.com/gorilla#gorilla-toolkit">gorilla</a> for websocket connections
 </p>
 
