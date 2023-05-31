@@ -52,3 +52,37 @@ URI='ws:://localhost:8080'
 ## Server
 
 [Install go](https://go.dev/doc/install) and have it added to your path.
+
+Navigate to the `server` directory and run `go mod download`.
+
+# Running
+
+## Flutter client
+
+In the `client/flutter` directory run `flutter run -d [device]`
+where `[device]` is substituted by either `windows`, `macos`, or `linux`,
+depending on your platform.
+
+## Go server
+
+In the `server` directory run `PORT=[port] go run main.go`,
+where `[port]` is substituted by the port you want to run the server on,
+for example `8080`.
+
+# Running/Compiling for production
+
+## Flutter client
+
+In the `client/flutter` directory run `flutter build [device] --release`
+where `[device]` is substituted by either `windows`, `macos`, or `linux`,
+depending on your platform.
+
+### macOS
+
+The resulting `chess44.app` can be found in `client/flutter/build/macos/Build/Products/Release`.
+
+### windows
+
+Using [inno setup](https://jrsoftware.org/isinfo.php)
+to execute `client/flutter/installers/default_windows_installation.iss`
+for an installer, which is found in `client/flutter/installers/chess44.exe`.
