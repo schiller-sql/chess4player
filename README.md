@@ -3,12 +3,12 @@
 </p>
 
 <h1 align="center">chess4player</h1>
-<h3 align="center">An open source multiplayer chess game for up to 4 players</h3>
+<h3 align="center">An open source multiplayer chess game for up to 4 players on windows, mac and GNU/linux</h3>
 
 <br>
 
 <p align="center">
-    Written in frontend with <a Dart and href="https://flutter.dev">Flutter</a> using <a href="https://pub.dev/packages/bloc">bloc</a> as the state managment,<br> 
+    Written in frontend with <a Dart and href="https://flutter.dev">Flutter</a> for desktop using <a href="https://pub.dev/packages/bloc">bloc</a> as the state managment,<br> 
     as well <a href="https://go.dev/">go</a> in the backend using <a href="https://github.com/gorilla#gorilla-toolkit">gorilla</a> for websocket connections
 </p>
 
@@ -26,3 +26,29 @@
 </p>
 
 <br>
+
+# Setup
+
+## Flutter client
+
+[Install flutter for your respective operating system](https://docs.flutter.dev/get-started/install)
+and configure/install necessary components as per the flutter website,
+which are necessary for the development of desktop apps.
+
+Make sure flutter is in your `PATH`.
+
+Navigate to `client/flutter` and run `flutter pub get`.
+
+In the `client/flutter` directory create a new textfile `.env`.
+This must contain the default URI/URL the client will connect to in the format:
+```sh
+URI='[URI]'
+```
+`[URI]` should be replaced by the websocket URL/URI of the chess4player server, for example:
+```sh
+URI='ws:://localhost:8080'
+```
+
+## Server
+
+[Install go](https://go.dev/doc/install) and have it added to your path.
