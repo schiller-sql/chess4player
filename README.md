@@ -69,7 +69,7 @@ In the `server` directory run `PORT=[port] go run main.go`,
 where `[port]` is substituted by the port you want to run the server on,
 for example `8080`.
 
-# Running/Compiling for production
+# Running/compiling for production
 
 ## Flutter client
 
@@ -86,3 +86,13 @@ The resulting `chess44.app` can be found in `client/flutter/build/macos/Build/Pr
 Using [inno setup](https://jrsoftware.org/isinfo.php)
 to execute `client/flutter/installers/default_windows_installation.iss`
 for an installer, which is found in `client/flutter/installers/chess44.exe`.
+
+## Server
+
+In the `server` directory run `go build main.go`.
+
+Now execute the resulting executable,
+with the `PORT` environment variable, for example (for macos/linux):
+```sh
+PORT=8080 ./main
+```
